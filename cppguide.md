@@ -719,14 +719,14 @@ variables marked with `constexpr` are trivially destructible.
     const int kNum = 10;  // allowed
     
     struct X { int n; };
-    const X kX[] = {{1}, {2}, {3}};  // allowed
+    const X kX[] = { {1}, {2}, {3} };  // allowed
     
     void foo() {
       static const char* const kMessages[] = {"hello", "world"};  // allowed
     }
     
     // allowed: constexpr guarantees trivial destructor
-    constexpr std::array<int, 3> kArray = {{1, 2, 3}};
+    constexpr std::array<int, 3> kArray = { {1, 2, 3} };
 ```
 
 ``` c++
@@ -739,7 +739,7 @@ const std::string& kBar = StrCat("a", "b", "c");
 
 void bar() {
   // bad: non-trivial destructor
-  static std::map<int, int> kData = {{1, 0}, {2, 0}, {3, 0}};
+  static std::map<int, int> kData = { {1, 0}, {2, 0}, {3, 0} };
 }
 ```
 
