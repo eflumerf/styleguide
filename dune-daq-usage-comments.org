@@ -1,0 +1,244 @@
+#+title: My notes on styleguide/cppguide.html
+
+Sections which seem fine as-is are omitted from here.
+
+* General
+
+The source seems to just be the HTML which is annoying to edit.  If we
+make changes I suggest we first convert into Markdown (or Emacs Org).
+
+The majority of the style guidelines really are just that.  Soft
+recommendations.  For the most part, they are agreeable but there are
+some exceptions (exceptions being one of them).
+
+Even if there are disagreements, this is a useful guide as most items
+give useful definition, pros/cons and a "decision".
+
+* Missing or inadequate
+
+Things I don't find:
+
+- Emphasize use of RAII
+
+- Avoid ~std::cout/std::cerr~ in favor of logging (tbd)
+
+- ~typedef~ of special POD to be semantic meaningful.  Eg:
+
+#+begin_src c++
+typedef uint16_t adc_t;
+#+end_src
+
+Things we need to elaborate
+
+- comment formats to make Doxygen happy and consistent
+
+* C++ Version
+
+This is all fine.
+
+* Header files
+
+I prefer ~.hpp~ and ~.cpp~ extensions (to ~.cc/.h~) and will assume them for now.
+
+The guidance of 1-to-1 ~hpp-to-cpp~ is only applicable when we have
+"utility" or "base" code.  It does not apply when we have: pure-header
+code nor component code (no public header, only implementation).
+
+No statement is given w.r.t. public vs private header files.  I propose:
+
+ - public header files (those meant to be included by code using a
+   library) shall be placed into the source in a directory matching
+   their eventual installation location.
+
+ - private header files (those only included by library implementation
+   files) shall be placed in the same directory as the implementation
+   files and shall not be installed.
+
+
+** Self-contained Headers
+
+Seems fine but see above.  We will rarely have ~.inc~ or other special
+include files.
+
+** Names and Order of Includes
+
+This is wrong.  Order should reflect "most local" to "most global" in
+order to catch any failed dependencies.  Eg:
+
+#+begin_src c++
+#include <string>
+#include "someclass.hpp"
+#+end_src
+
+When ~someclass.hpp~ depends on ~std::string~ but fails to ~#include
+<string>~ then this code will hide the problem.  However:
+
+#+begin_src c++
+#include "someclass.hpp"
+#include <string>
+#+end_src
+
+This code will fail to compile, notifying the developer that
+~someclass.hpp~ needs work.
+
+Order should be:
+
+- private headers
+- public headers from current package
+- public headers from other packages in project
+- public headers from external dependencies
+- standard library headers
+
+For the external dependency category, the same ordering should be
+attempted.  Eg:
+
+#+begin_src c++
+// wrong
+#include <hdf5.h>
+#include <h5cpp/core>
+
+// right
+#include <h5cpp/core>
+#include <hdf5.h>
+#+end_src
+
+* Scoping
+
+** Namespaces 
+
+I disagree about ~using~.  I suggest
+
+- ~using-directive~ shall not be allowed at top level in public headers
+  and may be used top level in implementation files or inside
+  ~namespace~ in public headers.  Avoid ~using-directive~ in public
+  headers.
+
+- Same goes for ~namespace~ aliases.
+
+I mildly dislike the suggested lack of indentation and prefer:
+
+- In public headers, indent ~namespace~ contents as you would ~class~ or ~struct~
+
+** Local Variables
+
+Agree strongly.
+
+I'd go further and say:
+
+- Local variable declarations require an initial value.
+
+** ~thread_local~ Variables
+
+Seems okay but I do not have the experience to judge.
+
+* Classes
+
+** Structs vs. Classes
+
+Fine.  Except often it is useful to have a ~struct~ with an ~operator()~
+to create a small callable.  Using ~class~ would require a ~public:~ which
+just adds verbiage.
+
+** Inheritance
+
+Fine, especially "prefer composition over inheritance"!
+
+* Functions
+
+Mostly fine.
+
+** Reference Arguments
+
+I disagree with this.  Pointers can be ~nullptr~, references won't be.
+There is a place for mutable reference in teh function parameter list.
+
+* Other C++ Features
+
+Mostly fine.
+
+** Exceptions
+
+I have never experienced problems with any of the "Cons" listed.
+
+OTOH, using a library that throws in a reasonable, consistent and
+pervasive manner is generally a very positive development experience.
+
+** Integer Types
+
+ok
+
+* Type deduction
+
+Generally agree in principle but in practice using ~auto~ is so very
+convenient.  Finding the right explicit type can really slow down
+development.
+
+* Boost
+
+I see no benefit to select a subset of Boost to allow.
+
+* Other C++ Features
+
+I was not aware of the verboten std C++ features so I have no reason
+to complain.  The ~std::filesystem~ library sounds useful and if
+rejected, a single alternative should be recommended.
+
+* Naming
+
+This is always a bike shedding topic.  The suggestion isn't horrrible.
+
+Here are my preferences
+
+- CamelCase classes and structs
+- ~snake_case~ methods and functions
+- ~m_snake case~ member data
+- CamelCase public headers matching class name
+- lower case, single word public headers matching concept
+- implementation file name should match public (or private) header file name
+- lower case and dashes in command line program name instead of underscores 
+- no leading nor trailing underscores (leave them for system symbols)
+- no hungarian (well except for the ~m_~).  no "k" prefix for constants,
+  "g" or "s" for global/static.  no ROOT style prefix "f" for field.
+- No ad-hoc namespacing with names.  ~daq::Component~ not ~DaqComponent~
+- avoid macros, but ~FULL_UNDERSCORE_CAPITALS~  if used
+
+* Comments
+
+I think we need to require more here if we want to properly tickle
+Doxygen.  Both in terms of special comments and in terms of how
+doxygen string formats.
+
+#+begin_src c++
+/*! @brief This class does the thing
+*/
+
+/// This class does the thing
+
+/** This class does the thing */
+#+end_src
+
+I hate large boilerplate (eg, license) at the top of files.  Prefer
+very succinct like:
+
+#+begin_src c++
+  // This is part of XXX, copywrite YYY.  It is distributed under
+  // license LLL.  See the file COPYING for deatils.
+
+#+end_src
+
+
+* Formatting
+
+** Line length 
+
+Staying in 80 often makes code hard to read.  Some length limit is
+okay but I'd suggest 120 or 160.  In my own code I try to keep below
+80 unless the readability suffers.
+
+** Indentation
+
+The one true indentation is 4 spaces.  Everything else is wrong.
+
+
+
+
