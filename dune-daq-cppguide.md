@@ -411,6 +411,31 @@ system-specific code small and localized. Example:
     #endif  // LANG_CXX11
 ```
 
+### Names and Order of Includes [DUNE VERSION]
+
+If the included header is the "related header" - meaning, you're editing foo.cc 
+and the head is foo.hh - put it before all the other headers
+
+All of a project's header files should be listed as descendants of the
+project's source directory without use of UNIX directory aliases `.`
+(the current directory) or `..` (the parent directory). For example,
+`google-awesome-project/src/base/logging.h` should be included as:
+
+```c++
+#include "base/logging.h"
+```
+
+
+You should include all the headers that define the symbols you rely
+upon, except in the unusual case of [forward
+declaration](#Forward_Declarations). If you rely on symbols from
+`bar.h`, don't count on the fact that you included `foo.h` which
+(currently) includes `bar.h`: include `bar.h` yourself, unless `foo.h`
+explicitly demonstrates its intent to provide you the symbols of
+`bar.h`.
+
+
+
 ## Scoping
 
 ### Namespaces
