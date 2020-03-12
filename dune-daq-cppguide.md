@@ -1106,6 +1106,8 @@ Classes are the fundamental unit of code in C++. Naturally, we use them
 extensively. This section lists the main dos and don'ts you should
 follow when writing a class.
 
+[The above opener adds no info whatsoever. Let's get rid of it]
+
 ### Doing Work in Constructors
 
 Avoid virtual method calls in constructors, and avoid initialization
@@ -1142,6 +1144,15 @@ described in [TotW \#42](https://abseil.io/tips/42) . Avoid `Init()`
 methods on objects with no other states that affect which public methods
 may be called (semi-constructed objects of this form are particularly
 hard to work with correctly).
+
+
+### Doing Work in Constructors [DUNE VERSION]
+
+-Don't call any of a class's virtual functions in its constructor
+
+-If an error occurs that will prevent the class from being constructed, have it throw an exception. As its destructor won't execute in this scenario, make sure you clean up any resources the constructor allocated before throwing.
+
+-Initialize a class's member in the constructor's member initialization list rather than assign to it in the constructor's body. An exception to this might be if the member class's default constructor is much faster than its other constructors/assignment operator, but it's not guaranteed that it'll even need to be assigned to. 
 
 
 ### Implicit Conversions
