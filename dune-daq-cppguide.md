@@ -1382,6 +1382,14 @@ members). If your base class needs to be copyable, provide a public
 virtual `Clone()` method, and a protected copy constructor that derived
 classes can use to implement it.
 
+### Copyable and Movable Types [DUNE VERSION]
+
+-If a class contains member data, its copy constructor, copy
+ assignment operator, move constructor and move assignment operators
+ must all be either defined or explicitly deleted. "Defined" could be
+ as simple as making explicit the use of the "default" keyword.
+
+
 ### Structs vs. Classes
 
 Use a `struct` only for passive objects that carry data; everything else
@@ -1410,6 +1418,21 @@ metafunctions](#Template_metaprogramming), and some functors.
 Note that member variables in structs and classes have [different naming
 rules](#Variable_Names).
 
+### Structs vs. Classes [DUNE VERSION]
+
+Use a `struct` only for passive objects that carry data; everything else
+is a `class`.
+
+`structs` should be used for passive objects that contain member
+data. All fields must be public, and accessed directly rather than
+through getter/setter methods. Any functions must not provide behavior
+but should only be used to set up the data members, e.g., constructor,
+destructor, `Initialize()`, `Reset()`.
+
+Note that member variables in structs and classes have [different naming
+rules](#Variable_Names).
+
+
 ### Structs vs. Pairs and Tuples
 
 Prefer to use a `struct` instead of a pair or a tuple whenever the
@@ -1426,6 +1449,17 @@ name is usually substantially clearer and more informative than a type.
 Pairs and tuples may be appropriate in generic code where there are not
 specific meanings for the elements of the pair or tuple. Their use may
 also be required in order to interoperate with existing code or APIs.
+
+### Structs vs. Pairs and Tuples [DUNE VERSION]
+
+Prefer to use a `struct` instead of a pair or a tuple whenever the
+elements can have meaningful names.
+
+Exception: Pairs and tuples may be appropriate in generic code where
+there are not specific meanings for the elements of the pair or
+tuple. Their use may also be required in order to interoperate with
+existing code or APIs.
+
 
 <span id="Multiple_Inheritance"></span>
 
@@ -1486,6 +1520,26 @@ or not.
 
 Multiple inheritance is permitted, but multiple *implementation*
 inheritance is strongly discouraged.
+
+### Inheritance [DUNE VERSION]
+
+In the interests of encapsulation, keep the access level of a class's
+member functions only as generous as necessary. I.e., prefer private
+functions over protected functions, protected functions over public
+functions. Of course, use common sense: if you're writing an abstract
+base class, your functions will be public!
+
+In a class, never declare data as protected or public. Use accessor
+functions if you must. See [data members should be private](#Access_Control)
+
+When class B inherits from class A, it should almost always be public
+inheritance ("inheritance of interface"). Protected and private
+inheritance is known as "inheritance of implementation" and results in
+less encapsulation than, say, having class B contain a member of class
+A and use its functionality ("composition"). Multiple inheritance of implementation is *especially* bad. 
+
+Explicitly annotate overrides of virtual functions or virtual
+destructors with exactly one of an `override` or `final` specifier. 
 
 ### Operator Overloading
 
