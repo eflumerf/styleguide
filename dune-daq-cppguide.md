@@ -1523,15 +1523,6 @@ inheritance is strongly discouraged.
 
 ### Inheritance [DUNE VERSION]
 
-In the interests of encapsulation, keep the access level of a class's
-member functions only as generous as necessary. I.e., prefer private
-functions over protected functions, protected functions over public
-functions. Of course, use common sense: if you're writing an abstract
-base class, your functions will be public!
-
-In a class, never declare data as protected or public. Use accessor
-functions if you must. See [data members should be private](#Access_Control)
-
 When class B inherits from class A, it should almost always be public
 inheritance ("inheritance of interface"). Protected and private
 inheritance is known as "inheritance of implementation" and results in
@@ -1643,10 +1634,10 @@ apply to operator overloading as well.
 
 There's a limited set of circumstances in which it's OK to overload operators:
 
--For copying, operator=. More in the section on [copy constructors](#Copy_Constructors).
--For type conversions, operator(). More in [implicit conversions](#Implicit_Conversions).
--When defining comparison operators for a user-defined type
--Outputting a type's value where it makes sense, by streaming with operator<<. Overloading `<<` for use with streams is covered in the section on [streams](#Streams).
+ - For copying, operator=. More in the section on [copy constructors](#Copy_Constructors).
+ - For type conversions, operator(). More in [implicit conversions](#Implicit_Conversions).
+ - When defining comparison operators for a user-defined type
+ - Outputting a type's value where it makes sense, by streaming with operator<<. Overloading `<<` for use with streams is covered in the section on [streams](#Streams).
 
 ### Access Control
 
@@ -1658,6 +1649,18 @@ accessors (usually `const`) if necessary.
 For technical reasons, we allow data members of a test fixture class in
 a .cc file to be `protected` when using [Google
 Test](https://github.com/google/googletest)).
+
+### Access Control [DUNE VERSION]
+
+In the interests of encapsulation, keep the access level of a class's
+member functions only as generous as necessary. I.e., prefer private
+functions over protected functions, protected functions over public
+functions. Of course, use common sense: if you're writing an abstract
+base class, your functions will be public!
+
+In a class, never declare data as protected or public. Use accessor
+functions if you must. 
+
 
 ### Declaration Order
 
@@ -1677,6 +1680,27 @@ Do not put large method definitions inline in the class definition.
 Usually, only trivial or performance-critical, and very short, methods
 may be defined inline. See [Inline Functions](#Inline_Functions) for
 more details.
+
+### Declaration Order [DUNE VERSION]
+
+A class definition should start with a `public:` section,
+followed by `protected:`, then `private:`. Omit sections that would be
+empty.
+
+Within each section, generally prefer grouping similar kinds of
+declarations together, and generally prefer the following order: 
+
+ - types (including `typedef`, `using`, and nested structs and classes)
+ - constants 
+ - constructors
+ - assignment operators
+ - destructor
+ - all other methods
+ - data members.
+
+Do not put large method definitions inline in the class definition. See [Inline Functions](#Inline_Functions) for
+more details.
+
 
 ## Functions
 
