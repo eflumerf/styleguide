@@ -24,6 +24,26 @@ requirements in this guide.
 Note that this guide is not a C++ tutorial: we assume that the reader is
 familiar with the language.
 
+## Background [DUNE VERSION]
+
+C++ is the main development language of DUNE's DAQ software
+processes. As every C++ programmer knows, the language has many
+powerful features, but this power brings with it complexity, which in
+turn can make code more bug-prone and harder to read and maintain.
+
+The goal of this guide is to manage this complexity by describing in
+detail the dos and don'ts of writing C++ code. These rules exist to
+keep the code base manageable while still allowing coders to use C++
+language features productively. While it will take a certain amount of
+time to learn these rules and adhering to them may mean that creating
+a piece of code that "just works" would take a little longer than it
+otherwise would, the payoff in terms of reduced debugging time and
+increased readability will be well worth it.
+
+Note that this guide is not a C++ tutorial: we assume that the reader is
+familiar with the language.
+
+
 ### Goals of the Style Guide
 
 Why do we have this document?
