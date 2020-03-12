@@ -669,6 +669,21 @@ comment, leave the namespace name empty:
     }  // namespace
 ```
 
+### Unnamed Namespaces and Static Variables [DUNE VERSION]
+
+When definitions in a `.cc` file do not need to be referenced outside
+that file, place them in an unnamed namespace or declare them `static`.
+Do not use either of these constructs in `.h` files.
+
+Format unnamed namespaces like named namespaces. In the terminating
+comment, leave the namespace name empty:
+
+```c++
+    namespace {
+    ...
+    }  // namespace
+```
+
 ### Nonmember, Static Member, and Global Functions
 
 Prefer placing nonmember functions in a namespace; use completely global
@@ -695,6 +710,17 @@ unnecessary anyway.
 If you define a nonmember function and it is only needed in its `.cc`
 file, use [internal linkage](#Unnamed_Namespaces_and_Static_Variables)
 to limit its scope.
+
+### Nonmember, Static Member, and Global Functions [DUNE VERSION]
+
+-Use completely global functions rarely, and only if there's a compelling reason
+
+-If a nonmember function can accomplish what a member function can, prefer a nonmember function. This is because the less code a class's data is exposed to, the less opportunity there is for bugs.
+
+-Nonmember functions should always be in a namespace, and unless there's a compelling reason to violate this rule, to go in the same namespace as the class it works with
+
+-Static methods of a class should generally be closely related to
+instances of the class or the class's static data.
 
 ### Local Variables
 
@@ -755,6 +781,24 @@ outside that loop:
       f.DoSomething(i);
     }
 ```
+
+### Local Variables [DUNE VERSION]
+
+Declare local variables in as local a scope as possible, and as close to the
+first use as possible. Always initialize variables in the declaration.
+
+There is one caveat: if the variable is an object, its constructor is
+invoked every time it enters scope and is created, and its destructor is
+invoked every time it goes out of scope.
+
+``` c++
+// Inefficient implementation:
+for (int i = 0; i < 1000000; ++i) {
+  Foo f;  // My ctor and dtor get called 1000000 times each.
+  f.DoSomething(i);
+}
+```
+
 
 ### Static and Global Variables
 
