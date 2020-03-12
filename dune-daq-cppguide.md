@@ -1638,6 +1638,16 @@ use with streams is covered in the section on [streams](#Streams). See
 also the rules on [function overloading](#Function_Overloading), which
 apply to operator overloading as well.
 
+
+### Operator Overloading [DUNE VERSION]
+
+There's a limited set of circumstances in which it's OK to overload operators:
+
+-For copying, operator=. More in the section on [copy constructors](#Copy_Constructors).
+-For type conversions, operator(). More in [implicit conversions](#Implicit_Conversions).
+-When defining comparison operators for a user-defined type
+-Outputting a type's value where it makes sense, by streaming with operator<<. Overloading `<<` for use with streams is covered in the section on [streams](#Streams).
+
 ### Access Control
 
 Make classes' data members `private`, unless they are
