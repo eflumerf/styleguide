@@ -554,6 +554,95 @@ More complex `.cc` files might have additional details, like flags or using-decl
  ```
   - Do not use inline namespaces.
 
+### Namespaces [DUNE VERSION]
+
+With few exceptions ["few" or "no"?], place code in a namespace [Do we want to define appropriate namespaces here - e.g., everything goes into the "dune" namespace, and then we perhaps have nested namespaces with well-chosen names?]. Do not use *using-directives* (e.g. `using namespace foo`) as this risks name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. On the other hand, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass` can be useful for improving readibility. For unnamed namespaces, see [Unnamed Namespaces and Static
+Variables](#Unnamed_Namespaces_and_Static_Variables).
+
+When creating nonmember functions which work with a class, keep in mind that these functions are part of the class's interface and therefore should be in the same namespace as the class.
+
+Namespaces should be used as follows:
+
+  - Follow the rules on [Namespace Names](#Namespace_Names).
+
+  - Terminate namespaces with comments as shown in the given examples.
+
+  - Namespaces wrap the entire source file after includes,
+    definitions/declarations
+    and forward declarations of classes from other namespaces.
+    
+ ```c++
+     // In the .hh file
+     namespace mynamespace {
+     
+     // All declarations are within the namespace scope.
+     // Notice the lack of indentation.
+     class MyClass {
+      public:
+       ...
+       void Foo();
+     };
+     
+     }  // namespace mynamespace
+ 
+     // In the .cc file
+     namespace mynamespace {
+     
+     // Definition of functions is within scope of the namespace.
+     void MyClass::Foo() {
+       ...
+     }
+     
+     }  // namespace mynamespace
+```
+
+More complex `.cc` files might have additional details, like using-declarations.
+  
+``` c++
+    #include "a.hh"
+    
+    namespace mynamespace {
+    
+    using ::foo::Bar;
+    
+    ...code for mynamespace...    // Code goes against the left margin.
+    
+    }  // namespace mynamespace
+```
+
+
+  - Do not declare anything in namespace `std`, including forward
+    declarations of standard library classes. Declaring entities in
+    namespace `std` is undefined behavior, i.e., not portable. To
+    declare entities from the standard library, include the appropriate
+    header file.
+   
+
+  - Do not use *Namespace aliases* at namespace scope in header files
+    except in explicitly marked internal-only namespaces, because
+    anything imported into a namespace in a header file becomes part of
+    the public API exported by that file.
+    
+  ``` c++  
+        // Shorten access to some commonly used names in .cc files.
+        namespace baz = ::foo::bar::baz;
+    
+        // Shorten access to some commonly used names (in a .h file).
+        namespace librarian {
+        namespace impl {  // Internal, not part of the API.
+        namespace sidetable = ::pipeline_diagnostics::sidetable;
+        }  // namespace impl
+        
+        inline void my_inline_function() {
+          // namespace alias local to a function (or method).
+          namespace baz = ::foo::bar::baz;
+          ...
+        }
+        }  // namespace librarian
+ ```
+
+
+
 ### Unnamed Namespaces and Static Variables
 
 When definitions in a `.cc` file do not need to be referenced outside
