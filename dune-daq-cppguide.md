@@ -1704,6 +1704,11 @@ more details.
 
 ## Functions
 
+### General guidelines for writing a function [DUNE VERSION of nonexistent section]
+
+ - Have it do one thing, rather than many things (the "Swiss army knife" trap)
+ - If it starts getting long (say, beyond 40 lines) think about ways it could be broken up into other functions
+
 ### Output Parameters
 
 The output of a C++ function is naturally provided via a return value
@@ -1728,6 +1733,15 @@ This is not a hard-and-fast rule. Parameters that are both input and
 output (often classes/structs) muddy the waters, and, as always,
 consistency with related functions may require you to bend the rule.
 
+### Output Parameters [DUNE VERSION]
+
+If your function creates single value and you don't anticipate it ever
+needing to return more than a single value, have it return
+it. Otherwise, use pass-by-reference in the argument list. These
+output arguments should appear after the input arguments. Parameters
+which serve both as input *and* output should be placed in-between.
+
+
 ### Write Short Functions
 
 Prefer small and focused functions.
@@ -1749,6 +1763,9 @@ such a function proves to be difficult, you find that errors are hard to
 debug, or you want to use a piece of it in several different contexts,
 consider breaking up the function into smaller and more manageable
 pieces.
+
+### Write Short Functions [DUNE VERSIONS]
+[Section eliminated, material covered in "general guidelines"]
 
 ### Reference Arguments
 
@@ -1789,6 +1806,9 @@ reader that the input is somehow treated differently. So if you choose
 `const T*` rather than `const T&`, do so for a concrete reason;
 otherwise it will likely confuse readers by making them look for an
 explanation that doesn't exist.
+
+### Reference Arguments [DUNE VERSION]
+[Section eliminated, unless someone thinks any of this should apply to DUNE]
 
 ### Function Overloading
 
