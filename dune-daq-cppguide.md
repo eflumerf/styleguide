@@ -2874,7 +2874,7 @@ Unless you have a good reason not to, use "int". An obvious good
 reason would be that you need 64 bits to represent a value, e.g., a timestamp. Another would be that the variable represents a discrete quantity, in which case size_t would clarify its semantics. 
 
 When you want a specific size in bytes, don't use C integer types
-besides "int": no "short", "long", etc. Use "int<N>_t", <N> being the
+besides "int": no "short", "long", etc. Use "intN_t", N being the
 number of bits.
 
 You should not use the unsigned integer types such as `uint32_t`, unless
@@ -2992,6 +2992,10 @@ floating-point) values.
 Use `'\0'` for the null character. Using the correct type makes the code
 more readable.
 
+### 0 and nullptr/NULL [DUNE VERSION]
+
+Use `nullptr` for pointers, and `'\0'` for the null character. Don't use NULL, and definitely don't use the number "0" in this context. 
+
 ### sizeof
 
 Prefer `sizeof(varname)` to `sizeof(type)`.
@@ -3018,6 +3022,11 @@ memset(&data, 0, sizeof(Struct));
       return false;
     }
 ```
+
+ 
+### sizeof [DUNE VERSION]
+
+Prefer `sizeof(varname)` to `sizeof(type)`, unless you really do mean that you want the size of a particular type, and not a variable which happens to have the type in question. 
 
 ### Type deduction
 
@@ -3150,6 +3159,20 @@ code:
 
   - `LONGLONG_MAX`  
     a constant, as in `INT_MAX`
+
+### Type deduction [DUNE VERSION]
+
+The `auto` and `decltype` keywords save a lot of hassle for the
+*writer* of a piece of code, but not necessarily for the
+*reader*. Keep in mind the reader might be you in 18 months. Use your
+best judgement as to when the benefits of these keywords (reduced code
+clutter) outweigh the costs (the reader can't immediately figure out
+the type of a variable).
+
+While a function template can deduce the type of the argument, making
+this explicit will typically make it clearer to both the code's reader
+and to the compiler what it is you're trying to do.
+
 
 ## Comments
 
