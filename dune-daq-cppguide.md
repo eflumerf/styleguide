@@ -2279,6 +2279,48 @@ added in C++11, such as `std::exception_ptr` and
 There is an [exception](#Windows_Code) to this rule (no pun intended)
 for Windows code.
 
+### Exceptions [DUNE VERSION]
+
+Throw an exception if your code's encountered a problem it can't
+recover from on its own. Don't throw if you can implement a local
+recovery, and definitely don't throw exceptions as form of flow
+control when there's not an unexpected problem. 
+ 
+Before you throw an exception, try to clean up as much as possible -
+release resources, etc. RAII is your friend here. 
+
+Like the parameters a function takes and a function's return value,
+the types of exception a function throws are part of the interface it
+presents to the caller. For this reason, think carefully when adding
+an exception throw to a function other callers are already using. Will
+they be able to handle the new exception? If not, can they at least
+release resources correctly?
+
+If you've designed a type, strive to make its move and copy functions
+noexcept. This is because compilers can perform optimizations when it
+comes to STL functionality if noexcept is specified. 
+
+Otherwise, use noexcept judiciously. Keep in mind you can't take it
+back later, and that it's very hard to make this guarantee if you're
+writing generic code. For this reason, intelligently choose your
+conditionals inside of noexcept()
+
+Never throw exceptions out of a destructor
+
+Only use catch(...) directly inside of main(), and then only to clean up
+resources before terminating the program
+
+Catch by const reference
+
+When you catch, print as much info about the exception as would be
+useful to users of the program
+
+[Rules about which types of exception to use? Are there DUNE-specific
+exceptions we should define since Boost/STL doesn't cover our needs,
+or would that be an unnecessary vanity project?]
+
+
+
 ### `noexcept`
 
 Specify `noexcept` when it is useful and correct.
@@ -2333,6 +2375,9 @@ instead of writing a complicated `noexcept` clause that depends on
 whether a hash function can throw, for example, simply document that
 your component doesn’t support hash functions throwing and make it
 unconditionally `noexcept`.
+
+### `noexcept` [ DUNE VERSION]
+[blank, the info's folded into the dune version of "exceptions"]
 
 ### Run-Time Type Information (RTTI)
 
