@@ -3187,6 +3187,22 @@ When writing your comments, write for your audience: the next
 contributor who will need to understand your code. Be generous — the
 next one may be you\!
 
+[DUNE VERSION OF THE "COMMENTS" SECTION]
+
+Comments are absolutely vital to keeping our code readable. But
+remember: while comments are very important, the best code is
+self-documenting. Give sensible names to types and variables, and
+don't make code "clever" unless it creates clear performance
+improvements in bottleneck regions. If it's obvious what a function
+does, don't clutter the code with a comment. E.g., don't do something
+like this:
+
+```
+// "sqrt" calculates the square root of a variable
+double sqrt(double); 
+```
+
+
 ### Comment Style
 
 Use either the `//` or `/* */` syntax, as long as you are consistent.
@@ -3194,6 +3210,11 @@ Use either the `//` or `/* */` syntax, as long as you are consistent.
 You can use either the `//` or the `/* */` syntax; however, `//` is
 *much* more common. Be consistent with how you comment and what style
 you use where.
+
+
+### Comment Style [DUNE VERSION]
+
+Use either the `//` syntax instead of the old C-style `/* */` syntax
 
 ### File Comments
 
@@ -3203,6 +3224,25 @@ File comments describe the contents of a file. If a file declares,
 implements, or tests exactly one abstraction that is documented by a
 comment at the point of declaration, file comments are not required. All
 other files must have file comments.
+
+### File Comments [DUNE VERSION]
+
+Start each file with license boilerplate.
+
+File comments describe the contents of a file. If a file declares,
+implements, or tests exactly one abstraction that is documented by a
+comment at the point of declaration, file comments are not required. All
+other files must have file comments.
+
+The comment at the top of a header file should never describe
+implementation details the user of a class doesn't need to worry
+about. Save those either for the source file, or for just above the
+definition of an inline function if it's in the header file.
+
+Comments are always in danger of growing stale as code changes. This
+danger is greatest when it comes to the comment at the top of the
+file. Be aware of this when you modify code, and update the comments
+if necessary.
 
 #### Legal Notice and Author Line
 
@@ -3214,6 +3254,9 @@ If you make significant changes to a file with an author line, consider
 deleting the author line. New files should usually not contain copyright
 notice or author line.
 
+#### Legal Notice and Author Line [DUNE VERSION]
+[Anyone got any ideas?]
+
 #### File Contents
 
 If a `.h` declares multiple abstractions, the file-level comment should
@@ -3224,6 +3267,20 @@ abstractions, not at the file level.
 
 Do not duplicate comments in both the `.h` and the `.cc`. Duplicated
 comments diverge.
+
+#### File Contents [DUNE VERSION]
+
+[The below is untouched from the google version, modulo making the header end in hh instead of h]
+
+If a `.hh` declares multiple abstractions, the file-level comment should
+broadly describe the contents of the file, and how the abstractions are
+related. A 1 or 2 sentence file-level comment may be sufficient. The
+detailed documentation about individual abstractions belongs with those
+abstractions, not at the file level.
+
+Do not duplicate comments in both the `.hh` and the `.cc`. Duplicated
+comments diverge.
+
 
 ### Class Comments
 
@@ -3258,11 +3315,33 @@ describing the use of the class should go together with its interface
 definition; comments about the class operation and implementation should
 accompany the implementation of the class's methods.
 
+### Class Comments [DUNE VERSION]
+
+Every non-obvious class declaration should have an accompanying comment
+that describes what it is for and how it should be used.
+
+The class comment should provide the reader with enough information to
+know how and when to use the class, as well as any additional
+considerations necessary to correctly use the class. Document the
+synchronization assumptions the class makes, if any. If an instance of
+the class can be accessed by multiple threads, take extra care to
+document the rules and invariants surrounding multithreaded use.
+
 ### Function Comments
 
 Declaration comments describe use of the function (when it is
 non-obvious); comments at the definition of a function describe
 operation.
+
+
+### Function Comments [DUNE VERSION]
+
+[Untouched from google]
+
+Declaration comments describe use of the function (when it is
+non-obvious); comments at the definition of a function describe
+operation.
+
 
 #### Function Declarations
 
@@ -3325,6 +3404,37 @@ if they take ownership of pointers), and what cleanup the destructor
 does. If this is trivial, just skip the comment. It is quite common for
 destructors not to have a header comment.
 
+#### Function Declarations [DUNE VERSION]
+
+Function declaration should have comments immediately
+preceding it that describe what the function does and how to use it *unless* the function is simple and obvious. 
+
+Types of things to mention in comments at the function declaration:
+
+  - What the inputs and outputs are, if not obvious
+  - For class member functions: whether the object remembers reference
+    arguments beyond the duration of the method call, and whether it
+    will free them or not.
+  - Any non-obvious preconditions and postconditions. E.g., can a
+    pointer argument be null? 
+  - If there are any performance implications of how a function is used.
+  - If the function is re-entrant. What are its synchronization
+    assumptions?
+
+When documenting function overrides, focus on the specifics of the
+override itself, rather than repeating the comment from the overridden
+function. In many of these cases, the override needs no additional
+documentation and thus no comment is required.
+
+When commenting constructors and destructors, remember that the person
+reading your code knows what constructors and destructors are for, so
+comments that just say something like "destroys this object" are not
+useful. Document what constructors do with their arguments (for example,
+if they take ownership of pointers), and what cleanup the destructor
+does. If this is trivial, just skip the comment. It is quite common for
+destructors not to have a header comment.
+
+
 #### Function Definitions
 
 If there is anything tricky about how a function does its job, the
@@ -3340,6 +3450,23 @@ Note you should *not* just repeat the comments given with the function
 declaration, in the `.h` file or wherever. It's okay to recapitulate
 briefly what the function does, but the focus of the comments should be
 on how it does it.
+
+#### Function Definitions [DUNE VERSION]
+
+If there is anything tricky about how a function does its job, the
+function definition should have an explanatory comment. For example, in
+the definition comment you might describe any coding tricks you use,
+give an overview of the steps you go through, or explain why you chose
+to implement the function in the way you did rather than using a viable
+alternative. For instance, you might mention why it must acquire a lock
+for the first half of the function but why it is not needed for the
+second half.
+
+Note you should *not* just repeat the comments given with the function
+declaration, in the `.h` file or wherever. It's okay to recapitulate
+briefly what the function does, but the focus of the comments should be
+on how it does it.
+
 
 ### Variable Comments
 
@@ -3376,6 +3503,30 @@ example:
     // The total number of tests cases that we run through in this regression test.
     const int kNumTestCases = 6;
 ```
+
+### Variable Comments [DUNE VERSION]
+
+In general the actual name of the variable should be descriptive enough
+to give a good idea of what the variable is used for. 
+
+#### Class Data Members
+
+If there are any invariants (special values, relationships between
+members, lifetime requirements) not clearly expressed by the type and
+name, they must be commented.
+
+In particular, add comments to describe the existence and meaning of
+sentinel values, such as nullptr or -1, when they are not obvious. 
+
+#### Global Variables
+
+Along with the usual rules, a global variable should have a comment as
+to why it needs to be global unless it's completely clear. 
+
+[An idea: should people have to stick some easily-searchable token,
+like DUNE_GLOBAL_VAR, in the comment, so it'll be easy to find global
+variables?]
+
 
 ### Implementation Comments
 
@@ -3490,6 +3641,14 @@ example above would be obvious:
     }
 ```
 
+### Implementation Comments [DUNE VERSION]
+
+In your implementation you should have comments in tricky,
+non-obvious, interesting, or important parts of your code. Of course,
+tricky and non-obvious code should be avoided unless absolutely
+necessary.
+
+
 ### Punctuation, Spelling, and Grammar
 
 Pay attention to punctuation, spelling, and grammar; it is easier to
@@ -3506,6 +3665,27 @@ you are using a comma when you should be using a semicolon, it is very
 important that source code maintain a high level of clarity and
 readability. Proper punctuation, spelling, and grammar help with that
 goal.
+
+
+### Punctuation, Spelling, and Grammar [DUNE VERSION]
+
+Pay attention to punctuation, spelling, and grammar; it is easier to
+read well-written comments than badly written ones. In particular, a
+spelling mistake can make it hard to grep for a comment in the future.
+
+In general, comments should be in English. An exception might be if
+you know the only people working on your code will be the fellow
+speakers of your language, especially if they're not fluent in
+English. Since this is a C++ style guide and not an English style
+guide, it's understandable if English written by a non-native speaker
+is less than perfect; however, don't hesitate to have a native English
+speaker look over your comment if you feel it would help.
+
+Generally, complete sentences are more readable than sentence
+fragments. Shorter comments, such as comments at the end of a line of
+code, can sometimes be less formal.
+
+
 
 ### TODO Comments
 
@@ -3530,6 +3710,23 @@ If your `TODO` is of the form "At a future date do something" make sure
 that you either include a very specific date ("Fix by November 2005") or
 a very specific event ("Remove this code when all clients can handle XML
 responses.").
+
+### TODO Comments [DUNE VERSION]
+
+Use `TODO` comments for code that is temporary, a short-term solution,
+or good-enough but not perfect. Date your TODO comment, and if
+possible provide a time estimate (even if just something like "next
+few weeks") as to when you expect something should be done.
+
+`TODO`s should include the string `TODO` in all caps, followed by the
+name, e-mail address, bug ID, or other identifier of the person or issue
+with the best context about the problem referenced by the `TODO`. 
+
+Stale TODO comments should be reviewed. If they're no longer relevant,
+they should be deleted. If they're still relevant, a message should be
+sent to the person whose e-mail is given in the comment. When in
+doubt, send an e-mail.
+
 
 ## Formatting
 
