@@ -2868,7 +2868,33 @@ printing, comparisons, and structure alignment.
         uint64_t my_mask{3ULL << 48};
 ```
 
-### Preprocessor Macros
+### Integer Types [DUNE VERSION]
+
+Unless you have a good reason not to, use "int". An obvious good
+reason would be that you need 64 bits to represent a value, e.g., a timestamp. Another would be that the variable represents a discrete quantity, in which case size_t would clarify its semantics. 
+
+When you want a specific size in bytes, don't use C integer types
+besides "int": no "short", "long", etc. Use "int<N>_t", <N> being the
+number of bits.
+
+You should not use the unsigned integer types such as `uint32_t`, unless
+there is a valid reason such as representing a bit pattern rather than a
+number, or you need defined overflow modulo 2^N. In particular, do not
+use unsigned types to say a number will never be negative. Instead, use
+assertions for this.
+
+If your code is a container that returns a size, be sure to use a type
+that will accommodate any possible usage of your container. When in
+doubt, use a larger type rather than a smaller type.
+
+Use care when converting integer types. Integer conversions and
+promotions can cause undefined behavior, leading to security bugs and
+other problems.
+
+Code should be 64-bit friendly. [does it need to be 32-bit friendly?]
+
+
+### Preprocessor Macros 
 
 Avoid defining macros, especially in headers; prefer inline functions,
 enums, and `const` variables. Name macros with a project-specific
