@@ -2583,6 +2583,29 @@ the output of `<<`; if you need to print object internals for debugging,
 use named functions instead (a method named `DebugString()` is the most
 common convention).
 
+### Streams [DUNE VERSION]
+[Deleted; folded into the new "printing messages" section]
+
+### Printing Messages [DUNE VERSION]
+
+Use TRACE for output. Never use alternatives (this includes printf, cout, etc.)
+
+Include as much information useful for debugging in warning/error
+messages. E.g., rather than "Data found corrupt", go with "Data found
+corrupt in data packet ID #8294 with timestamp 0x3527378 (55735160
+decimal) in run 34872"
+
+Overload `<<` for streaming only for types representing values, and write only
+the user-visible value, not any implementation details.
+
+Take care that a given print statement not swamp other the output of
+other equally-or-even-more-important messages
+
+Distinguish between print statements meant for users, and for yourself and other developers. Use TRACE levels above 0-4 for the former, and 5+ for the latter. 
+
+[Re: TRACE levels. Perhaps we should come up with a formal system for what levels for what time of messages? E.g., benchmark messages in trace levels 10-14, intermediate variable value messages in levels 15-19, etc.]
+
+
 ### Preincrement and Predecrement
 
 Use prefix form (`++i`) of the increment and decrement operators with
