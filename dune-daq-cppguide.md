@@ -2958,6 +2958,23 @@ discouraged. If you do export a macro from a header, it must have a
 globally unique name. To achieve this, it must be named with a prefix
 consisting of your project's namespace name (but upper case).
 
+
+### Preprocessor Macros [DUNE VERSION]
+
+While not explicitly forbidden, macros come with the very heavy price of the code you see not being the code the compiler sees, compounded by their de-facto global scope. Avoid them if at all possible, using inline functions,
+enums, `const` variables, and putting repeated code inside of functions. 
+
+If you *must* write a macro, this will avoid many of their problems:
+
+  - Don't define macros in a header file.
+  - `#define` macros right before you use them, and `#undef` them right
+    after.
+  - Do not just `#undef` an existing macro before replacing it with your
+    own; instead, pick a name that's likely to be unique.
+  - Try not to use macros that expand to unbalanced C++ constructs, or
+    at least document that behavior well.
+  - Prefer not using `##` to generate function/class/variable names.
+
 ### 0 and nullptr/NULL
 
 Use `nullptr` for pointers, and `'\0'` for chars (and not the `0`
