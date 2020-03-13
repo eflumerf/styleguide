@@ -2065,6 +2065,16 @@ you do use shared ownership, prefer to use `std::shared_ptr`.
 
 Never use `std::auto_ptr`. Instead, use `std::unique_ptr`.
 
+### Ownership and Smart Pointers [DUNE VERSION]
+
+-You should find yourself using std::unique_ptr more often than std::shared_ptr
+
+-Use of raw pointers should be very rare. One of the few times it's OK is when you want to point to an object where you don't want to change anything about its ownership. Even there, a std::weak_ptr is preferable. 
+
+-A corollary is that you should (almost) never use delete on a raw pointer
+
+[Do we want to be even more strict about this? Can we get away with NEVER using raw pointers?]
+
 ### cpplint
 
 Use `cpplint.py` to detect style errors.
@@ -2149,6 +2159,20 @@ make sure you have evidence that it actually helps.
 You may use forwarding references in conjunction with `  std::forward `,
 to support perfect forwarding.
 
+### Rvalue References [DUNE VERSION]
+
+Use rvalue references to:
+
+  - Define move constructors and move assignment operators. You should
+    always have these defined when you've created a new type and
+    there's the possibility that its copy operations may be
+    significantly slower.
+
+  - Support perfect forwarding in generic code
+
+  - Define pairs of overloads, one taking `Foo&&` and the other taking
+`const Foo&`, when this might improve performance
+
 ### Friends
 
 We allow use of `friend` classes and functions, within reason.
@@ -2165,6 +2189,18 @@ Friends extend, but do not break, the encapsulation boundary of a class.
 In some cases this is better than making a member public when you want
 to give only one other class access to it. However, most classes should
 interact with other classes solely through their public members.
+
+
+### Friends [DUNE VERSION]
+
+Use friend classes only when alternatives result in less
+encapsulation. An example of this would be if there's only one
+nonmember function which you could imagine would ever need a given
+member of a class - in this case, while you could make that given
+member public, it would result in less encapsulation than use of a
+friend function.
+
+Define your friend function in the same file as the class it's a friend of. 
 
 ### Exceptions
 
