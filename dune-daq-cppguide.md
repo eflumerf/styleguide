@@ -2457,6 +2457,12 @@ Do not hand-implement an RTTI-like workaround. The arguments against
 RTTI apply just as much to workarounds like class hierarchies with type
 tags. Moreover, workarounds disguise your true intent.
 
+### Run-Time Type Information (RTTI) [DUNE VERSION]
+
+The only time Run Time Type Information (RTTI) can be used is in code
+meant to test other code.
+
+
 ### Casting
 
 Use C++-style casts like `static_cast<float>(double_value)`, or brace
@@ -2500,6 +2506,13 @@ explicit type conversion is necessary.
 
 See the [RTTI section](#Run-Time_Type_Information__RTTI_) for guidance
 on the use of `dynamic_cast`.
+
+### Casting [DUNE VERSION]
+
+Do not use C-style casts (e.g., "(float)3.5" or "float(3.5)")
+
+Use reinterpret_cast only for low level code, and only if you're sure
+there's no safer approach
 
 ### Streams
 
