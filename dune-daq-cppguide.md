@@ -2632,6 +2632,15 @@ For simple scalar (non-object) values there is no reason to prefer one
 form and we allow either. For iterators and other template types, use
 pre-increment.
 
+
+### Preincrement and Predecrement [DUNE VERSION]
+
+Use prefix form (`++i`) of the increment and decrement operators
+
+Unless in a loop construct, a preincrement/predecrement should exist
+on its own line. In particular, it should not be used in an if
+statement.
+
 ### Use of const
 
 In APIs, use `const` whenever it makes sense. `constexpr` is a better
@@ -2696,6 +2705,23 @@ arguably more readable, since it follows English in putting the
 That said, while we encourage putting `const` first, we do not require
 it. But be consistent with the code around you\!
 
+### Use of const [DUNE VERSION]
+
+Particularly since DUNE processes will involve many threads, intelligent use of "const" is important. 
+
+Use "const" on variables whose values won't change now or in future
+code revisions UNLESS you need to pass it to a (poorly-designed) API
+which doesn't change the variable's value but doesn't declare it const
+in its function signatures
+
+If a class method alters its own physical state but not its logical
+state, declare it const and use "mutable" to work around the physical
+changes
+
+constexpr is even better than const; use it when you can. [reference to constexpr section]
+
+[where to put the const? I prefer "const <type> <varname>" over "<type> const <varname>" but not as much as I prefer avoiding holy wars]
+
 ### Use of constexpr
 
 Use `constexpr` to define true constants or to ensure constant
@@ -2720,6 +2746,14 @@ constant parts of an interface. Use `constexpr` to specify true
 constants and the functions that support their definitions. Avoid
 complexifying function definitions to enable their use with `constexpr`.
 Do not use `constexpr` to force inlining.
+
+### Use of constexpr [DUNE VERSION]
+
+If a variable or function's return value is fixed at compile time and
+you don't see this ever changing, declare it constexpr.  I say "don't
+see this ever changing" since similar to "const" or "noexcept", it's
+hard to revoke this later without breaking other people's code.
+
 
 ### Integer Types
 
