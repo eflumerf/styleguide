@@ -1849,6 +1849,12 @@ the set is being called. If you can document all entries in the overload
 set with a single comment in the header, that is a good sign that it is
 a well-designed overload set.
 
+### Function Overloading [DUNE VERSION]
+
+If a function is overloaded by the argument types alone, make sure its
+behavior is very similar across the types, especially if the types are
+themselves similar (e.g., std::string vs. const char*)
+
 ### Default Arguments
 
 Default arguments are allowed on non-virtual functions when the default
@@ -1888,6 +1894,13 @@ write `void f(int n = counter++);`.)
 In some other cases, default arguments can improve the readability of
 their function declarations enough to overcome the downsides above, so
 they are allowed. When in doubt, use overloads.
+
+### Default Arguments [DUNE VERSION]
+
+Default arguments are allowed on non-virtual functions when the
+default is guaranteed to always have the same value. Always define the
+value of the argument in the header, as it's part of the function's
+interface.
 
 ### Trailing Return Type Syntax
 
@@ -1954,6 +1967,13 @@ list, it allows you to write the type in a much more readable way. The
 latter case should be rare; it's mostly an issue in fairly complicated
 template code, which is [discouraged in most
 cases](#Template_metaprogramming).
+
+### Trailing Return Type Syntax [DUNE VERSION]
+
+The only time it's OK to use a trailing return type is when specifying
+the return type of a [lambda expression](#Lambda_expressions). In some
+cases the compiler is able to deduce a lambda's return type, but not
+in all cases.
 
 ## Google-Specific Magic
 
