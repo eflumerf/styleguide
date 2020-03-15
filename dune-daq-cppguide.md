@@ -2825,7 +2825,7 @@ changes
 
 constexpr is even better than const; use it when you can. [reference to constexpr section]
 
-[where to put the const? I prefer "const <type> <varname>" over "<type> const <varname>" but not as much as I prefer avoiding holy wars]
+[where to put the const? Like Google, I prefer "const type varname" over "type const varname", but not as much as I prefer avoiding holy wars]
 
 ### Use of constexpr
 
