@@ -679,26 +679,28 @@ Namespaces should be used as follows:
      // In the .hh file
      namespace mynamespace {
      
-     // All declarations are within the namespace scope.
-     // Notice the lack of indentation.
-     class MyClass {
-      public:
-       ...
-       void Foo();
-     };
+        // All declarations are within the namespace scope.
+        // Notice the indentation of four spaces
+
+        class MyClass {
+           public:
+               ...
+               void Foo();
+        };
      
      }  // namespace mynamespace
  
      // In the .cc file
      namespace mynamespace {
      
-     // Definition of functions is within scope of the namespace.
-     void MyClass::Foo() {
-       ...
-     }
+         // Definition of functions is within scope of the namespace.
+         void MyClass::Foo() {
+             ...
+         }
      
      }  // namespace mynamespace
 ```
+[Are people happy with the indentations above?]
 
 More complex `.cc` files might have additional details, like using-declarations.
   
@@ -707,9 +709,9 @@ More complex `.cc` files might have additional details, like using-declarations.
     
     namespace mynamespace {
     
-    using ::foo::Bar;
+        using ::foo::Bar;
     
-    ...code for mynamespace...    // Code goes against the left margin.
+        ...code for mynamespace... 
     
     }  // namespace mynamespace
 ```
@@ -733,14 +735,14 @@ More complex `.cc` files might have additional details, like using-declarations.
     
         // Shorten access to some commonly used names (in a .h file).
         namespace librarian {
-        namespace impl {  // Internal, not part of the API.
-        namespace sidetable = ::pipeline_diagnostics::sidetable;
+            namespace impl {  // Internal, not part of the API.
+            namespace sidetable = ::pipeline_diagnostics::sidetable;
         }  // namespace impl
         
         inline void my_inline_function() {
-          // namespace alias local to a function (or method).
-          namespace baz = ::foo::bar::baz;
-          ...
+            // namespace alias local to a function (or method).
+            namespace baz = ::foo::bar::baz;
+            ...
         }
         }  // namespace librarian
  ```
@@ -784,7 +786,7 @@ comment, leave the namespace name empty:
 
 ```c++
     namespace {
-    ...
+        ...
     }  // namespace
 ```
 
@@ -817,13 +819,13 @@ to limit its scope.
 
 ### Nonmember, Static Member, and Global Functions [DUNE VERSION]
 
--Use completely global functions rarely, and only if there's a compelling reason
+ - Use completely global functions rarely, and only if there's a compelling reason
 
--If a nonmember function can accomplish what a member function can, prefer a nonmember function. This is because the less code a class's data is exposed to, the less opportunity there is for bugs.
+ - If a nonmember function can accomplish what a member function can, prefer a nonmember function. This is because the less code a class's data is exposed to, the less opportunity there is for bugs.
 
--Nonmember functions should always be in a namespace, and unless there's a compelling reason to violate this rule, to go in the same namespace as the class it works with
+ - Nonmember functions should always be in a namespace, and unless there's a compelling reason to violate this rule, to go in the same namespace as the class it works with
 
--Static methods of a class should generally be closely related to
+ - Static methods of a class should generally be closely related to
 instances of the class or the class's static data.
 
 ### Local Variables
@@ -898,8 +900,8 @@ invoked every time it goes out of scope.
 ``` c++
 // Inefficient implementation:
 for (int i = 0; i < 1000000; ++i) {
-  Foo f;  // My ctor and dtor get called 1000000 times each.
-  f.DoSomething(i);
+    Foo f;  // My ctor and dtor get called 1000000 times each.
+    f.DoSomething(i);
 }
 ```
 
@@ -1178,6 +1180,16 @@ namespace scope must be annotated with
 
 `thread_local` should be preferred over other mechanisms for defining
 thread-local data.
+
+### Static and Global Variables [DUNE VERSION]
+
+The less complex the constructors and destructors of static and global
+variables, the better. In particular, keep in mind there's no
+guarantee on the order of construction of these variables, and hence
+code should never rely on an assumed order.
+
+[Is this too watered down? What do people think about the
+only-trivially-destructible requirement Google makes?]
 
 ## Classes
 
