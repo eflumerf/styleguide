@@ -181,7 +181,7 @@ header files.
 ## Header Files [DUNE VERSION OF THE INTRO]
 
 Header files should have an `.hh` extension. They fall into one of two
-categories: public header files (hose meant to be included by code
+categories: public header files (those meant to be included by code
 using a library) and private header files (those only included by
 library implementation files). Public header files shall be placed in
 the `include/package_name` directory (where `package_name` is a
@@ -506,11 +506,12 @@ project's source directory without use of UNIX directory aliases `.`
 
 You should include all the headers that define the symbols you rely
 upon, except in the unusual [?] case of [forward
-declaration](#Forward_Declarations). If you rely on symbols from
-`bar.h`, don't count on the fact that you included `foo.h` which
-(currently) includes `bar.h`: include `bar.h` yourself, unless `foo.h`
-explicitly demonstrates its intent to provide you the symbols of
-`bar.h`. Note that the order of header declarations described above helps enforce this rule.
+declaration](#Forward_Declarations). Note that the order of header
+declarations described above helps enforce this rule. If you rely on
+symbols from `bar.h`, don't count on the fact that you included
+`foo.h` which (currently) includes `bar.h`: include `bar.h` yourself,
+unless `foo.h` explicitly demonstrates its intent to provide you the
+symbols of `bar.h`.
 
 
 
@@ -1325,6 +1326,19 @@ Constructors that cannot be called with a single argument may omit
 `explicit`. Constructors that take a single `std::initializer_list`
 parameter should also omit `explicit`, in order to support
 copy-initialization (e.g. `MyType m = {1, 2};`).
+
+### Implicit Conversions [DUNE VERSION]
+
+In general, do not define implicit conversions. Type conversion
+operators, and constructors that are callable with a single argument,
+should be marked `explicit` in the class definition. As an exception,
+copy and move constructors should not be `explicit`, since they do not
+perform type conversion. Also, implicit conversions can sometimes be
+necessary and appropriate for types that are designed to transparently
+wrap other types; in this case an exception to the rule is allowed.
+
+Constructors that cannot be called with a single argument may omit
+`explicit`. 
 
 ### Copyable and Movable Types
 
