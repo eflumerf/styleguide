@@ -1494,13 +1494,10 @@ classes can use to implement it.
  must all be either defined or explicitly deleted. "Defined" could be
  as simple as making explicit the use of the "default" keyword.
 
-
 ### Structs vs. Classes
 
-Always use a `class` rather than `struct` unless you're creating:
-
- - A passive objects that carries data
- - A small callable with an `operator()` defined
+Use a `struct` only for passive objects that carry data; everything else
+is a `class`.
 
 The `struct` and `class` keywords behave almost identically in C++. We
 add our own semantic meanings to each keyword, so you should use the
@@ -1527,11 +1524,12 @@ rules](#Variable_Names).
 
 ### Structs vs. Classes [DUNE VERSION]
 
-Use a `struct` only for passive objects that carry data; everything else
-is a `class`.
+Always use a `class` rather than `struct` unless you're creating:
 
-`structs` should be used for passive objects that contain member
-data. All fields must be public, and accessed directly rather than
+ - A passive objects that carries data
+ - A small callable with an `operator()` defined
+
+If using a struct to carry data, all fields must be public, and accessed directly rather than
 through getter/setter methods. Any functions must not provide behavior
 but should only be used to set up the data members, e.g., constructor,
 destructor, `Initialize()`, `Reset()`.
