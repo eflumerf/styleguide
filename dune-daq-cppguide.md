@@ -143,6 +143,12 @@ unusual constructs: the absence of a prohibition is not the same as a
 license to proceed. Use your judgment, and if you are unsure, please
 don't hesitate to ask your project leads to get additional input.
 
+### Goals of the Style Guide [DUNE VERSION]
+
+[Eliminated. It's not that there's anything actively wrong with it,
+it's just that there's not a lot of concrete info people can use, and
+shorter documentation is better, all things being equal]
+
 ## C++ Version
 
 Currently, code should target C++17, i.e., should not use C++2x
@@ -153,6 +159,11 @@ Do not use [non-standard extensions](#Nonstandard_Extensions).
 
 Consider portability to other environments before using features from
 C++14 and C++17 in your project.
+
+## C++ Version [DUNE VERSION]
+
+Currently, code should target C++17, i.e., should not use C++2x
+features.
 
 ## Header Files
 
@@ -166,6 +177,20 @@ readability, size and performance of your code.
 The following rules will guide you through the various pitfalls of using
 header files.
 
+
+## Header Files [DUNE VERSION OF THE INTRO]
+
+Header files should have an `.hh` extension. They fall into one of two
+categories: public header files (hose meant to be included by code
+using a library) and private header files (those only included by
+library implementation files). Public header files shall be placed in
+the `include/package_name` directory (where `package_name` is a
+stand-in for the name of the package). Private headers are kept with
+source files under the `src/` directory.
+
+In general, every `.cc` file should have an associated `.hh` file. There
+are some common exceptions, such as unittests and small `.cc` files
+containing just a `main()` function.
 
 ### Self-contained Headers
 
@@ -199,6 +224,30 @@ locations, such as the middle of another file. They might not use
 prerequisites. Name such files with the `.inc` extension. Use sparingly,
 and prefer self-contained headers when possible.
 
+### Self-contained Headers [DUNE VERSION]
+
+Header files should be self-contained (compile on their own) and end in
+`.hh`. Non-header files that are meant for inclusion should end in `.inc`
+and be used very rarely. 
+
+All header files should be self-contained. Users and refactoring tools
+should not have to adhere to special conditions to include the header.
+Specifically, a header should have [header guards](#The__define_Guard)
+and include all other headers it needs.
+
+Prefer placing the definitions for template and inline functions in the
+same file as their declarations. The definitions of these constructs
+must be included into every `.cc` file that uses them, or the program
+may fail to link in some build configurations. If declarations and
+definitions are in different files, including the former should
+transitively include the latter. 
+
+As an exception, a template that is explicitly instantiated for all
+relevant sets of template arguments, or that is a private implementation
+detail of a class, is allowed to be defined in the one and only `.cc`
+file that instantiates the template.
+
+
 ### The \#define Guard
 
 All header files should have `#define` guards to prevent multiple
@@ -217,6 +266,13 @@ project `foo` should have the following guard:
     
     #endif  // FOO_BAR_BAZ_H_
 ```
+
+### The \#define Guard [DUNE VERSION]
+
+All header files should have `#define` guards to prevent multiple
+inclusion. The format of the symbol name should be
+`<PROJECT>_<PATH>_<FILE>_H_`.
+
 
 ### Forward Declarations
 
@@ -283,6 +339,13 @@ template without an associated definition.
 Please see [Names and Order of Includes](#Names_and_Order_of_Includes)
 for rules about when to \#include a header.
 
+
+### Forward Declarations [DUNE VERSION]
+[What are people's thoughts on not outlawing forward declarations? It
+seems like we might want to use the pImpl idiom, etc., though I take
+Google's points against forward declarations]
+
+
 ### Inline Functions
 
 Define functions inline only when they are small, say, 10 lines or
@@ -317,6 +380,16 @@ are not normally inlined. Usually recursive functions should not be
 inline. The main reason for making a virtual function inline is to place
 its definition in the class, either for convenience or to document its
 behavior, e.g., for accessors and mutators.
+
+
+### Inline Functions [DUNE VERSION]
+
+Define functions inline only when they are small, say, 10 lines or
+fewer. Feel free to inline accessors and mutators, and other short,
+performance-critical functions. Don't inline functions with loops or
+switch statements (unless, in the common case, the loop or switch
+statement is never executed).
+
 
 ### Names and Order of Includes
 
@@ -412,7 +485,15 @@ system-specific code small and localized. Example:
 ### Names and Order of Includes [DUNE VERSION]
 
 If the included header is the "related header" - meaning, you're editing foo.cc 
-and the head is foo.hh - put it before all the other headers
+and the header is foo.hh - put it before all the other headers.
+
+Then, in order:
+
+ - private headers
+ - public headers from current package
+ - public headers from other packages in project
+ - public headers from external dependencies
+ - standard library headers
 
 All of a project's header files should be listed as descendants of the
 project's source directory without use of UNIX directory aliases `.`
@@ -423,14 +504,13 @@ project's source directory without use of UNIX directory aliases `.`
 #include "base/logging.h"
 ```
 
-
 You should include all the headers that define the symbols you rely
-upon, except in the unusual case of [forward
+upon, except in the unusual [?] case of [forward
 declaration](#Forward_Declarations). If you rely on symbols from
 `bar.h`, don't count on the fact that you included `foo.h` which
 (currently) includes `bar.h`: include `bar.h` yourself, unless `foo.h`
 explicitly demonstrates its intent to provide you the symbols of
-`bar.h`.
+`bar.h`. Note that the order of header declarations described above helps enforce this rule.
 
 
 
