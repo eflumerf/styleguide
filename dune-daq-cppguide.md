@@ -27,9 +27,8 @@ familiar with the language.
 ## Background [DUNE VERSION]
 
 C++ is the main development language of DUNE's DAQ software
-processes. As every C++ programmer knows, the language has many
-powerful features, but this power brings with it complexity, which in
-turn can make code more bug-prone and harder to read and maintain.
+processes. It is an unusually complex language, which can make code
+more bug-prone and harder to read and maintain.
 
 The goal of this guide is to manage this complexity by describing in
 detail the dos and don'ts of writing C++ code. These rules exist to
@@ -42,7 +41,6 @@ increased readability will be well worth it.
 
 Note that this guide is not a C++ tutorial: we assume that the reader is
 familiar with the language.
-
 
 ### Goals of the Style Guide
 
@@ -581,7 +579,8 @@ More complex `.cc` files might have additional details, like flags or using-decl
 
 ### Namespaces [DUNE VERSION]
 
-With few exceptions ["few" or "no"?], place code in a namespace [Do we want to define appropriate namespaces here - e.g., everything goes into the "dune" namespace, and then we perhaps have nested namespaces with well-chosen names?]. Do not use *using-directives* (e.g. `using namespace foo`) as this risks name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. On the other hand, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass` can be useful for improving readibility. For unnamed namespaces, see [Unnamed Namespaces and Static
+With few exceptions [perhaps "no exceptions"?], place code in a namespace [Do we want to define appropriate namespaces here - e.g., everything goes into the "dune" namespace, and then we perhaps have nested namespaces with well-chosen names?]. Try to avoid using *using-directives* (e.g. `using namespace foo`) as this risks name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. This is only a hard-and-fast rule when it comes to the top level in public
+  headers, however. On the other hand, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass` can be useful for improving readability. For unnamed namespaces, see [Unnamed Namespaces and Static
 Variables](#Unnamed_Namespaces_and_Static_Variables).
 
 When creating nonmember functions which work with a class, keep in mind that these functions are part of the class's interface and therefore should be in the same namespace as the class.
@@ -1392,8 +1391,10 @@ classes can use to implement it.
 
 ### Structs vs. Classes
 
-Use a `struct` only for passive objects that carry data; everything else
-is a `class`.
+Always use a `class` rather than `struct` unless you're creating:
+
+ - A passive objects that carries data
+ - A small callable with an `operator()` defined
 
 The `struct` and `class` keywords behave almost identically in C++. We
 add our own semantic meanings to each keyword, so you should use the
@@ -3227,7 +3228,11 @@ other files must have file comments.
 
 ### File Comments [DUNE VERSION]
 
-Start each file with license boilerplate.
+Avoid license boilerplate at the top of a file. This does NOT mean you ignore licensing. Instead, have something succinct like:
+```
+ // This is part of XXX, copywrite YYY.  It is distributed under               
+  // license LLL.  See the file COPYING for deatils.          
+```
 
 File comments describe the contents of a file. If a file declares,
 implements, or tests exactly one abstraction that is documented by a
@@ -4665,7 +4670,7 @@ Some rules of thumb to help when blank lines may be useful:
 
  - Indentation should involve four spaces. Tabs should NOT be used.
  - Send your code through clang-format before committing
-
+ - Lines should (almost) always be less than 120 characters
 
 ## Exceptions to the Rules
 
