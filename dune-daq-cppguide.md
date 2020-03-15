@@ -4661,6 +4661,12 @@ Some rules of thumb to help when blank lines may be useful:
     and the blank line makes it clear that the comment goes with the
     following thing instead of the preceding.
 
+## Formatting [DUNE VERSION]
+
+ - Indentation should involve four spaces. Tabs should NOT be used.
+ - Send your code through clang-format before committing
+
+
 ## Exceptions to the Rules
 
 The coding conventions described above are mandatory. However, like all
@@ -4734,6 +4740,20 @@ on Windows:
   - Resource headers, which are usually named `resource.h` and contain
     only macros, do not need to conform to these style guidelines.
 
+## Exceptions to the Rules [DUNE VERSION]
+
+For new code, exceptions should be quite rare. However: to the extent
+that we reuse already-existing code in the DUNE DAQ codebase, the
+already-existing code won't adhere to directives in this guide. If the
+code is never going to be touched again, then this won't be a big
+issue. If we plan on altering it in the future, it may be worth at
+least getting it to be *somewhat* more conformant to the rules,
+especially if the changes are relatively non-invasive (e.g., running
+it through clang-format, as opposed to breaking up a long but
+well-tested function). If anything about the style in existing code
+may be confusing to future developers, it may be worth commenting on
+how the style deviates from the standard. 
+
 ## Parting Words
 
 Use common sense and *BE CONSISTENT*.
@@ -4756,3 +4776,6 @@ OK, enough writing about writing code; the code itself is much more
 interesting. Have fun\!
 
 -----
+
+## Parting Words [ DUNE VERSION]
+[This section seems unnecessary. "Good night, and good luck"?]. 
