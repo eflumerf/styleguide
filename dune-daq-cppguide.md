@@ -780,7 +780,7 @@ comment, leave the namespace name empty:
 
 When definitions in a `.cc` file do not need to be referenced outside
 that file, place them in an unnamed namespace or declare them `static`.
-Do not use either of these constructs in `.h` files.
+Do not use either of these constructs in `.hh` files.
 
 Format unnamed namespaces like named namespaces. In the terminating
 comment, leave the namespace name empty:
@@ -1489,7 +1489,7 @@ classes can use to implement it.
 
 ### Copyable and Movable Types [DUNE VERSION]
 
--If a class contains member data, its copy constructor, copy
+If a class contains member data, its copy constructor, copy
  assignment operator, move constructor and move assignment operators
  must all be either defined or explicitly deleted. "Defined" could be
  as simple as making explicit the use of the "default" keyword.
@@ -1526,7 +1526,7 @@ rules](#Variable_Names).
 
 Always use a `class` rather than `struct` unless you're creating:
 
- - A passive objects that carries data
+ - A passive object only meant to carry data
  - A small callable with an `operator()` defined
 
 If using a struct to carry data, all fields must be public, and accessed directly rather than
@@ -1840,7 +1840,7 @@ consistency with related functions may require you to bend the rule.
 
 ### Output Parameters [DUNE VERSION]
 
-If your function creates single value and you don't anticipate it ever
+If your function creates a single value and you don't anticipate it ever
 needing to return more than a single value, have it return
 it. Otherwise, use pass-by-reference in the argument list. These
 output arguments should appear after the input arguments. Parameters
@@ -2172,11 +2172,11 @@ Never use `std::auto_ptr`. Instead, use `std::unique_ptr`.
 
 ### Ownership and Smart Pointers [DUNE VERSION]
 
--You should find yourself using std::unique_ptr more often than std::shared_ptr
+ - You should find yourself using std::unique_ptr more often than std::shared_ptr
 
--Use of raw pointers should be very rare. One of the few times it's OK is when you want to point to an object where you don't want to change anything about its ownership. Even there, a std::weak_ptr is preferable. 
+ - Use of raw pointers should be very rare. One of the few times it's OK is when you want to point to an object where you don't want to change anything about its ownership. Even there, a std::weak_ptr is preferable. 
 
--A corollary is that you should (almost) never use delete on a raw pointer
+ - A corollary is that you should (almost) never use delete on a raw pointer
 
 [Do we want to be even more strict about this? Can we get away with NEVER using raw pointers?]
 
@@ -2401,15 +2401,6 @@ an exception throw to a function other callers are already using. Will
 they be able to handle the new exception? If not, can they at least
 release resources correctly?
 
-If you've designed a type, strive to make its move and copy functions
-noexcept. This is because compilers can perform optimizations when it
-comes to STL functionality if noexcept is specified. 
-
-Otherwise, use noexcept judiciously. Keep in mind you can't take it
-back later, and that it's very hard to make this guarantee if you're
-writing generic code. For this reason, intelligently choose your
-conditionals inside of noexcept()
-
 Never throw exceptions out of a destructor
 
 Only use catch(...) directly inside of main(), and then only to clean up
@@ -2482,7 +2473,15 @@ your component doesn’t support hash functions throwing and make it
 unconditionally `noexcept`.
 
 ### `noexcept` [ DUNE VERSION]
-[blank, the info's folded into the dune version of "exceptions"]
+
+If you've designed a type, strive to make its move and copy functions
+noexcept. This is because compilers can perform optimizations when it
+comes to STL functionality if noexcept is specified. 
+
+Otherwise, use noexcept judiciously. Keep in mind you can't take it
+back later, and that it's very hard to make this guarantee if you're
+writing generic code. For this reason, intelligently choose your
+conditionals inside of noexcept()
 
 ### Run-Time Type Information (RTTI)
 
@@ -2819,9 +2818,8 @@ code revisions UNLESS you need to pass it to a (poorly-designed) API
 which doesn't change the variable's value but doesn't declare it const
 in its function signatures
 
-If a class method alters its own physical state but not its logical
-state, declare it const and use "mutable" to work around the physical
-changes
+If a class method alters the class instance's physical state but not its logical
+state, declare it const and use "mutable" so the compiler allows the physical changes.
 
 constexpr is even better than const; use it when you can. [reference to constexpr section]
 
@@ -2856,8 +2854,7 @@ Do not use `constexpr` to force inlining.
 
 If a variable or function's return value is fixed at compile time and
 you don't see this ever changing, declare it constexpr.  I say "don't
-see this ever changing" since similar to "const" or "noexcept", it's
-hard to revoke this later without breaking other people's code.
+see this ever changing" since similar to "const" or "noexcept", changing this later will likely break other people's code.
 
 
 ### Integer Types
@@ -3066,7 +3063,7 @@ consisting of your project's namespace name (but upper case).
 
 ### Preprocessor Macros [DUNE VERSION]
 
-While not explicitly forbidden, macros come with the very heavy price of the code you see not being the code the compiler sees, compounded by their de-facto global scope. Avoid them if at all possible, using inline functions,
+While not explicitly forbidden, macros come with the very heavy price of the code you see not being the code the compiler sees, a problem compounded by their de-facto global scope. Avoid them if at all possible, using inline functions,
 enums, `const` variables, and putting repeated code inside of functions. 
 
 If you *must* write a macro, this will avoid many of their problems:
@@ -3078,6 +3075,7 @@ If you *must* write a macro, this will avoid many of their problems:
     own; instead, pick a name that's likely to be unique.
   - Try not to use macros that expand to unbalanced C++ constructs, or
     at least document that behavior well.
+  - Have the variable names in your macro be very unlikely to be used elsewhere in unrelated code
   - Prefer not using `##` to generate function/class/variable names.
 
 ### 0 and nullptr/NULL
@@ -4853,7 +4851,7 @@ on Windows:
 
 ## Exceptions to the Rules [DUNE VERSION]
 
-For new code, exceptions should be quite rare. However: to the extent
+For new code, deviations from this guide should be quite rare. However: to the extent
 that we reuse already-existing code in the DUNE DAQ codebase, the
 already-existing code won't adhere to directives in this guide. If the
 code is never going to be touched again, then this won't be a big
@@ -4862,7 +4860,7 @@ least getting it to be *somewhat* more conformant to the rules,
 especially if the changes are relatively non-invasive (e.g., running
 it through clang-format, as opposed to breaking up a long but
 well-tested function). If anything about the style in existing code
-may be confusing to future developers, it may be worth commenting on
+may be confusing to future developers, it may be worth adding comments on
 how the style deviates from the standard. 
 
 ## Parting Words
