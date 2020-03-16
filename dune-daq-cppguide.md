@@ -3294,6 +3294,8 @@ next one may be you\!
 
 [DUNE VERSION OF THE "COMMENTS" SECTION]
 
+[This section needs to be made consistent with DOxygen standards on DUNE]
+
 Comments are absolutely vital to keeping our code readable. But
 remember: while comments are very important, the best code is
 self-documenting. Give sensible names to types and variables, and
