@@ -1,3 +1,5 @@
+# JCF, Mar-17-2020: If you edit this file, remember to also edit dune-daq-cppguide.md 
+
 # C++ Style Guide (based on Google's C++ Style Guide)
 
 ###### tags: `Software Management` `DAQ` `DUNE`
@@ -660,8 +662,9 @@ More complex `.cc` files might have additional details, like flags or using-decl
 
 ### Namespaces [DUNE VERSION]
 
-With few exceptions [perhaps "no exceptions"?], place code in a namespace [Do we want to define appropriate namespaces here - e.g., everything goes into the "dune" namespace, and then we perhaps have nested namespaces with well-chosen names?]. Try to avoid using *using-directives* (e.g. `using namespace foo`) as this risks name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. This is only a hard-and-fast rule when it comes to the top level in public
-  headers, however. On the other hand, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass` can be useful for improving readability. For unnamed namespaces, see [Unnamed Namespaces and Static
+With few exceptions, place code in a namespace. As of this writing, Mar-17-2020, there aren't yet a standard set of namespaces for DUNE DAQ software, but this may well change. Avoid using *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
+
+Also in the vein of reducing code clutter, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass` can be useful for improving readability. For unnamed namespaces, see [Unnamed Namespaces and Static
 Variables](#Unnamed_Namespaces_and_Static_Variables).
 
 When creating nonmember functions which work with a class, keep in mind that these functions are part of the class's interface and therefore should be in the same namespace as the class.
