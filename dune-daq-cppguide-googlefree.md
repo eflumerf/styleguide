@@ -252,31 +252,43 @@ for (int i = 0; i < 1000000; ++i) {
 }
 ```
 
+For pointer variables, this would translate to initializing the pointer to nullptr:
+``` c++
+std::unique_ptr fptr = nullptr;
+if (able_to_read_data) {
+    fptr = new Foo();
+    // fill the Foo instance with the data
+}
+if (fptr != nullptr) {
+    // send data
+}
+```
+
 ### Static and Global Variables 
 
-The less complex the constructors and destructors of static and global
-variables, the better. In particular, keep in mind there's no
+The less complex the constructors and destructors of classes that 
+are used as static and global variables anywhere in the code, the better.
+In particular, keep in mind there's no
 guarantee on the order of construction of these variables, and hence
 code should never rely on an assumed order.
-
-[Is this too watered down? What do people think about the
-only-trivially-destructible requirement Google makes?]
 
 ## Classes
 
 
 ### Doing Work in Constructors 
 
--Don't call any of a class's virtual functions in its constructor
+ - Don't call any of a class's virtual functions in its constructor.  This will not result in the correct invokation of subclass implementatiosn of those virtual functions.
 
--If an error occurs that will prevent the class from being constructed, have it throw an exception. As its destructor won't execute in this scenario, make sure you clean up any resources the constructor allocated before throwing.
+ - If an error occurs that will prevent the class from being constructed, have it throw an exception. As its destructor won't execute in this scenario, make sure you clean up any resources the constructor allocated before throwing.
 
--Initialize a class's member in the constructor's member initialization list rather than assign to it in the constructor's body. An exception to this might be if the member class's default constructor is much faster than its other constructors/assignment operator, but it's not guaranteed that it'll even need to be assigned to. 
+ - Initialize a class's member in the constructor's member initialization list rather than assign to it in the constructor's body. An exception to this might be if the member class's default constructor is much faster than its other constructors/assignment operator, but it's not guaranteed that it'll even need to be assigned to. 
 
 
 ### Implicit Conversions
 
-In general, do not define implicit conversions. Type conversion
+In general, use the `explicit` keyword in the declaration of constructors
+to avoid having them used to perform an implicit conversion in user code.
+Type conversion
 operators, and constructors that are callable with a single argument,
 should be marked `explicit` in the class definition. As an exception,
 copy and move constructors should not be `explicit`, since they do not
@@ -285,7 +297,8 @@ necessary and appropriate for types that are designed to transparently
 wrap other types; in this case an exception to the rule is allowed.
 
 Constructors that cannot be called with a single argument may omit
-`explicit`. 
+`explicit` since the C++ language does not consider multi-argument
+constructors for implicit conversions.
 
 ### Copyable and Movable Types 
 
@@ -382,6 +395,7 @@ more details.
 
  - Have it do one thing, rather than many things (the "Swiss army knife" trap)
  - If it starts getting long (say, beyond 40 lines) think about ways it could be broken up into other functions
+ - Prefer names that describe, to an appropriate level of precision, what the function does
 
 ### Output Parameters
 
@@ -395,7 +409,9 @@ which serve both as input *and* output should be placed in-between.
 
 If a function is overloaded by the argument types alone, make sure its
 behavior is very similar across the types, especially if the types are
-themselves similar (e.g., std::string vs. const char*)
+themselves similar (e.g., std::string vs. const char*).
+
+If the behavior is noticeably different, prefer different function names.
 
 ### Default Arguments
 
@@ -404,9 +420,14 @@ default is guaranteed to always have the same value. Always define the
 value of the argument in the header, as it's part of the function's
 interface.
 
+[KB, March 23, 2020: it would be great to talk about special situations
+in which a default argument could be supported in subclasses.]
+
 ### Trailing Return Type Syntax
 
-The only time it's OK to use a trailing return type is when specifying
+The only time it's OK to use a trailing return type (when the return type is 
+listed after the function name and the argument list in the declaration; C++11)
+is when specifying
 the return type of a [lambda expression](#Lambda_expressions). In some
 cases the compiler is able to deduce a lambda's return type, but not
 in all cases.
@@ -417,9 +438,7 @@ in all cases.
 
  - Use of raw pointers should be very rare. One of the few times it's OK is when you want to point to an object where you don't want to change anything about its ownership. Even there, a std::weak_ptr is preferable. 
 
- - A corollary is that you should (almost) never use delete on a raw pointer
-
-[Do we want to be even more strict about this? Can we get away with NEVER using raw pointers?]
+ - A corollary is that you should (almost) never use delete on a raw pointer because we expect that the use of raw pointers in DUNE DAQ will be limited to low-overhead access to pre-existing memory buffers, in which the user does not have ownership of the memory that is pointed to.
 
 ## Other C++ Features
 
