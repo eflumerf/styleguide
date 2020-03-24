@@ -48,7 +48,11 @@ increased readability will be well worth it.
 Note that this guide is not a C++ tutorial: we assume that the reader is
 familiar with the language.
 
-### Goals of the Style Guide
+### Goals of the Style Guide [GOOGLE VERSION, NO DUNE EQUIVALENT]
+
+<details><summary>Expand here</summary>
+
+
 
 Why do we have this document?
 
@@ -149,13 +153,18 @@ unusual constructs: the absence of a prohibition is not the same as a
 license to proceed. Use your judgment, and if you are unsure, please
 don't hesitate to ask your project leads to get additional input.
 
+</details>
 ### Goals of the Style Guide [DUNE VERSION]
 
 [Eliminated. It's not that there's anything actively wrong with it,
 it's just that there's not a lot of concrete info people can use, and
 shorter documentation is better, all things being equal]
 
-## C++ Version
+## C++ Version [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+
 
 Currently, code should target C++17, i.e., should not use C++2x
 features. The C++ version targeted by this guide will advance
@@ -165,13 +174,18 @@ Do not use [non-standard extensions](#Nonstandard_Extensions).
 
 Consider portability to other environments before using features from
 C++14 and C++17 in your project.
+</details>
 
 ## C++ Version [DUNE VERSION]
 
 Currently, code should target C++17, i.e., should not use C++2x
 features.
 
-## Header Files
+## Header Files [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+
 
 In general, every `.cc` file should have an associated `.h` file. There
 are some common exceptions, such as unittests and small `.cc` files
@@ -182,7 +196,7 @@ readability, size and performance of your code.
 
 The following rules will guide you through the various pitfalls of using
 header files.
-
+</details>
 
 ## Header Files [DUNE VERSION OF THE INTRO]
 
@@ -198,7 +212,11 @@ In general, every `.cc` file should have an associated `.hh` file. There
 are some common exceptions, such as unittests and small `.cc` files
 containing just a `main()` function.
 
-### Self-contained Headers
+### Self-contained Headers [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+
 
 Header files should be self-contained (compile on their own) and end in
 `.h`. Non-header files that are meant for inclusion should end in `.inc`
@@ -229,6 +247,7 @@ locations, such as the middle of another file. They might not use
 [header guards](#The__define_Guard), and might not include their
 prerequisites. Name such files with the `.inc` extension. Use sparingly,
 and prefer self-contained headers when possible.
+</details>
 
 ### Self-contained Headers [DUNE VERSION]
 
@@ -254,7 +273,11 @@ detail of a class, is allowed to be defined in the one and only `.cc`
 file that instantiates the template.
 
 
-### The \#define Guard
+### The \#define Guard [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+
 
 All header files should have `#define` guards to prevent multiple
 inclusion. The format of the symbol name should be
@@ -272,6 +295,7 @@ project `foo` should have the following guard:
     
     #endif  // FOO_BAR_BAZ_H_
 ```
+</details>
 
 ### The \#define Guard [DUNE VERSION]
 
@@ -280,7 +304,11 @@ inclusion. The format of the symbol name should be
 `<PROJECT>_<PATH>_<FILE>_H_`.
 
 
-### Forward Declarations
+### Forward Declarations  [GOOGLE VERSION, NO DUNE EQUIVALENT]
+
+<details><summary>Expand here</summary>
+
+
 
 Avoid using forward declarations where possible. Instead, `#include` the
 headers you need.
@@ -344,13 +372,10 @@ template without an associated definition.
 
 Please see [Names and Order of Includes](#Names_and_Order_of_Includes)
 for rules about when to \#include a header.
-
+</details>
 
 ### Forward Declarations [DUNE VERSION]
-[What are people's thoughts on not outlawing forward declarations? It
-seems like we might want to use the pImpl idiom, etc., though I take
-Google's points against forward declarations]
-
+[We're not going to forbid forward declarations, since while there are costs as described in the google style manual, the benefits of faster compilation outweight these costs]
 
 ### Inline Functions
 
