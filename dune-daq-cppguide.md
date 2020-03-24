@@ -298,6 +298,7 @@ project `foo` should have the following guard:
 ```
 </details>
 
+<a name="The__define_Guard"></a>
 ### The \#define Guard [DUNE VERSION]
 
 All header files should have `#define` guards to prevent multiple
