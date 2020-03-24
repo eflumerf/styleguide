@@ -978,9 +978,12 @@ for (int i = 0; i < 1000000; ++i) {
 
 For pointer variables, this would translate to initializing the pointer to nullptr:
 ``` c++
+
+// Assume we don't yet know the Foo instance fptr will point to...
 std::unique_ptr<Foo> fptr = nullptr;
+
 if (able_to_read_data) {
-    fptr = new Foo();
+    fptr.reset( new Foo() ); 
     // fill the Foo instance with the data
 }
 if (fptr != nullptr) {
