@@ -4,7 +4,7 @@
 
 ###### tags: `Software Management` `DAQ` `DUNE`
 
-## Background
+## <details><summary>Background [GOOGLE VERSION]</summary>
 
 C++ is one of the main development languages used by many of Google's
 open-source projects. As every C++ programmer knows, the language has
@@ -25,6 +25,8 @@ requirements in this guide.
 
 Note that this guide is not a C++ tutorial: we assume that the reader is
 familiar with the language.
+
+</details>
 
 ## Background [DUNE VERSION]
 
