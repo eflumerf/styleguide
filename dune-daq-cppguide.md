@@ -4,7 +4,9 @@
 
 ###### tags: `Software Management` `DAQ` `DUNE`
 
-## <details><summary>Background [GOOGLE VERSION]</summary>
+## Background [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
 
 C++ is one of the main development languages used by many of Google's
 open-source projects. As every C++ programmer knows, the language has
