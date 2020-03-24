@@ -154,6 +154,7 @@ license to proceed. Use your judgment, and if you are unsure, please
 don't hesitate to ask your project leads to get additional input.
 
 </details>
+
 ### Goals of the Style Guide [DUNE VERSION]
 
 [Eliminated. It's not that there's anything actively wrong with it,
@@ -181,7 +182,7 @@ C++14 and C++17 in your project.
 Currently, code should target C++17, i.e., should not use C++2x
 features.
 
-## Header Files [GOOGLE VERSION]
+## Header Files [GOOGLE VERSION OF THE INTRO]
 
 <details><summary>Expand here</summary>
 
@@ -281,7 +282,7 @@ file that instantiates the template.
 
 All header files should have `#define` guards to prevent multiple
 inclusion. The format of the symbol name should be
-`<PROJECT>_<PATH>_<FILE>_H_`.
+`<PROJECT>_<PATH>_<FILE>_HH_`.
 
 To guarantee uniqueness, they should be based on the full path in a
 project's source tree. For example, the file `foo/src/bar/baz.h` in
@@ -304,7 +305,7 @@ inclusion. The format of the symbol name should be
 `<PROJECT>_<PATH>_<FILE>_H_`.
 
 
-### Forward Declarations  [GOOGLE VERSION, NO DUNE EQUIVALENT]
+### Forward Declarations  [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -391,8 +392,8 @@ them inline rather than calling them through the usual function call
 mechanism.
 
 Inlining a function can generate more efficient object code, as long as
-the inlined function is small. Feel free to inline accessors and
-mutators, and other short, performance-critical functions.
+the inlined function is small. Feel free to inline getters and
+setters, and other short, performance-critical functions.
 
 Overuse of inlining can actually make programs slower. Depending on a
 function's size, inlining it can cause the code size to increase or
@@ -702,6 +703,7 @@ More complex `.cc` files might have additional details, like flags or using-decl
  ```
   - Do not use inline namespaces.
 </details>
+
 ### Namespaces [DUNE VERSION]
 
 With few exceptions, place code in a namespace. As of this writing, Mar-17-2020, there aren't yet a standard set of namespaces for DUNE DAQ software, but this may well change. Avoid using *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
@@ -1933,7 +1935,7 @@ more details.
 
 ## Functions
 
-### General guidelines for writing a function
+### General guidelines for writing a function [DUNE VERSION, NO GOOGLE EQUIVALENT]
 
  - Have it do one thing, rather than many things (the "Swiss army knife" trap)
  - If it starts getting long (say, beyond 40 lines) think about ways it could be broken up into other functions
@@ -2053,7 +2055,7 @@ explanation that doesn't exist.
 </details>
 
 ### Reference Arguments [DUNE VERSION]
-[Section eliminated, unless someone thinks any of this should apply to DUNE]
+[Section eliminated, unless someone thinks any what Google has should apply to DUNE]
 
 ### Function Overloading [GOOGLE VERSION]
 
@@ -2868,7 +2870,7 @@ common convention).
 ### Streams [DUNE VERSION]
 [Deleted; folded into the new "printing messages" section]
 
-### Printing Messages [DUNE VERSION]
+### Printing Messages [DUNE VERSION, NO GOOGLE EQUIVALENT]
 
 Use TRACE for output. Never use alternatives (this includes printf, cout, etc.)
 
@@ -3486,7 +3488,11 @@ and to the compiler what it is you're trying to do.
 
 ## Comments
 
-<details><summary>Expand here for the google version of the intro</summary>
+
+[JCF, Mar-24-2020: this section needs to be made consistent with DOxygen standards on DUNE. Pengfei has agreed to take a look]
+
+
+### Intro [GOOGLE VERSION]<details><summary>Expand here</summary>
 
 Comments are absolutely vital to keeping our code readable. The
 following rules describe what you should comment and where. But
@@ -3501,9 +3507,7 @@ next one may be you\!
 
 </details>
 
-[DUNE VERSION OF THE "COMMENTS" SECTION INTRO]
-
-[This section and its subsections need to be made consistent with DOxygen standards on DUNE]
+### Intro [DUNE VERSION]
 
 Comments are absolutely vital to keeping our code readable. But
 remember: while comments are very important, the best code is
@@ -3534,7 +3538,7 @@ you use where.
 
 ### Comment Style [DUNE VERSION]
 
-Use either the `//` syntax instead of the old C-style `/* */` syntax
+Use the `//` syntax instead of the old C-style `/* */` syntax
 
 ### File Comments [GOOGLE VERSION]
 
@@ -3797,7 +3801,7 @@ for the first half of the function but why it is not needed for the
 second half.
 
 Note you should *not* just repeat the comments given with the function
-declaration, in the `.h` file or wherever. It's okay to recapitulate
+declaration, in the `.hh` file or wherever. It's okay to recapitulate
 briefly what the function does, but the focus of the comments should be
 on how it does it.
 </details>
@@ -3864,10 +3868,7 @@ example:
 In general the actual name of the variable should be descriptive enough
 to give a good idea of what the variable is used for. 
 
-#### Class Data Members [GOOGLE VERSION]
-
-<details><summary>Expand here</summary>
-
+#### Class Data Members
 
 If there are any invariants (special values, relationships between
 members, lifetime requirements) not clearly expressed by the type and
@@ -3886,7 +3887,11 @@ like DUNE_GLOBAL_VAR, in the comment, so it'll be easy to find global
 variables?]
 
 
-### Implementation Comments
+### Implementation Comments [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+
 
 In your implementation you should have comments in tricky, non-obvious,
 interesting, or important parts of your code.
