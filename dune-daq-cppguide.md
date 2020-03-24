@@ -1,4 +1,4 @@
-# JCF, Mar-24-2020: for the time being, the original sections of the Google style guide can be expanded for purposes of comparison with their DUNE counterparts. IF YOU MAKE EDITS MAKE SURE IT IS TO THE DUNE VERSION AND NOT THE GOOGLE VERSION. 
+# JCF, Mar-24-2020: for the time being, the original sections of the Google style guide can be expanded for purposes of comparison with their DUNE counterparts. IF YOU MAKE EDITS MAKE SURE IT IS TO A DUNE SECTION AND NOT A GOOGLE SECTION. 
 
 # C++ Style Guide (based on Google's C++ Style Guide)
 
@@ -376,6 +376,8 @@ Please see [Names and Order of Includes](#Names_and_Order_of_Includes)
 for rules about when to \#include a header.
 </details>
 
+<a name="Forward_Declarations"></a>
+
 ### Forward Declarations [DUNE VERSION]
 [We're not going to forbid forward declarations, since while there are costs as described in the google style manual, the benefits of faster compilation outweight these costs]
 
@@ -418,6 +420,8 @@ inline. The main reason for making a virtual function inline is to place
 its definition in the class, either for convenience or to document its
 behavior, e.g., for accessors and mutators.
 </details>
+
+<a name="Inline_Functions"></a>
 
 ### Inline Functions [DUNE VERSION]
 
@@ -523,6 +527,8 @@ system-specific code small and localized. Example:
     #endif  // LANG_CXX11
 ```
 </details>
+
+<a name="Names_and_Order_of_Includes"></a>
 
 ### Names and Order of Includes [DUNE VERSION]
 
@@ -716,8 +722,6 @@ When creating nonmember functions which work with a class, keep in mind that the
 
 Namespaces should be used as follows:
 
-  - Follow the rules on [Namespace Names](#Namespace_Names).
-
   - Terminate namespaces with comments as shown in the given examples.
 
   - Namespaces wrap the entire source file after includes,
@@ -830,6 +834,8 @@ comment, leave the namespace name empty:
     }  // namespace
 ```
 </details>
+
+<a name="Unnamed_Namespaces_and_Static_Variables"></a>
 
 ### Unnamed Namespaces and Static Variables [DUNE VERSION]
 
@@ -1428,6 +1434,8 @@ parameter should also omit `explicit`, in order to support
 copy-initialization (e.g. `MyType m = {1, 2};`).
 </details>
 
+<a name="Implicit_Conversions"></a>
+
 ### Implicit Conversions [DUNE VERSION]
 
 In general, use the `explicit` keyword in the declaration of constructors
@@ -1635,6 +1643,8 @@ Note that member variables in structs and classes have [different naming
 rules](#Variable_Names).
 </details>
 
+<a name="Structs_vs._Classes"></a>
+
 ### Structs vs. Classes [DUNE VERSION]
 
 Always use a `class` rather than `struct` unless you're creating:
@@ -1646,9 +1656,6 @@ If using a struct to carry data, all fields must be public, and accessed directl
 through getter/setter methods. Any functions must not provide behavior
 but should only be used to set up the data members, e.g., constructor,
 destructor, `Initialize()`, `Reset()`.
-
-Note that member variables in structs and classes have [different naming
-rules](#Variable_Names).
 
 
 ### Structs vs. Pairs and Tuples [GOOGLE VERSION]
@@ -1866,10 +1873,10 @@ apply to operator overloading as well.
 
 There's a limited set of circumstances in which it's OK to overload operators:
 
- - For copying, operator=. More in the section on [copy constructors](#Copy_Constructors).
+ - For copying, operator=. 
  - For type conversions, operator(). More in [implicit conversions](#Implicit_Conversions).
  - When defining comparison operators for a user-defined type
- - Outputting a type's value where it makes sense, by streaming with operator<<. Overloading `<<` for use with streams is covered in the section on [streams](#Streams).
+ - Outputting a type's value where it makes sense, by streaming with operator<<. 
 
 ### Access Control [GOOGLE VERSION]
 
@@ -1887,6 +1894,8 @@ a .cc file to be `protected` when using [Google
 Test](https://github.com/google/googletest)).
 
 </details>
+
+<a name="Access_Control"></a>
 
 ### Access Control [DUNE VERSION]
 
@@ -2113,6 +2122,8 @@ set with a single comment in the header, that is a good sign that it is
 a well-designed overload set.
 </details>
 
+<a name="Function_Overloading"></a>
+
 ### Function Overloading [DUNE VERSION]
 
 If a function is overloaded by the argument types alone, make sure its
@@ -2249,7 +2260,7 @@ cases](#Template_metaprogramming).
 ### Trailing Return Type Syntax [DUNE VERSION]
 
 The only time it's OK to use a trailing return type (when the return type is listed after the function name and the argument list in the declaration; C++11) is when specifying
-the return type of a [lambda expression](#Lambda_expressions). In some
+the return type of a lambda expression. In some
 cases the compiler is able to deduce a lambda's return type, but not
 in all cases.
 
@@ -3020,9 +3031,7 @@ in its function signatures
 If a class method alters the class instance's physical state but not its logical
 state, declare it const and use "mutable" so the compiler allows the physical changes.
 
-constexpr is even better than const; use it when you can. [reference to constexpr section]
-
-[where to put the const? Like Google, I prefer "const type varname" over "type const varname", but not as much as I prefer avoiding holy wars]
+constexpr is even better than const; use it when you can. constexpr is described [below](#Constexpr) .
 
 ### Use of constexpr [GOOGLE VERSION]
 
@@ -3052,6 +3061,8 @@ constants and the functions that support their definitions. Avoid
 complexifying function definitions to enable their use with `constexpr`.
 Do not use `constexpr` to force inlining.
 </details>
+
+<a name="Constexpr"></a>
 
 ### Use of constexpr [DUNE VERSION]
 
