@@ -1,4 +1,4 @@
-# JCF, Mar-17-2020: If you edit this file, remember to also edit dune-daq-cppguide.md 
+# JCF, Mar-24-2020: for the time being, the original sections of the Google style guide can be expanded for purposes of comparison with their DUNE counterparts. IF YOU MAKE EDITS MAKE SURE IT IS TO THE DUNE VERSION AND NOT THE GOOGLE VERSION. 
 
 # C++ Style Guide (based on Google's C++ Style Guide)
 
@@ -37,7 +37,7 @@ processes. It is an unusually complex language, which can make code
 more bug-prone and harder to read and maintain.
 
 The goal of this guide is to manage this complexity by describing in
-detail the dos and don'ts of writing C++ code. These rules exist to
+detail the dos and don'ts of writing C++ code for the DUNE data acquisition system. These rules exist to
 keep the code base manageable while still allowing coders to use C++
 language features productively. While it will take a certain amount of
 time to learn these rules and adhering to them may mean that creating
@@ -256,7 +256,7 @@ Header files should be self-contained (compile on their own) and end in
 `.hh`. Non-header files that are meant for inclusion should end in `.inc`
 and be used very rarely. 
 
-All header files should be self-contained. Users and refactoring tools
+Users and refactoring tools
 should not have to adhere to special conditions to include the header.
 Specifically, a header should have [header guards](#The__define_Guard)
 and include all other headers it needs.
@@ -282,7 +282,7 @@ file that instantiates the template.
 
 All header files should have `#define` guards to prevent multiple
 inclusion. The format of the symbol name should be
-`<PROJECT>_<PATH>_<FILE>_HH_`.
+`<PROJECT>_<PATH>_<FILE>_H_`.
 
 To guarantee uniqueness, they should be based on the full path in a
 project's source tree. For example, the file `foo/src/bar/baz.h` in
@@ -302,7 +302,7 @@ project `foo` should have the following guard:
 
 All header files should have `#define` guards to prevent multiple
 inclusion. The format of the symbol name should be
-`<PROJECT>_<PATH>_<FILE>_H_`.
+`<PROJECT>_<PATH>_<FILE>_HH_`.
 
 
 ### Forward Declarations  [GOOGLE VERSION]
@@ -525,8 +525,9 @@ system-specific code small and localized. Example:
 
 ### Names and Order of Includes [DUNE VERSION]
 
-If the included header is the "related header" - meaning, you're editing foo.cc 
-and the header is foo.hh - put it before all the other headers.
+In *any* file which performs an include, if the included header is the
+"related header" - meaning, you're editing foo.cc and the header is
+foo.hh - put it before all the other headers.
 
 Then, in order:
 
@@ -546,8 +547,7 @@ project's source directory without use of UNIX directory aliases `.`
 ```
 
 You should include all the headers that define the symbols you rely
-upon, except in the unusual [?] case of [forward
-declaration](#Forward_Declarations). Note that the order of header
+upon, except in the case of forward declarations. Note that the order of header
 declarations described above helps enforce this rule. If you rely on
 symbols from `bar.h`, don't count on the fact that you included
 `foo.h` which (currently) includes `bar.h`: include `bar.h` yourself,
@@ -708,7 +708,7 @@ More complex `.cc` files might have additional details, like flags or using-decl
 
 With few exceptions, place code in a namespace. As of this writing, Mar-17-2020, there aren't yet a standard set of namespaces for DUNE DAQ software, but this may well change. Avoid using *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
 
-Also in the vein of reducing code clutter, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass` can be useful for improving readability. For unnamed namespaces, see [Unnamed Namespaces and Static
+Also in the vein of reducing code clutter, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass`) can be useful for improving readability. For unnamed namespaces, see [Unnamed Namespaces and Static
 Variables](#Unnamed_Namespaces_and_Static_Variables).
 
 When creating nonmember functions which work with a class, keep in mind that these functions are part of the class's interface and therefore should be in the same namespace as the class.
@@ -777,11 +777,13 @@ More complex `.cc` files might have additional details, like using-declarations.
     anything imported into a namespace in a header file becomes part of
     the public API exported by that file.
     
+    The following are examples of proper use of a namespace alias:
+
   ``` c++  
         // Shorten access to some commonly used names in .cc files.
         namespace baz = ::foo::bar::baz;
     
-        // Shorten access to some commonly used names (in a .h file).
+        // Shorten access to some commonly used names (in a .hh file).
         namespace librarian {
             namespace impl {  // Internal, not part of the API.
             namespace sidetable = ::pipeline_diagnostics::sidetable;
@@ -835,12 +837,18 @@ that file, place them in an unnamed namespace or declare them `static`.
 Do not use either of these constructs in `.hh` files.
 
 Format unnamed namespaces like named namespaces. In the terminating
-comment, leave the namespace name empty:
+comment, use a pair of double quotes in place of the (nonexistent) namespace name
+
+Use unnamed namespaces/static variables for when it makes sense to maintain file scope (as opposed to local or global scope) for that variable. An example might be 
 
 ```c++
     namespace {
-        ...
-    }  // namespace
+ 
+        void utility_function_only_meaningful_to_this_file() {
+            ...
+        }   
+
+    }  // namespace ""
 ```
 
 ### Nonmember, Static Member, and Global Functions [GOOGLE VERSION]
@@ -970,7 +978,7 @@ for (int i = 0; i < 1000000; ++i) {
 
 For pointer variables, this would translate to initializing the pointer to nullptr:
 ``` c++
-std::unique_ptr fptr = nullptr;
+std::unique_ptr<Foo> fptr = nullptr;
 if (able_to_read_data) {
     fptr = new Foo();
     // fill the Foo instance with the data
@@ -2055,7 +2063,7 @@ explanation that doesn't exist.
 </details>
 
 ### Reference Arguments [DUNE VERSION]
-[Section eliminated, unless someone thinks any what Google has should apply to DUNE]
+[Section eliminated, unless someone thinks any of the rules Google has should apply to DUNE]
 
 ### Function Overloading [GOOGLE VERSION]
 
@@ -3492,7 +3500,9 @@ and to the compiler what it is you're trying to do.
 [JCF, Mar-24-2020: this section needs to be made consistent with DOxygen standards on DUNE. Pengfei has agreed to take a look]
 
 
-### Intro [GOOGLE VERSION]<details><summary>Expand here</summary>
+### Intro [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
 
 Comments are absolutely vital to keeping our code readable. The
 following rules describe what you should comment and where. But
@@ -3818,7 +3828,7 @@ for the first half of the function but why it is not needed for the
 second half.
 
 Note you should *not* just repeat the comments given with the function
-declaration, in the `.h` file or wherever. It's okay to recapitulate
+declaration, in the `.hh` file or wherever. It's okay to recapitulate
 briefly what the function does, but the focus of the comments should be
 on how it does it.
 
