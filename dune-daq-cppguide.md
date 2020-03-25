@@ -1942,7 +1942,7 @@ empty.
 Within each section, generally prefer grouping similar kinds of
 declarations together, and generally prefer the following order: 
 
- - types (including `typedef`, `using`, and nested structs and classes)
+ - types (including alias declarations/`typedef`s, `using`, and nested structs and classes)
  - constants 
  - constructors
  - assignment operators
@@ -2818,6 +2818,20 @@ Do not use C-style casts (e.g., "(float)3.5" or "float(3.5)")
 
 Use reinterpret_cast only for low level code, and only if you're sure
 there's no safer approach
+
+### alias declarations and `typedef`s [DUNE VERSION, NO GOOGLE EQUIVALENT]
+
+Use alias declarations and `typedef`s to clarify the meaning of a type
+in a given context. Prefer use of alias declarations; in particular,
+use them when giving a templatized type a more-meaningful name, as
+there's not a simple way to do this with `typedef`s. E.g.
+
+```
+template<typename T>
+using MyAllocList = std::list<T, MyAlloc<T>>;
+
+MyAllocList<Foo> foos;
+```
 
 ### Streams [GOOGLE VERSION]
 
