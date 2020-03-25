@@ -41,7 +41,7 @@ detail the dos and don'ts of writing C++ code for the DUNE data acquisition syst
 keep the code base manageable while still allowing coders to use C++
 language features productively. While it will take a certain amount of
 time to learn these rules and adhering to them may mean that creating
-a piece of code that "just works" would take a little longer than it
+a piece of code that "just works" might take a little longer than it
 otherwise would, the payoff in terms of reduced debugging time and
 increased readability will be well worth it.
 
@@ -157,9 +157,10 @@ don't hesitate to ask your project leads to get additional input.
 
 ### Goals of the Style Guide [DUNE VERSION]
 
-[Eliminated. It's not that there's anything actively wrong with it,
-it's just that there's not a lot of concrete info people can use, and
-shorter documentation is better, all things being equal]
+[Eliminated. It's not that there's anything actively wrong with
+Google's section, it's just that there's not a lot of concrete info
+people can use, and shorter documentation is better, all things being
+equal]
 
 ## C++ Version [GOOGLE VERSION]
 
@@ -379,7 +380,7 @@ for rules about when to \#include a header.
 <a name="Forward_Declarations"></a>
 
 ### Forward Declarations [DUNE VERSION]
-[We're not going to forbid forward declarations, since while there are costs as described in the google style manual, the benefits of faster compilation outweight these costs]
+[We're not going to forbid forward declarations, since while there are costs as described in the google style manual, the benefits of faster compilation outweigh these costs]
 
 ### Inline Functions [GOOGLE VERSION]
 
@@ -426,7 +427,7 @@ behavior, e.g., for accessors and mutators.
 ### Inline Functions [DUNE VERSION]
 
 Define functions inline only when they are small, say, 10 lines or
-fewer. Feel free to inline accessors and mutators, and other short,
+fewer. Feel free to inline getters and setters, and other short,
 performance-critical functions. Don't inline functions with loops or
 switch statements (unless, in the common case, the loop or switch
 statement is never executed).
@@ -547,19 +548,19 @@ Then, in order:
 All of a project's header files should be listed as descendants of the
 project's source directory without use of UNIX directory aliases `.`
 (the current directory) or `..` (the parent directory). For example,
-`google-awesome-project/src/base/logging.h` should be included as:
+`DUNE-awesome-DAQ-project/src/base/GetAllSupernovaData.hh` should be included as:
 
 ```c++
-#include "base/logging.h"
+#include "base/GetAllSupernovaData.hh"
 ```
 
 You should include all the headers that define the symbols you rely
 upon, except in the case of forward declarations. Note that the order of header
 declarations described above helps enforce this rule. If you rely on
-symbols from `bar.h`, don't count on the fact that you included
-`foo.h` which (currently) includes `bar.h`: include `bar.h` yourself,
-unless `foo.h` explicitly demonstrates its intent to provide you the
-symbols of `bar.h`.
+symbols from `Bar.hh`, don't count on the fact that you included
+`Foo.hh` which (currently) includes `Bar.hh`: include `Bar.hh` yourself,
+unless `Foo.hh` explicitly demonstrates its intent to provide you the
+symbols of `Bar.hh`.
 
 
 
@@ -713,12 +714,12 @@ More complex `.cc` files might have additional details, like flags or using-decl
 
 ### Namespaces [DUNE VERSION]
 
-With few exceptions, place code in a namespace. As of this writing, Mar-17-2020, there aren't yet a standard set of namespaces for DUNE DAQ software, but this may well change. Avoid using *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
+With few exceptions, place code in a namespace. As of this writing, Mar-17-2020, there aren't yet a standard set of namespaces for DUNE DAQ software, but this may well change. Avoid putting *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
 
 Also in the vein of reducing code clutter, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass`) can be useful for improving readability. For unnamed namespaces, see [Unnamed Namespaces and Static
 Variables](#Unnamed_Namespaces_and_Static_Variables).
 
-When creating nonmember functions which work with a class, keep in mind that these functions are part of the class's interface and therefore should be in the same namespace as the class.
+When creating nonmember functions which work with a class, keep in mind that these functions are part of the class's interface and therefore should be in the same namespace as the class, though not necessarily the same files. 
 
 Namespaces should be used as follows:
 
@@ -753,12 +754,11 @@ Namespaces should be used as follows:
      
      }  // namespace mynamespace
 ```
-[Are people happy with the indentations above?]
 
 More complex `.cc` files might have additional details, like using-declarations.
   
 ``` c++
-    #include "a.hh"
+    #include "AHeader.hh"
     
     namespace mynamespace {
     
@@ -1605,9 +1605,9 @@ classes can use to implement it.
 
 ### Copyable and Movable Types [DUNE VERSION]
 
-If a class contains member data, its copy constructor, copy
+If a class contains member data, each of its copy constructor, copy
  assignment operator, move constructor and move assignment operators
- must all be either defined or explicitly deleted. "Defined" could be
+ must be either defined or explicitly deleted. "Defined" could be
  as simple as making explicit the use of the "default" keyword.
 
 ### Structs vs. Classes [GOOGLE VERSION]
@@ -1873,10 +1873,10 @@ apply to operator overloading as well.
 
 There's a limited set of circumstances in which it's OK to overload operators:
 
- - For copying, operator=. 
- - For type conversions, operator(). More in [implicit conversions](#Implicit_Conversions).
+ - For copying, `operator=`. 
+ - For type conversions, `operator()`. More in [implicit conversions](#Implicit_Conversions).
  - When defining comparison operators for a user-defined type
- - Outputting a type's value where it makes sense, by streaming with operator<<. 
+ - Outputting a type's value where it makes sense, by streaming with `operator<<`. Note this should be a nonmember function, not a member function of the type.
 
 ### Access Control [GOOGLE VERSION]
 
@@ -2355,7 +2355,7 @@ Never use `std::auto_ptr`. Instead, use `std::unique_ptr`.
 
 ### Ownership and Smart Pointers [DUNE VERSION]
 
- - You should find yourself using std::unique_ptr more often than std::shared_ptr
+ - You should find yourself using `std::unique_ptr` more often than `std::shared_ptr`
 
  - Use of raw pointers should be very rare. One of the few times it's OK is when you want to point to an object where you don't want to change anything about its ownership. Even there, a std::weak_ptr is preferable. 
 
@@ -2477,12 +2477,14 @@ interact with other classes solely through their public members.
 
 ### Friends [DUNE VERSION]
 
-Use friend classes only when alternatives result in less
+Use friend classes when alternatives result in less
 encapsulation. An example of this would be if there's only one
 nonmember function which you could imagine would ever need a given
 member of a class - in this case, while you could make that given
 member public, it would result in less encapsulation than use of a
 friend function.
+
+An appropriate use of a friend function is if you're overloading the streaming operator, `operator<<`, and want to print a type's private data.
 
 Define your friend function in the same file as the class it's a friend of. 
 
@@ -2894,6 +2896,8 @@ common convention).
 [Deleted; folded into the new "printing messages" section]
 
 ### Printing Messages [DUNE VERSION, NO GOOGLE EQUIVALENT]
+
+*JCF, Mar-25-2020: this section can only be completed once DFWG and CCM hash out how to deal with logging. In particular, "Use TRACE for output" should be taken only as a placeholder until this happens*
 
 Use TRACE for output. Never use alternatives (this includes printf, cout, etc.)
 
@@ -3501,7 +3505,7 @@ The `auto` and `decltype` keywords save a lot of hassle for the
 *writer* of a piece of code, but not necessarily for the
 *reader*. Keep in mind the reader might be you in 18 months. Use your
 best judgement as to when the benefits of these keywords (reduced code
-clutter) outweigh the costs (the reader can't immediately figure out
+clutter) outweigh the costs (the reader has trouble figuring out
 the type of a variable).
 
 While a function template can deduce the type of the argument, making
@@ -3512,7 +3516,7 @@ and to the compiler what it is you're trying to do.
 ## Comments
 
 
-[JCF, Mar-24-2020: this section needs to be made consistent with DOxygen standards on DUNE. Pengfei has agreed to take a look]
+*JCF, Mar-24-2020: this section needs to be made consistent with DOxygen standards on DUNE. Pengfei has agreed to take a look*
 
 
 ### Intro [GOOGLE VERSION]
@@ -3583,7 +3587,7 @@ other files must have file comments.
 Avoid license boilerplate at the top of a file. This does NOT mean you ignore licensing. Instead, have something succinct like:
 ```
  // This is part of XXX, copywrite YYY.  It is distributed under               
-  // license LLL.  See the file COPYING for deatils.          
+  // license LLL.  See the file COPYING for details.          
 ```
 
 File comments describe the contents of a file. If a file declares,
@@ -4118,7 +4122,7 @@ few weeks") as to when you expect something should be done.
 name, e-mail address, bug ID, or other identifier of the person or issue
 with the best context about the problem referenced by the `TODO`. 
 
-Stale TODO comments should be reviewed. If they're no longer relevant,
+Stale `TODO` comments should be reviewed. If they're no longer relevant,
 they should be deleted. If they're still relevant, a message should be
 sent to the person whose e-mail is given in the comment. When in
 doubt, send an e-mail.
