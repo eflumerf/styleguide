@@ -3598,11 +3598,8 @@ other files must have file comments.
 
 ### File Comments [DUNE VERSION]
 
-Avoid license boilerplate at the top of a file. This does NOT mean you ignore licensing. Instead, have something succinct like:
-```
- // This is part of XXX, copywrite YYY.  It is distributed under               
-  // license LLL.  See the file COPYING for details.          
-```
+Always include the brief license info described below under [Legal
+Notice](Legal_Notice).
 
 File comments describe the contents of a file. If a file declares,
 implements, or tests exactly one abstraction that is documented by a
@@ -3633,8 +3630,17 @@ deleting the author line. New files should usually not contain copyright
 notice or author line.
 </details>
 
+<a name="Legal_Notice"></a>
 #### Legal Notice and Author Line [DUNE VERSION]
-[Anyone got any ideas?]
+
+The following License stanza should be included in your Doxygen @file section:
+
+```
+* This is part of the DUNE DAQ Application Framework, copyright 2020.
+* Licensing/copyright details are in the COPYING file that you should have received with this code.
+```
+
+[JCF, Mar-27-2020: The details of what license would be in the COPYING file are TBD, and should probably involve Giovanna]
 
 #### File Contents [GOOGLE VERSION]
 
