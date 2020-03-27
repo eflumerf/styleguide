@@ -3598,8 +3598,7 @@ other files must have file comments.
 
 ### File Comments [DUNE VERSION]
 
-Always include the brief license info described below under [Legal
-Notice](Legal_Notice).
+Always include the brief license info described below under [Legal Notice](#Legal_Notice).
 
 File comments describe the contents of a file. If a file declares,
 implements, or tests exactly one abstraction that is documented by a
