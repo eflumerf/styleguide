@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+
+# JCF, Mar-31-2020
+# dunecpplint.py is a modified copy of cpplint.py, designed for the
+# DUNE C++ style guide
+# (https://github.com/DUNE-DAQ/styleguide/blob/dune-daq-cppguide/dune-daq-cppguide.md). Read
+# below for Google's original copyright notice.
+
 #
 # Copyright (c) 2009 Google Inc. All rights reserved.
 #
@@ -957,45 +964,45 @@ class _CppLintState(object):
                        (category, count))
     sys.stdout.write('Total errors found: %d\n' % self.error_count)
 
-_cpplint_state = _CppLintState()
+_dunecpplint_state = _CppLintState()
 
 
 def _OutputFormat():
   """Gets the module's output format."""
-  return _cpplint_state.output_format
+  return _dunecpplint_state.output_format
 
 
 def _SetOutputFormat(output_format):
   """Sets the module's output format."""
-  _cpplint_state.SetOutputFormat(output_format)
+  _dunecpplint_state.SetOutputFormat(output_format)
 
 def _Quiet():
   """Return's the module's quiet setting."""
-  return _cpplint_state.quiet
+  return _dunecpplint_state.quiet
 
 def _SetQuiet(quiet):
   """Set the module's quiet status, and return previous setting."""
-  return _cpplint_state.SetQuiet(quiet)
+  return _dunecpplint_state.SetQuiet(quiet)
 
 
 def _VerboseLevel():
   """Returns the module's verbosity setting."""
-  return _cpplint_state.verbose_level
+  return _dunecpplint_state.verbose_level
 
 
 def _SetVerboseLevel(level):
   """Sets the module's verbosity, and returns the previous setting."""
-  return _cpplint_state.SetVerboseLevel(level)
+  return _dunecpplint_state.SetVerboseLevel(level)
 
 
 def _SetCountingStyle(level):
   """Sets the module's counting options."""
-  _cpplint_state.SetCountingStyle(level)
+  _dunecpplint_state.SetCountingStyle(level)
 
 
 def _Filters():
   """Returns the module's list of output filters, as a list."""
-  return _cpplint_state.filters
+  return _dunecpplint_state.filters
 
 
 def _SetFilters(filters):
@@ -1008,7 +1015,7 @@ def _SetFilters(filters):
     filters: A string of comma-separated filters (eg "whitespace/indent").
              Each filter should start with + or -; else we die.
   """
-  _cpplint_state.SetFilters(filters)
+  _dunecpplint_state.SetFilters(filters)
 
 def _AddFilters(filters):
   """Adds more filter overrides.
@@ -1020,15 +1027,15 @@ def _AddFilters(filters):
     filters: A string of comma-separated filters (eg "whitespace/indent").
              Each filter should start with + or -; else we die.
   """
-  _cpplint_state.AddFilters(filters)
+  _dunecpplint_state.AddFilters(filters)
 
 def _BackupFilters():
   """ Saves the current filter list to backup storage."""
-  _cpplint_state.BackupFilters()
+  _dunecpplint_state.BackupFilters()
 
 def _RestoreFilters():
   """ Restores filters previously backed up."""
-  _cpplint_state.RestoreFilters()
+  _dunecpplint_state.RestoreFilters()
 
 class _FunctionState(object):
   """Tracks current function name and the number of lines in its body."""
@@ -1194,7 +1201,7 @@ def _ShouldPrintError(category, confidence, linenum):
   if IsErrorSuppressedByNolint(category, linenum):
     return False
 
-  if confidence < _cpplint_state.verbose_level:
+  if confidence < _dunecpplint_state.verbose_level:
     return False
 
   is_filtered = False
@@ -1236,11 +1243,11 @@ def Error(filename, linenum, category, confidence, message):
     message: The error message.
   """
   if _ShouldPrintError(category, confidence, linenum):
-    _cpplint_state.IncrementErrorCount(category)
-    if _cpplint_state.output_format == 'vs7':
+    _dunecpplint_state.IncrementErrorCount(category)
+    if _dunecpplint_state.output_format == 'vs7':
       sys.stderr.write('%s(%s): error cpplint: [%s] %s [%d]\n' % (
           filename, linenum, category, message, confidence))
-    elif _cpplint_state.output_format == 'eclipse':
+    elif _dunecpplint_state.output_format == 'eclipse':
       sys.stderr.write('%s:%s: warning: %s  [%s] [%d]\n' % (
           filename, linenum, message, category, confidence))
     else:
@@ -5990,7 +5997,7 @@ def ProcessConfigOverrides(filename):
             if base_name:
               pattern = re.compile(val)
               if pattern.match(base_name):
-                if _cpplint_state.quiet:
+                if _dunecpplint_state.quiet:
                   # Suppress "Ignoring file" warning when using --quiet.
                   return False
                 sys.stderr.write('Ignoring "%s": file excluded by "%s". '
@@ -6044,7 +6051,7 @@ def ProcessFile(filename, vlevel, extra_check_functions=[]):
 
   _SetVerboseLevel(vlevel)
   _BackupFilters()
-  old_errors = _cpplint_state.error_count
+  old_errors = _dunecpplint_state.error_count
 
   if not ProcessConfigOverrides(filename):
     _RestoreFilters()
@@ -6115,7 +6122,7 @@ def ProcessFile(filename, vlevel, extra_check_functions=[]):
 
   # Suppress printing anything if --quiet was passed unless the error
   # count has increased after processing this file.
-  if not _cpplint_state.quiet or old_errors != _cpplint_state.error_count:
+  if not _dunecpplint_state.quiet or old_errors != _dunecpplint_state.error_count:
     sys.stdout.write('Done processing %s\n' % filename)
   _RestoreFilters()
 
@@ -6230,14 +6237,14 @@ def main():
                                          codecs.getwriter('utf8'),
                                          'replace')
 
-  _cpplint_state.ResetErrorCounts()
+  _dunecpplint_state.ResetErrorCounts()
   for filename in filenames:
-    ProcessFile(filename, _cpplint_state.verbose_level)
+    ProcessFile(filename, _dunecpplint_state.verbose_level)
   # If --quiet is passed, suppress printing error count unless there are errors.
-  if not _cpplint_state.quiet or _cpplint_state.error_count > 0:
-    _cpplint_state.PrintErrorCounts()
+  if not _dunecpplint_state.quiet or _dunecpplint_state.error_count > 0:
+    _dunecpplint_state.PrintErrorCounts()
 
-  sys.exit(_cpplint_state.error_count > 0)
+  sys.exit(_dunecpplint_state.error_count > 0)
 
 
 if __name__ == '__main__':

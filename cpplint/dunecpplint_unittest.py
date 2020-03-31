@@ -29,7 +29,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Unit test for cpplint.py."""
+"""Unit test for dunecpplint.py."""
 
 # TODO(unknown): Add a good test that tests UpdateIncludeState.
 
@@ -41,7 +41,7 @@ import subprocess
 import sys
 import unittest
 
-import cpplint
+import dunecpplint
 
 try:
   xrange          # Python 2
@@ -49,19 +49,19 @@ except NameError:
   xrange = range  # Python 3
 
 
-# This class works as an error collector and replaces cpplint.Error
+# This class works as an error collector and replaces dunecpplint.Error
 # function for the unit tests.  We also verify each category we see
-# is in cpplint._ERROR_CATEGORIES, to help keep that list up to date.
+# is in dunecpplint._ERROR_CATEGORIES, to help keep that list up to date.
 class ErrorCollector(object):
   # These are a global list, covering all categories seen ever.
-  _ERROR_CATEGORIES = cpplint._ERROR_CATEGORIES
+  _ERROR_CATEGORIES = dunecpplint._ERROR_CATEGORIES
   _SEEN_ERROR_CATEGORIES = {}
 
   def __init__(self, assert_fn):
     """assert_fn: a function to call when we notice a problem."""
     self._assert_fn = assert_fn
     self._errors = []
-    cpplint.ResetNolintSuppressions()
+    dunecpplint.ResetNolintSuppressions()
 
   def __call__(self, unused_filename, linenum,
                category, confidence, message):
@@ -69,7 +69,7 @@ class ErrorCollector(object):
                     'Message "%s" has category "%s",'
                     ' which is not in _ERROR_CATEGORIES' % (message, category))
     self._SEEN_ERROR_CATEGORIES[category] = 1
-    if cpplint._ShouldPrintError(category, confidence, linenum):
+    if dunecpplint._ShouldPrintError(category, confidence, linenum):
       self._errors.append('%s  [%s] [%d]' % (message, category, confidence))
 
   def Results(self):
@@ -113,8 +113,8 @@ class MockIo(object):
     return self.mock_file
 
 
-class CpplintTestBase(unittest.TestCase):
-  """Provides some useful helper functions for cpplint tests."""
+class DunecpplintTestBase(unittest.TestCase):
+  """Provides some useful helper functions for dunecpplint tests."""
 
   def setUp(self):
     # Allow subclasses to cheat os.path.abspath called in FileInfo class.
@@ -127,12 +127,12 @@ class CpplintTestBase(unittest.TestCase):
   def PerformSingleLineLint(self, code):
     error_collector = ErrorCollector(self.assert_)
     lines = code.split('\n')
-    cpplint.RemoveMultiLineComments('foo.h', lines, error_collector)
-    clean_lines = cpplint.CleansedLines(lines)
-    include_state = cpplint._IncludeState()
-    function_state = cpplint._FunctionState()
-    nesting_state = cpplint.NestingState()
-    cpplint.ProcessLine('foo.cc', 'cc', clean_lines, 0,
+    dunecpplint.RemoveMultiLineComments('foo.h', lines, error_collector)
+    clean_lines = dunecpplint.CleansedLines(lines)
+    include_state = dunecpplint._IncludeState()
+    function_state = dunecpplint._FunctionState()
+    nesting_state = dunecpplint.NestingState()
+    dunecpplint.ProcessLine('foo.cc', 'cc', clean_lines, 0,
                         include_state, function_state,
                         nesting_state, error_collector)
     # Single-line lint tests are allowed to fail the 'unlintable function'
@@ -145,14 +145,14 @@ class CpplintTestBase(unittest.TestCase):
   def PerformMultiLineLint(self, code):
     error_collector = ErrorCollector(self.assert_)
     lines = code.split('\n')
-    cpplint.RemoveMultiLineComments('foo.h', lines, error_collector)
-    lines = cpplint.CleansedLines(lines)
-    nesting_state = cpplint.NestingState()
+    dunecpplint.RemoveMultiLineComments('foo.h', lines, error_collector)
+    lines = dunecpplint.CleansedLines(lines)
+    nesting_state = dunecpplint.NestingState()
     for i in xrange(lines.NumLines()):
       nesting_state.Update('foo.h', lines, i, error_collector)
-      cpplint.CheckStyle('foo.h', lines, i, 'h', nesting_state,
+      dunecpplint.CheckStyle('foo.h', lines, i, 'h', nesting_state,
                          error_collector)
-      cpplint.CheckForNonStandardConstructs('foo.h', lines, i,
+      dunecpplint.CheckForNonStandardConstructs('foo.h', lines, i,
                                             nesting_state, error_collector)
     nesting_state.CheckCompletedBlocks('foo.h', error_collector)
     return error_collector.Results()
@@ -161,14 +161,14 @@ class CpplintTestBase(unittest.TestCase):
   # CheckForNonStandardConstructs
   def PerformLanguageRulesCheck(self, file_name, code):
     error_collector = ErrorCollector(self.assert_)
-    include_state = cpplint._IncludeState()
-    nesting_state = cpplint.NestingState()
+    include_state = dunecpplint._IncludeState()
+    nesting_state = dunecpplint.NestingState()
     lines = code.split('\n')
-    cpplint.RemoveMultiLineComments(file_name, lines, error_collector)
-    lines = cpplint.CleansedLines(lines)
+    dunecpplint.RemoveMultiLineComments(file_name, lines, error_collector)
+    lines = dunecpplint.CleansedLines(lines)
     ext = file_name[file_name.rfind('.') + 1:]
     for i in xrange(lines.NumLines()):
-      cpplint.CheckLanguage(file_name, lines, i, ext, include_state,
+      dunecpplint.CheckLanguage(file_name, lines, i, ext, include_state,
                             nesting_state, error_collector)
     return error_collector.Results()
 
@@ -176,10 +176,10 @@ class CpplintTestBase(unittest.TestCase):
     """Perform Lint function length check on block of code and return warnings.
 
     Builds up an array of lines corresponding to the code and strips comments
-    using cpplint functions.
+    using dunecpplint functions.
 
     Establishes an error collector and invokes the function length checking
-    function following cpplint's pattern.
+    function following dunecpplint's pattern.
 
     Args:
       code: C++ source code expected to generate a warning message.
@@ -189,32 +189,32 @@ class CpplintTestBase(unittest.TestCase):
     """
     file_name = 'foo.cc'
     error_collector = ErrorCollector(self.assert_)
-    function_state = cpplint._FunctionState()
+    function_state = dunecpplint._FunctionState()
     lines = code.split('\n')
-    cpplint.RemoveMultiLineComments(file_name, lines, error_collector)
-    lines = cpplint.CleansedLines(lines)
+    dunecpplint.RemoveMultiLineComments(file_name, lines, error_collector)
+    lines = dunecpplint.CleansedLines(lines)
     for i in xrange(lines.NumLines()):
-      cpplint.CheckForFunctionLengths(file_name, lines, i,
+      dunecpplint.CheckForFunctionLengths(file_name, lines, i,
                                       function_state, error_collector)
     return error_collector.Results()
 
   def PerformIncludeWhatYouUse(self, code, filename='foo.h', io=codecs):
     # First, build up the include state.
     error_collector = ErrorCollector(self.assert_)
-    include_state = cpplint._IncludeState()
-    nesting_state = cpplint.NestingState()
+    include_state = dunecpplint._IncludeState()
+    nesting_state = dunecpplint.NestingState()
     lines = code.split('\n')
-    cpplint.RemoveMultiLineComments(filename, lines, error_collector)
-    lines = cpplint.CleansedLines(lines)
+    dunecpplint.RemoveMultiLineComments(filename, lines, error_collector)
+    lines = dunecpplint.CleansedLines(lines)
     for i in xrange(lines.NumLines()):
-      cpplint.CheckLanguage(filename, lines, i, '.h', include_state,
+      dunecpplint.CheckLanguage(filename, lines, i, '.h', include_state,
                             nesting_state, error_collector)
     # We could clear the error_collector here, but this should
     # also be fine, since our IncludeWhatYouUse unittests do not
     # have language problems.
 
     # Second, look for missing includes.
-    cpplint.CheckForIncludeWhatYouUse(filename, lines, include_state,
+    dunecpplint.CheckForIncludeWhatYouUse(filename, lines, include_state,
                                       error_collector, io)
     return error_collector.Results()
 
@@ -241,7 +241,7 @@ class CpplintTestBase(unittest.TestCase):
 
   def TestBlankLinesCheck(self, lines, start_errors, end_errors):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc', lines, error_collector)
+    dunecpplint.ProcessFileData('foo.cc', 'cc', lines, error_collector)
     self.assertEquals(
         start_errors,
         error_collector.Results().count(
@@ -254,16 +254,16 @@ class CpplintTestBase(unittest.TestCase):
             'should be deleted.  [whitespace/blank_line] [3]'))
 
 
-class CpplintTest(CpplintTestBase):
+class DunecpplintTest(DunecpplintTestBase):
 
   def GetNamespaceResults(self, lines):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.RemoveMultiLineComments('foo.h', lines, error_collector)
-    lines = cpplint.CleansedLines(lines)
-    nesting_state = cpplint.NestingState()
+    dunecpplint.RemoveMultiLineComments('foo.h', lines, error_collector)
+    lines = dunecpplint.CleansedLines(lines)
+    nesting_state = dunecpplint.NestingState()
     for i in xrange(lines.NumLines()):
       nesting_state.Update('foo.h', lines, i, error_collector)
-      cpplint.CheckForNamespaceIndentation('foo.h', nesting_state,
+      dunecpplint.CheckForNamespaceIndentation('foo.h', nesting_state,
                                            lines, i, error_collector)
 
     return error_collector.Results()
@@ -318,52 +318,52 @@ class CpplintTest(CpplintTestBase):
 
   # Test get line width.
   def testGetLineWidth(self):
-    self.assertEquals(0, cpplint.GetLineWidth(''))
-    self.assertEquals(10, cpplint.GetLineWidth(u'x' * 10))
-    self.assertEquals(16, cpplint.GetLineWidth(u'都|道|府|県|支庁'))
-    self.assertEquals(5 + 13 + 9, cpplint.GetLineWidth(
+    self.assertEquals(0, dunecpplint.GetLineWidth(''))
+    self.assertEquals(10, dunecpplint.GetLineWidth(u'x' * 10))
+    self.assertEquals(16, dunecpplint.GetLineWidth(u'都|道|府|県|支庁'))
+    self.assertEquals(5 + 13 + 9, dunecpplint.GetLineWidth(
         u'd𝐱/dt' + u'f : t ⨯ 𝐱 → ℝ' + u't ⨯ 𝐱 → ℝ'))
 
   def testGetTextInside(self):
-    self.assertEquals('', cpplint._GetTextInside('fun()', r'fun\('))
-    self.assertEquals('x, y', cpplint._GetTextInside('f(x, y)', r'f\('))
-    self.assertEquals('a(), b(c())', cpplint._GetTextInside(
+    self.assertEquals('', dunecpplint._GetTextInside('fun()', r'fun\('))
+    self.assertEquals('x, y', dunecpplint._GetTextInside('f(x, y)', r'f\('))
+    self.assertEquals('a(), b(c())', dunecpplint._GetTextInside(
         'printf(a(), b(c()))', r'printf\('))
-    self.assertEquals('x, y{}', cpplint._GetTextInside('f[x, y{}]', r'f\['))
-    self.assertEquals(None, cpplint._GetTextInside('f[a, b(}]', r'f\['))
-    self.assertEquals(None, cpplint._GetTextInside('f[x, y]', r'f\('))
-    self.assertEquals('y, h(z, (a + b))', cpplint._GetTextInside(
+    self.assertEquals('x, y{}', dunecpplint._GetTextInside('f[x, y{}]', r'f\['))
+    self.assertEquals(None, dunecpplint._GetTextInside('f[a, b(}]', r'f\['))
+    self.assertEquals(None, dunecpplint._GetTextInside('f[x, y]', r'f\('))
+    self.assertEquals('y, h(z, (a + b))', dunecpplint._GetTextInside(
         'f(x, g(y, h(z, (a + b))))', r'g\('))
-    self.assertEquals('f(f(x))', cpplint._GetTextInside('f(f(f(x)))', r'f\('))
+    self.assertEquals('f(f(x))', dunecpplint._GetTextInside('f(f(f(x)))', r'f\('))
     # Supports multiple lines.
     self.assertEquals('\n  return loop(x);\n',
-                      cpplint._GetTextInside(
+                      dunecpplint._GetTextInside(
                           'int loop(int x) {\n  return loop(x);\n}\n', r'\{'))
     # '^' matches the beginning of each line.
     self.assertEquals('x, y',
-                      cpplint._GetTextInside(
+                      dunecpplint._GetTextInside(
                           '#include "inl.h"  // skip #define\n'
                           '#define A2(x, y) a_inl_(x, y, __LINE__)\n'
                           '#define A(x) a_inl_(x, "", __LINE__)\n',
                           r'^\s*#define\s*\w+\('))
 
   def testFindNextMultiLineCommentStart(self):
-    self.assertEquals(1, cpplint.FindNextMultiLineCommentStart([''], 0))
+    self.assertEquals(1, dunecpplint.FindNextMultiLineCommentStart([''], 0))
 
     lines = ['a', 'b', '/* c']
-    self.assertEquals(2, cpplint.FindNextMultiLineCommentStart(lines, 0))
+    self.assertEquals(2, dunecpplint.FindNextMultiLineCommentStart(lines, 0))
 
     lines = ['char a[] = "/*";']  # not recognized as comment.
-    self.assertEquals(1, cpplint.FindNextMultiLineCommentStart(lines, 0))
+    self.assertEquals(1, dunecpplint.FindNextMultiLineCommentStart(lines, 0))
 
   def testFindNextMultiLineCommentEnd(self):
-    self.assertEquals(1, cpplint.FindNextMultiLineCommentEnd([''], 0))
+    self.assertEquals(1, dunecpplint.FindNextMultiLineCommentEnd([''], 0))
     lines = ['a', 'b', ' c */']
-    self.assertEquals(2, cpplint.FindNextMultiLineCommentEnd(lines, 0))
+    self.assertEquals(2, dunecpplint.FindNextMultiLineCommentEnd(lines, 0))
 
   def testRemoveMultiLineCommentsFromRange(self):
     lines = ['a', '  /* comment ', ' * still comment', ' comment */   ', 'b']
-    cpplint.RemoveMultiLineCommentsFromRange(lines, 1, 4)
+    dunecpplint.RemoveMultiLineCommentsFromRange(lines, 1, 4)
     self.assertEquals(['a', '/**/', '/**/', '/**/', 'b'], lines)
 
   def testSpacesAtEndOfLine(self):
@@ -464,7 +464,7 @@ class CpplintTest(CpplintTestBase):
         '  [runtime/int] [4]')
     # NOLINTNEXTLINE silences warning for the next line instead of current line
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('test.cc', 'cc',
+    dunecpplint.ProcessFileData('test.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINTNEXTLINE(whitespace/line_length)',
                              '//  ./command' + (' -verbose' * 80),
@@ -473,7 +473,7 @@ class CpplintTest(CpplintTestBase):
     self.assertEquals('', error_collector.Results())
     # LINT_C_FILE silences cast warnings for entire file.
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('test.h', 'h',
+    dunecpplint.ProcessFileData('test.h', 'h',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINT(build/header_guard)',
                              'int64 a = (uint64) 65;',
@@ -507,7 +507,7 @@ class CpplintTest(CpplintTestBase):
                      'vim: se sw=8 filetype=c :',
                      'vim: se sw=8 filetype=c ts=8 :']:
       error_collector = ErrorCollector(self.assert_)
-      cpplint.ProcessFileData('test.h', 'h',
+      dunecpplint.ProcessFileData('test.h', 'h',
                               ['// Copyright 2014 Your Company.',
                                '// NOLINT(build/header_guard)',
                                'int64 a = (uint64) 65;',
@@ -519,7 +519,7 @@ class CpplintTest(CpplintTestBase):
       self.assertEquals('', error_collector.Results())
     # LINT_KERNEL_FILE silences whitespace/tab warnings for entire file.
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('test.h', 'h',
+    dunecpplint.ProcessFileData('test.h', 'h',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINT(build/header_guard)',
                              'struct test {',
@@ -531,7 +531,7 @@ class CpplintTest(CpplintTestBase):
     self.assertEquals('', error_collector.Results())
     # NOLINT, NOLINTNEXTLINE silences the readability/braces warning for "};".
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('test.cc', 'cc',
+    dunecpplint.ProcessFileData('test.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              'for (int i = 0; i != 100; ++i) {',
                              '\tstd::cout << i << std::endl;',
@@ -786,7 +786,7 @@ class CpplintTest(CpplintTestBase):
     self.TestLint('mfunction<int(bool)>', '')
 
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(
+    dunecpplint.ProcessFileData(
         'test.cc', 'cc',
         ['// Copyright 2014 Your Company. All Rights Reserved.',
          'typedef std::function<',
@@ -825,7 +825,7 @@ class CpplintTest(CpplintTestBase):
         '')
 
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('mock.cc', 'cc',
+    dunecpplint.ProcessFileData('mock.cc', 'cc',
                             ['MOCK_METHOD1(method1,',
                              '             bool(int));',
                              'MOCK_METHOD1(',
@@ -869,7 +869,7 @@ class CpplintTest(CpplintTestBase):
         '#include "foo/sprintf.h"',
         '')
 
-  # Test typedef cases.  There was a bug that cpplint misidentified
+  # Test typedef cases.  There was a bug that dunecpplint misidentified
   # typedef for pointer to function as C-style cast and produced
   # false-positive error messages.
   def testTypedefForPointerToFunction(self):
@@ -1122,7 +1122,7 @@ class CpplintTest(CpplintTestBase):
                       '[build/include_what_you_use] [4]')
 
   def testFilesBelongToSameModule(self):
-    f = cpplint.FilesBelongToSameModule
+    f = dunecpplint.FilesBelongToSameModule
     self.assertEquals((True, ''), f('a.cc', 'a.h'))
     self.assertEquals((True, ''), f('base/google.cc', 'base/google.h'))
     self.assertEquals((True, ''), f('base/google_test.cc', 'base/google.h'))
@@ -1148,21 +1148,21 @@ class CpplintTest(CpplintTestBase):
 
   def testCleanseLine(self):
     self.assertEquals('int foo = 0;',
-                      cpplint.CleanseComments('int foo = 0;  // danger!'))
+                      dunecpplint.CleanseComments('int foo = 0;  // danger!'))
     self.assertEquals('int o = 0;',
-                      cpplint.CleanseComments('int /* foo */ o = 0;'))
+                      dunecpplint.CleanseComments('int /* foo */ o = 0;'))
     self.assertEquals('foo(int a, int b);',
-                      cpplint.CleanseComments('foo(int a /* abc */, int b);'))
+                      dunecpplint.CleanseComments('foo(int a /* abc */, int b);'))
     self.assertEqual('f(a, b);',
-                     cpplint.CleanseComments('f(a, /* name */ b);'))
+                     dunecpplint.CleanseComments('f(a, /* name */ b);'))
     self.assertEqual('f(a, b);',
-                     cpplint.CleanseComments('f(a /* name */, b);'))
+                     dunecpplint.CleanseComments('f(a /* name */, b);'))
     self.assertEqual('f(a, b);',
-                     cpplint.CleanseComments('f(a, /* name */b);'))
+                     dunecpplint.CleanseComments('f(a, /* name */b);'))
     self.assertEqual('f(a, b, c);',
-                     cpplint.CleanseComments('f(a, /**/b, /**/c);'))
+                     dunecpplint.CleanseComments('f(a, /**/b, /**/c);'))
     self.assertEqual('f(a, b, c);',
-                     cpplint.CleanseComments('f(a, /**/b/**/, c);'))
+                     dunecpplint.CleanseComments('f(a, /**/b/**/, c);'))
 
   def testRawStrings(self):
     self.TestMultiLineLint(
@@ -1269,7 +1269,7 @@ class CpplintTest(CpplintTestBase):
     file_path = 'mydir/foo.cc'
 
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'cc',
+    dunecpplint.ProcessFileData(file_path, 'cc',
                             ['const char* str = "This is a\\',
                              ' multiline string.";'],
                             error_collector)
@@ -1279,8 +1279,8 @@ class CpplintTest(CpplintTestBase):
 
   # Test non-explicit single-argument constructors
   def testExplicitSingleArgumentConstructors(self):
-    old_verbose_level = cpplint._cpplint_state.verbose_level
-    cpplint._cpplint_state.verbose_level = 0
+    old_verbose_level = dunecpplint._dunecpplint_state.verbose_level
+    dunecpplint._dunecpplint_state.verbose_level = 0
 
     try:
       # missing explicit is bad
@@ -1602,7 +1602,7 @@ class CpplintTest(CpplintTestBase):
           '')
       # Anything goes inside an assembly block
       error_collector = ErrorCollector(self.assert_)
-      cpplint.ProcessFileData('foo.cc', 'cc',
+      dunecpplint.ProcessFileData('foo.cc', 'cc',
                               ['void Func() {',
                                '  __asm__ (',
                                '    "hlt"',
@@ -1626,7 +1626,7 @@ class CpplintTest(CpplintTestBase):
           error_collector.ResultList().count(
               'Extra space before [  [whitespace/braces] [5]'))
     finally:
-      cpplint._cpplint_state.verbose_level = old_verbose_level
+      dunecpplint._dunecpplint_state.verbose_level = old_verbose_level
 
   def testSlashStarCommentOnSingleLine(self):
     self.TestMultiLineLint(
@@ -1712,7 +1712,7 @@ class CpplintTest(CpplintTestBase):
       self.TestLint('virtual int F() %s {' % virt_specifier, error_message)
 
       error_collector = ErrorCollector(self.assert_)
-      cpplint.ProcessFileData(
+      dunecpplint.ProcessFileData(
           'foo.cc', 'cc',
           ['// Copyright 2014 Your Company.',
            'virtual void F(int a,',
@@ -1737,7 +1737,7 @@ class CpplintTest(CpplintTestBase):
     self.TestLint('int F() final override {}', error_message)
 
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(
+    dunecpplint.ProcessFileData(
         'foo.cc', 'cc',
         ['// Copyright 2014 Your Company.',
          'struct A : virtual B {',
@@ -1912,7 +1912,7 @@ class CpplintTest(CpplintTestBase):
         'DISALLOW_COPY_AND_ASSIGN',
         'DISALLOW_IMPLICIT_CONSTRUCTORS'):
       error_collector = ErrorCollector(self.assert_)
-      cpplint.ProcessFileData(
+      dunecpplint.ProcessFileData(
           'foo.cc', 'cc',
           ['// Copyright 2014 Your Company.',
            'class SomeClass {',
@@ -1928,7 +1928,7 @@ class CpplintTest(CpplintTestBase):
           error_collector.Results())
 
       error_collector = ErrorCollector(self.assert_)
-      cpplint.ProcessFileData(
+      dunecpplint.ProcessFileData(
           'foo.cc', 'cc',
           ['// Copyright 2014 Your Company.',
            'class OuterClass {',
@@ -1947,7 +1947,7 @@ class CpplintTest(CpplintTestBase):
           error_collector.Results())
 
       error_collector = ErrorCollector(self.assert_)
-      cpplint.ProcessFileData(
+      dunecpplint.ProcessFileData(
           'foo.cc', 'cc',
           ['// Copyright 2014 Your Company.',
            'class OuterClass1 {',
@@ -2280,7 +2280,7 @@ class CpplintTest(CpplintTestBase):
     # Don't warn on out-of-line method definitions.
     self.TestLint('void NS::Func(X& x) {', '')
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(
+    dunecpplint.ProcessFileData(
         'foo.cc', 'cc',
         ['// Copyright 2014 Your Company. All Rights Reserved.',
          'void a::b() {}',
@@ -2294,7 +2294,7 @@ class CpplintTest(CpplintTestBase):
     # Other potential false positives.  These need full parser
     # state to reproduce as opposed to just TestLint.
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(
+    dunecpplint.ProcessFileData(
         'foo.cc', 'cc',
         ['// Copyright 2014 Your Company. All Rights Reserved.',
          'void swap(int &x,',
@@ -2337,7 +2337,7 @@ class CpplintTest(CpplintTestBase):
 
     # Multi-line references
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(
+    dunecpplint.ProcessFileData(
         'foo.cc', 'cc',
         ['// Copyright 2014 Your Company. All Rights Reserved.',
          'void Func(const Outer::',
@@ -2363,7 +2363,7 @@ class CpplintTest(CpplintTestBase):
 
     # A peculiar false positive due to bad template argument parsing
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(
+    dunecpplint.ProcessFileData(
         'foo.cc', 'cc',
         ['// Copyright 2014 Your Company. All Rights Reserved.',
          'inline RCULocked<X>::ReadPtr::ReadPtr(const RCULocked* rcu) {',
@@ -2383,7 +2383,7 @@ class CpplintTest(CpplintTestBase):
                   '  [whitespace/braces] [4]')
 
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['int function()',
                              '{',  # warning here
                              '  MutexLock l(&mu);',
@@ -2888,7 +2888,7 @@ class CpplintTest(CpplintTestBase):
 
     # Check multiline cases.
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              'string Class',
                              '::MemberFunction1();',
@@ -3039,7 +3039,7 @@ class CpplintTest(CpplintTestBase):
   def testLinePrecededByEmptyOrCommentLines(self):
     def DoTest(self, lines):
       error_collector = ErrorCollector(self.assert_)
-      cpplint.ProcessFileData('foo.cc', 'cc', lines, error_collector)
+      dunecpplint.ProcessFileData('foo.cc', 'cc', lines, error_collector)
       # The warning appears only once.
       self.assertEquals(
           1,
@@ -3054,7 +3054,7 @@ class CpplintTest(CpplintTestBase):
   def testNewlineAtEOF(self):
     def DoTest(self, data, is_missing_eof):
       error_collector = ErrorCollector(self.assert_)
-      cpplint.ProcessFileData('foo.cc', 'cc', data.split('\n'),
+      dunecpplint.ProcessFileData('foo.cc', 'cc', data.split('\n'),
                               error_collector)
       # The warning appears only once.
       self.assertEquals(
@@ -3069,7 +3069,7 @@ class CpplintTest(CpplintTestBase):
   def testInvalidUtf8(self):
     def DoTest(self, raw_bytes, has_invalid_utf8):
       error_collector = ErrorCollector(self.assert_)
-      cpplint.ProcessFileData(
+      dunecpplint.ProcessFileData(
           'foo.cc', 'cc',
           unicode(raw_bytes, 'utf8', 'replace').split('\n'),
           error_collector)
@@ -3091,7 +3091,7 @@ class CpplintTest(CpplintTestBase):
   def testBadCharacters(self):
     # Test for NUL bytes only
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('nul.cc', 'cc',
+    dunecpplint.ProcessFileData('nul.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              '\0', ''], error_collector)
     self.assertEquals(
@@ -3101,7 +3101,7 @@ class CpplintTest(CpplintTestBase):
     # Make sure both NUL bytes and UTF-8 are caught if they appear on
     # the same line.
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(
+    dunecpplint.ProcessFileData(
         'nul_utf8.cc', 'cc',
         ['// Copyright 2014 Your Company.',
          unicode('\xe9x\0', 'utf8', 'replace'), ''],
@@ -3113,11 +3113,11 @@ class CpplintTest(CpplintTestBase):
          'Line contains NUL byte.  [readability/nul] [5]'])
 
   def testIsBlankLine(self):
-    self.assert_(cpplint.IsBlankLine(''))
-    self.assert_(cpplint.IsBlankLine(' '))
-    self.assert_(cpplint.IsBlankLine(' \t\r\n'))
-    self.assert_(not cpplint.IsBlankLine('int a;'))
-    self.assert_(not cpplint.IsBlankLine('{'))
+    self.assert_(dunecpplint.IsBlankLine(''))
+    self.assert_(dunecpplint.IsBlankLine(' '))
+    self.assert_(dunecpplint.IsBlankLine(' \t\r\n'))
+    self.assert_(not dunecpplint.IsBlankLine('int a;'))
+    self.assert_(not dunecpplint.IsBlankLine('{'))
 
   def testBlankLinesCheck(self):
     self.TestBlankLinesCheck(['{\n', '\n', '\n', '}\n'], 1, 1)
@@ -3137,7 +3137,7 @@ class CpplintTest(CpplintTestBase):
 
   def testAllowBlankLineBeforeClosingNamespace(self):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['namespace {',
                              '',
                              '}  // namespace',
@@ -3162,7 +3162,7 @@ class CpplintTest(CpplintTestBase):
 
   def testAllowBlankLineBeforeIfElseChain(self):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['if (hoge) {',
                              '',  # No warning
                              '} else if (piyo) {',
@@ -3179,7 +3179,7 @@ class CpplintTest(CpplintTestBase):
 
   def testAllowBlankLineAfterExtern(self):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['extern "C" {',
                              '',
                              'EXPORTAPI void APICALL Some_function() {}',
@@ -3195,7 +3195,7 @@ class CpplintTest(CpplintTestBase):
 
   def testBlankLineBeforeSectionKeyword(self):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['class A {',
                              ' public:',
                              ' protected:',   # warning 1
@@ -3231,7 +3231,7 @@ class CpplintTest(CpplintTestBase):
 
   def testNoBlankLineAfterSectionKeyword(self):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['class A {',
                              ' public:',
                              '',  # warning 1
@@ -3255,7 +3255,7 @@ class CpplintTest(CpplintTestBase):
 
   def testAllowBlankLinesInRawStrings(self):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              'static const char *kData[] = {R"(',
                              '',
@@ -3268,7 +3268,7 @@ class CpplintTest(CpplintTestBase):
 
   def testElseOnSameLineAsClosingBraces(self):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['if (hoge) {',
                              '}',
                              'else if (piyo) {',  # Warning on this line
@@ -3282,7 +3282,7 @@ class CpplintTest(CpplintTestBase):
         '  [whitespace/newline] [4]'))
 
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['if (hoge) {',
                              '',
                              '}',
@@ -3296,7 +3296,7 @@ class CpplintTest(CpplintTestBase):
         '  [whitespace/newline] [4]'))
 
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['if (hoge) {',
                              '',
                              '}',
@@ -3308,7 +3308,7 @@ class CpplintTest(CpplintTestBase):
 
   def testMultipleStatementsOnSameLine(self):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['for (int i = 0; i < 1; i++) {}',
                              'switch (x) {',
                              '  case 0: func(); break; ',
@@ -3318,16 +3318,16 @@ class CpplintTest(CpplintTestBase):
     self.assertEquals(0, error_collector.Results().count(
         'More than one command on the same line  [whitespace/newline] [0]'))
 
-    old_verbose_level = cpplint._cpplint_state.verbose_level
-    cpplint._cpplint_state.verbose_level = 0
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    old_verbose_level = dunecpplint._dunecpplint_state.verbose_level
+    dunecpplint._dunecpplint_state.verbose_level = 0
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['sum += MathUtil::SafeIntRound(x); x += 0.1;'],
                             error_collector)
-    cpplint._cpplint_state.verbose_level = old_verbose_level
+    dunecpplint._dunecpplint_state.verbose_level = old_verbose_level
 
   def testEndOfNamespaceComments(self):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('foo.cc', 'cc',
+    dunecpplint.ProcessFileData('foo.cc', 'cc',
                             ['namespace {',
                              '',
                              '}',  # No warning (too short)
@@ -3788,92 +3788,92 @@ class CpplintTest(CpplintTestBase):
                   'Tab found; better to use spaces  [whitespace/tab] [1]')
 
   def testParseArguments(self):
-    old_usage = cpplint._USAGE
-    old_error_categories = cpplint._ERROR_CATEGORIES
-    old_output_format = cpplint._cpplint_state.output_format
-    old_verbose_level = cpplint._cpplint_state.verbose_level
-    old_headers = cpplint._hpp_headers
-    old_filters = cpplint._cpplint_state.filters
-    old_line_length = cpplint._line_length
-    old_valid_extensions = cpplint._valid_extensions
+    old_usage = dunecpplint._USAGE
+    old_error_categories = dunecpplint._ERROR_CATEGORIES
+    old_output_format = dunecpplint._dunecpplint_state.output_format
+    old_verbose_level = dunecpplint._dunecpplint_state.verbose_level
+    old_headers = dunecpplint._hpp_headers
+    old_filters = dunecpplint._dunecpplint_state.filters
+    old_line_length = dunecpplint._line_length
+    old_valid_extensions = dunecpplint._valid_extensions
     try:
       # Don't print usage during the tests, or filter categories
-      cpplint._USAGE = ''
-      cpplint._ERROR_CATEGORIES = ''
+      dunecpplint._USAGE = ''
+      dunecpplint._ERROR_CATEGORIES = ''
 
-      self.assertRaises(SystemExit, cpplint.ParseArguments, [])
-      self.assertRaises(SystemExit, cpplint.ParseArguments, ['--badopt'])
-      self.assertRaises(SystemExit, cpplint.ParseArguments, ['--help'])
-      self.assertRaises(SystemExit, cpplint.ParseArguments, ['--v=0'])
-      self.assertRaises(SystemExit, cpplint.ParseArguments, ['--filter='])
+      self.assertRaises(SystemExit, dunecpplint.ParseArguments, [])
+      self.assertRaises(SystemExit, dunecpplint.ParseArguments, ['--badopt'])
+      self.assertRaises(SystemExit, dunecpplint.ParseArguments, ['--help'])
+      self.assertRaises(SystemExit, dunecpplint.ParseArguments, ['--v=0'])
+      self.assertRaises(SystemExit, dunecpplint.ParseArguments, ['--filter='])
       # This is illegal because all filters must start with + or -
-      self.assertRaises(SystemExit, cpplint.ParseArguments, ['--filter=foo'])
-      self.assertRaises(SystemExit, cpplint.ParseArguments,
+      self.assertRaises(SystemExit, dunecpplint.ParseArguments, ['--filter=foo'])
+      self.assertRaises(SystemExit, dunecpplint.ParseArguments,
                         ['--filter=+a,b,-c'])
-      self.assertRaises(SystemExit, cpplint.ParseArguments, ['--headers'])
+      self.assertRaises(SystemExit, dunecpplint.ParseArguments, ['--headers'])
 
-      self.assertEquals(['foo.cc'], cpplint.ParseArguments(['foo.cc']))
-      self.assertEquals(old_output_format, cpplint._cpplint_state.output_format)
-      self.assertEquals(old_verbose_level, cpplint._cpplint_state.verbose_level)
+      self.assertEquals(['foo.cc'], dunecpplint.ParseArguments(['foo.cc']))
+      self.assertEquals(old_output_format, dunecpplint._dunecpplint_state.output_format)
+      self.assertEquals(old_verbose_level, dunecpplint._dunecpplint_state.verbose_level)
 
       self.assertEquals(['foo.cc'],
-                        cpplint.ParseArguments(['--v=1', 'foo.cc']))
-      self.assertEquals(1, cpplint._cpplint_state.verbose_level)
+                        dunecpplint.ParseArguments(['--v=1', 'foo.cc']))
+      self.assertEquals(1, dunecpplint._dunecpplint_state.verbose_level)
       self.assertEquals(['foo.h'],
-                        cpplint.ParseArguments(['--v=3', 'foo.h']))
-      self.assertEquals(3, cpplint._cpplint_state.verbose_level)
+                        dunecpplint.ParseArguments(['--v=3', 'foo.h']))
+      self.assertEquals(3, dunecpplint._dunecpplint_state.verbose_level)
       self.assertEquals(['foo.cpp'],
-                        cpplint.ParseArguments(['--verbose=5', 'foo.cpp']))
-      self.assertEquals(5, cpplint._cpplint_state.verbose_level)
+                        dunecpplint.ParseArguments(['--verbose=5', 'foo.cpp']))
+      self.assertEquals(5, dunecpplint._dunecpplint_state.verbose_level)
       self.assertRaises(ValueError,
-                        cpplint.ParseArguments, ['--v=f', 'foo.cc'])
+                        dunecpplint.ParseArguments, ['--v=f', 'foo.cc'])
 
       self.assertEquals(['foo.cc'],
-                        cpplint.ParseArguments(['--output=emacs', 'foo.cc']))
-      self.assertEquals('emacs', cpplint._cpplint_state.output_format)
+                        dunecpplint.ParseArguments(['--output=emacs', 'foo.cc']))
+      self.assertEquals('emacs', dunecpplint._dunecpplint_state.output_format)
       self.assertEquals(['foo.h'],
-                        cpplint.ParseArguments(['--output=vs7', 'foo.h']))
-      self.assertEquals('vs7', cpplint._cpplint_state.output_format)
+                        dunecpplint.ParseArguments(['--output=vs7', 'foo.h']))
+      self.assertEquals('vs7', dunecpplint._dunecpplint_state.output_format)
       self.assertRaises(SystemExit,
-                        cpplint.ParseArguments, ['--output=blah', 'foo.cc'])
+                        dunecpplint.ParseArguments, ['--output=blah', 'foo.cc'])
 
       filt = '-,+whitespace,-whitespace/indent'
       self.assertEquals(['foo.h'],
-                        cpplint.ParseArguments(['--filter='+filt, 'foo.h']))
+                        dunecpplint.ParseArguments(['--filter='+filt, 'foo.h']))
       self.assertEquals(['-', '+whitespace', '-whitespace/indent'],
-                        cpplint._cpplint_state.filters)
+                        dunecpplint._dunecpplint_state.filters)
 
       self.assertEquals(['foo.cc', 'foo.h'],
-                        cpplint.ParseArguments(['foo.cc', 'foo.h']))
+                        dunecpplint.ParseArguments(['foo.cc', 'foo.h']))
 
       self.assertEqual(['foo.h'],
-                       cpplint.ParseArguments(['--linelength=120', 'foo.h']))
-      self.assertEqual(120, cpplint._line_length)
+                       dunecpplint.ParseArguments(['--linelength=120', 'foo.h']))
+      self.assertEqual(120, dunecpplint._line_length)
 
       self.assertEqual(['foo.h'],
-                       cpplint.ParseArguments(['--extensions=hpp,cpp,cpp', 'foo.h']))
-      self.assertEqual(set(['hpp', 'cpp']), cpplint._valid_extensions)
+                       dunecpplint.ParseArguments(['--extensions=hpp,cpp,cpp', 'foo.h']))
+      self.assertEqual(set(['hpp', 'cpp']), dunecpplint._valid_extensions)
       
-      self.assertEqual(set(['h']), cpplint._hpp_headers)  # Default value
+      self.assertEqual(set(['h']), dunecpplint._hpp_headers)  # Default value
       self.assertEqual(['foo.h'],
-                       cpplint.ParseArguments(['--extensions=cpp,cpp', '--headers=hpp,h', 'foo.h']))
-      self.assertEqual(set(['hpp', 'h']), cpplint._hpp_headers)
-      self.assertEqual(set(['hpp', 'h', 'cpp']), cpplint._valid_extensions)
+                       dunecpplint.ParseArguments(['--extensions=cpp,cpp', '--headers=hpp,h', 'foo.h']))
+      self.assertEqual(set(['hpp', 'h']), dunecpplint._hpp_headers)
+      self.assertEqual(set(['hpp', 'h', 'cpp']), dunecpplint._valid_extensions)
       
     finally:
-      cpplint._USAGE = old_usage
-      cpplint._ERROR_CATEGORIES = old_error_categories
-      cpplint._cpplint_state.output_format = old_output_format
-      cpplint._cpplint_state.verbose_level = old_verbose_level
-      cpplint._cpplint_state.filters = old_filters
-      cpplint._line_length = old_line_length
-      cpplint._valid_extensions = old_valid_extensions
-      cpplint._hpp_headers = old_headers
+      dunecpplint._USAGE = old_usage
+      dunecpplint._ERROR_CATEGORIES = old_error_categories
+      dunecpplint._dunecpplint_state.output_format = old_output_format
+      dunecpplint._dunecpplint_state.verbose_level = old_verbose_level
+      dunecpplint._dunecpplint_state.filters = old_filters
+      dunecpplint._line_length = old_line_length
+      dunecpplint._valid_extensions = old_valid_extensions
+      dunecpplint._hpp_headers = old_headers
 
   def testLineLength(self):
-    old_line_length = cpplint._line_length
+    old_line_length = dunecpplint._line_length
     try:
-      cpplint._line_length = 80
+      dunecpplint._line_length = 80
       self.TestLint(
           '// H %s' % ('H' * 75),
           '')
@@ -3881,7 +3881,7 @@ class CpplintTest(CpplintTestBase):
           '// H %s' % ('H' * 76),
           'Lines should be <= 80 characters long'
           '  [whitespace/line_length] [2]')
-      cpplint._line_length = 120
+      dunecpplint._line_length = 120
       self.TestLint(
           '// H %s' % ('H' * 115),
           '')
@@ -3890,12 +3890,12 @@ class CpplintTest(CpplintTestBase):
           'Lines should be <= 120 characters long'
           '  [whitespace/line_length] [2]')
     finally:
-      cpplint._line_length = old_line_length
+      dunecpplint._line_length = old_line_length
 
   def testFilter(self):
-    old_filters = cpplint._cpplint_state.filters
+    old_filters = dunecpplint._dunecpplint_state.filters
     try:
-      cpplint._cpplint_state.SetFilters('-,+whitespace,-whitespace/indent')
+      dunecpplint._dunecpplint_state.SetFilters('-,+whitespace,-whitespace/indent')
       self.TestLint(
           '// Hello there ',
           'Line ends in whitespace.  Consider deleting these extra spaces.'
@@ -3903,29 +3903,29 @@ class CpplintTest(CpplintTestBase):
       self.TestLint('int a = (int)1.0;', '')
       self.TestLint(' weird opening space', '')
     finally:
-      cpplint._cpplint_state.filters = old_filters
+      dunecpplint._dunecpplint_state.filters = old_filters
 
   def testDefaultFilter(self):
-    default_filters = cpplint._DEFAULT_FILTERS
-    old_filters = cpplint._cpplint_state.filters
-    cpplint._DEFAULT_FILTERS = ['-whitespace']
+    default_filters = dunecpplint._DEFAULT_FILTERS
+    old_filters = dunecpplint._dunecpplint_state.filters
+    dunecpplint._DEFAULT_FILTERS = ['-whitespace']
     try:
       # Reset filters
-      cpplint._cpplint_state.SetFilters('')
+      dunecpplint._dunecpplint_state.SetFilters('')
       self.TestLint('// Hello there ', '')
-      cpplint._cpplint_state.SetFilters('+whitespace/end_of_line')
+      dunecpplint._dunecpplint_state.SetFilters('+whitespace/end_of_line')
       self.TestLint(
           '// Hello there ',
           'Line ends in whitespace.  Consider deleting these extra spaces.'
           '  [whitespace/end_of_line] [4]')
       self.TestLint(' weird opening space', '')
     finally:
-      cpplint._cpplint_state.filters = old_filters
-      cpplint._DEFAULT_FILTERS = default_filters
+      dunecpplint._dunecpplint_state.filters = old_filters
+      dunecpplint._DEFAULT_FILTERS = default_filters
 
   def testDuplicateHeader(self):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData('path/self.cc', 'cc',
+    dunecpplint.ProcessFileData('path/self.cc', 'cc',
                             ['// Copyright 2014 Your Company. All Rights Reserved.',
                              '#include "path/self.h"',
                              '#include "path/duplicate.h"',
@@ -4022,7 +4022,7 @@ class CpplintTest(CpplintTestBase):
   def GetBuildHeaderGuardPreprocessorSymbol(self, file_path):
     # Figure out the expected header guard by processing an empty file.
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h', [], error_collector)
+    dunecpplint.ProcessFileData(file_path, 'h', [], error_collector)
     for error in error_collector.ResultList():
       matched = re.search(
           'No #ifndef header guard found, suggested CPP variable is: '
@@ -4038,7 +4038,7 @@ class CpplintTest(CpplintTestBase):
 
     # No guard at all: expect one error.
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h', [], error_collector)
+    dunecpplint.ProcessFileData(file_path, 'h', [], error_collector)
     self.assertEquals(
         1,
         error_collector.ResultList().count(
@@ -4048,7 +4048,7 @@ class CpplintTest(CpplintTestBase):
 
     # No header guard, but the error is suppressed.
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h',
+    dunecpplint.ProcessFileData(file_path, 'h',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINT(build/header_guard)', ''],
                             error_collector)
@@ -4056,7 +4056,7 @@ class CpplintTest(CpplintTestBase):
 
     # Wrong guard
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h',
+    dunecpplint.ProcessFileData(file_path, 'h',
                             ['#ifndef FOO_H', '#define FOO_H'], error_collector)
     self.assertEquals(
         1,
@@ -4067,7 +4067,7 @@ class CpplintTest(CpplintTestBase):
 
     # No define
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h',
+    dunecpplint.ProcessFileData(file_path, 'h',
                             ['#ifndef %s' % expected_guard], error_collector)
     self.assertEquals(
         1,
@@ -4078,7 +4078,7 @@ class CpplintTest(CpplintTestBase):
 
     # Mismatched define
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h',
+    dunecpplint.ProcessFileData(file_path, 'h',
                             ['#ifndef %s' % expected_guard,
                              '#define FOO_H'],
                             error_collector)
@@ -4091,7 +4091,7 @@ class CpplintTest(CpplintTestBase):
 
     # No endif
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h',
+    dunecpplint.ProcessFileData(file_path, 'h',
                             ['#ifndef %s' % expected_guard,
                              '#define %s' % expected_guard,
                              ''],
@@ -4105,7 +4105,7 @@ class CpplintTest(CpplintTestBase):
 
     # Commentless endif
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h',
+    dunecpplint.ProcessFileData(file_path, 'h',
                             ['#ifndef %s' % expected_guard,
                              '#define %s' % expected_guard,
                              '#endif'],
@@ -4119,7 +4119,7 @@ class CpplintTest(CpplintTestBase):
 
     # Commentless endif for old-style guard
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h',
+    dunecpplint.ProcessFileData(file_path, 'h',
                             ['#ifndef %s_' % expected_guard,
                              '#define %s_' % expected_guard,
                              '#endif'],
@@ -4133,7 +4133,7 @@ class CpplintTest(CpplintTestBase):
 
     # No header guard errors
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h',
+    dunecpplint.ProcessFileData(file_path, 'h',
                             ['#ifndef %s' % expected_guard,
                              '#define %s' % expected_guard,
                              '#endif  // %s' % expected_guard],
@@ -4144,7 +4144,7 @@ class CpplintTest(CpplintTestBase):
 
     # No header guard errors for old-style guard
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h',
+    dunecpplint.ProcessFileData(file_path, 'h',
                             ['#ifndef %s_' % expected_guard,
                              '#define %s_' % expected_guard,
                              '#endif  // %s_' % expected_guard],
@@ -4153,12 +4153,12 @@ class CpplintTest(CpplintTestBase):
       if line.find('build/header_guard') != -1:
         self.fail('Unexpected error: %s' % line)
 
-    old_verbose_level = cpplint._cpplint_state.verbose_level
+    old_verbose_level = dunecpplint._dunecpplint_state.verbose_level
     try:
-      cpplint._cpplint_state.verbose_level = 0
+      dunecpplint._dunecpplint_state.verbose_level = 0
       # Warn on old-style guard if verbosity is 0.
       error_collector = ErrorCollector(self.assert_)
-      cpplint.ProcessFileData(file_path, 'h',
+      dunecpplint.ProcessFileData(file_path, 'h',
                               ['#ifndef %s_' % expected_guard,
                                '#define %s_' % expected_guard,
                                '#endif  // %s_' % expected_guard],
@@ -4170,11 +4170,11 @@ class CpplintTest(CpplintTestBase):
               '  [build/header_guard] [0]' % expected_guard),
           error_collector.ResultList())
     finally:
-      cpplint._cpplint_state.verbose_level = old_verbose_level
+      dunecpplint._dunecpplint_state.verbose_level = old_verbose_level
 
     # Completely incorrect header guard
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h',
+    dunecpplint.ProcessFileData(file_path, 'h',
                             ['#ifndef FOO',
                              '#define FOO',
                              '#endif  // FOO'],
@@ -4194,7 +4194,7 @@ class CpplintTest(CpplintTestBase):
 
     # incorrect header guard with nolint
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'h',
+    dunecpplint.ProcessFileData(file_path, 'h',
                             ['#ifndef FOO  // NOLINT',
                              '#define FOO',
                              '#endif  // FOO NOLINT'],
@@ -4215,7 +4215,7 @@ class CpplintTest(CpplintTestBase):
     # Special case for flymake
     for test_file in ['mydir/foo_flymake.h', 'mydir/.flymake/foo.h']:
       error_collector = ErrorCollector(self.assert_)
-      cpplint.ProcessFileData(test_file, 'h',
+      dunecpplint.ProcessFileData(test_file, 'h',
                               ['// Copyright 2014 Your Company.', ''],
                               error_collector)
       self.assertEquals(
@@ -4229,8 +4229,8 @@ class CpplintTest(CpplintTestBase):
     # note: Tested file paths must be real, otherwise
     # the repository name lookup will fail.
     file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             'cpplint_test_header.h')
-    file_info = cpplint.FileInfo(file_path)
+                             'dunecpplint_test_header.h')
+    file_info = dunecpplint.FileInfo(file_path)
     if file_info.FullName() == file_info.RepositoryName():
       # When FileInfo cannot deduce the root directory of the repository,
       # FileInfo.RepositoryName returns the same value as FileInfo.FullName.
@@ -4240,8 +4240,8 @@ class CpplintTest(CpplintTestBase):
       # when the root directory of the repository is properly deduced.
       return
 
-    self.assertEquals('CPPLINT_CPPLINT_TEST_HEADER_H_',
-                      cpplint.GetHeaderGuardCPPVariable(file_path))
+    self.assertEquals('DUNECPPLINT_DUNECPPLINT_TEST_HEADER_H_',
+                      dunecpplint.GetHeaderGuardCPPVariable(file_path))
     #
     # test --root flags:
     #   this changes the cpp header guard prefix
@@ -4249,53 +4249,53 @@ class CpplintTest(CpplintTestBase):
 
     # left-strip the header guard by using a root dir inside of the repo dir.
     # relative directory
-    cpplint._root = 'cpplint'
-    self.assertEquals('CPPLINT_TEST_HEADER_H_',
-                      cpplint.GetHeaderGuardCPPVariable(file_path))
+    dunecpplint._root = 'dunecpplint'
+    self.assertEquals('DUNECPPLINT_TEST_HEADER_H_',
+                      dunecpplint.GetHeaderGuardCPPVariable(file_path))
 
     nested_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                     os.path.join('nested',
-                                                 'cpplint_test_header.h'))
-    cpplint._root = os.path.join('cpplint', 'nested')
-    actual = cpplint.GetHeaderGuardCPPVariable(nested_file_path)
-    self.assertEquals('CPPLINT_TEST_HEADER_H_',
+                                                 'dunecpplint_test_header.h'))
+    dunecpplint._root = os.path.join('dunecpplint', 'nested')
+    actual = dunecpplint.GetHeaderGuardCPPVariable(nested_file_path)
+    self.assertEquals('DUNECPPLINT_TEST_HEADER_H_',
                       actual)
 
     # absolute directory
-    # (note that CPPLINT.cfg root=setting is always made absolute)
-    cpplint._root = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-    self.assertEquals('CPPLINT_TEST_HEADER_H_',
-                      cpplint.GetHeaderGuardCPPVariable(file_path))
+    # (note that DUNECPPLINT.cfg root=setting is always made absolute)
+    dunecpplint._root = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+    self.assertEquals('DUNECPPLINT_TEST_HEADER_H_',
+                      dunecpplint.GetHeaderGuardCPPVariable(file_path))
 
     nested_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                     os.path.join('nested',
-                                                 'cpplint_test_header.h'))
-    cpplint._root = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                 'dunecpplint_test_header.h'))
+    dunecpplint._root = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                  'nested')
-    self.assertEquals('CPPLINT_TEST_HEADER_H_',
-                      cpplint.GetHeaderGuardCPPVariable(nested_file_path))
+    self.assertEquals('DUNECPPLINT_TEST_HEADER_H_',
+                      dunecpplint.GetHeaderGuardCPPVariable(nested_file_path))
 
     # --root flag is ignored if an non-existent directory is specified.
-    cpplint._root = 'NON_EXISTENT_DIR'
-    self.assertEquals('CPPLINT_CPPLINT_TEST_HEADER_H_',
-                      cpplint.GetHeaderGuardCPPVariable(file_path))
+    dunecpplint._root = 'NON_EXISTENT_DIR'
+    self.assertEquals('DUNECPPLINT_DUNECPPLINT_TEST_HEADER_H_',
+                      dunecpplint.GetHeaderGuardCPPVariable(file_path))
 
     # prepend to the header guard by using a root dir that is more outer
     # than the repo dir
 
     # (using absolute paths)
-    # (note that CPPLINT.cfg root=setting is always made absolute)
+    # (note that DUNECPPLINT.cfg root=setting is always made absolute)
     this_files_path = os.path.dirname(os.path.abspath(__file__))
     (styleguide_path, this_files_dir) = os.path.split(this_files_path)
     (styleguide_parent_path, styleguide_dir_name) = os.path.split(styleguide_path)
     # parent dir of styleguide
-    cpplint._root = styleguide_parent_path
+    dunecpplint._root = styleguide_parent_path
     self.assertIsNotNone(styleguide_parent_path)
     # do not hardcode the 'styleguide' repository name, it could be anything.
     expected_prefix = re.sub(r'[^a-zA-Z0-9]', '_', styleguide_dir_name).upper() + '_'
     # do not have 'styleguide' repo in '/'
-    self.assertEquals('%sCPPLINT_CPPLINT_TEST_HEADER_H_' %(expected_prefix),
-                      cpplint.GetHeaderGuardCPPVariable(file_path))
+    self.assertEquals('%sDUNECPPLINT_DUNECPPLINT_TEST_HEADER_H_' %(expected_prefix),
+                      dunecpplint.GetHeaderGuardCPPVariable(file_path))
 
     # To run the 'relative path' tests, we must be in the directory of this test file.
     cur_dir = os.getcwd()
@@ -4304,36 +4304,36 @@ class CpplintTest(CpplintTestBase):
     # (using relative paths)
     styleguide_rel_path = os.path.relpath(styleguide_path, this_files_path)
     # '..'
-    cpplint._root = styleguide_rel_path
-    self.assertEquals('CPPLINT_CPPLINT_TEST_HEADER_H_',
-                      cpplint.GetHeaderGuardCPPVariable(file_path))
+    dunecpplint._root = styleguide_rel_path
+    self.assertEquals('DUNECPPLINT_DUNECPPLINT_TEST_HEADER_H_',
+                      dunecpplint.GetHeaderGuardCPPVariable(file_path))
 
     styleguide_rel_path = os.path.relpath(styleguide_parent_path,
                                           this_files_path) # '../..'
-    cpplint._root = styleguide_rel_path
-    self.assertEquals('%sCPPLINT_CPPLINT_TEST_HEADER_H_' %(expected_prefix),
-                      cpplint.GetHeaderGuardCPPVariable(file_path))
+    dunecpplint._root = styleguide_rel_path
+    self.assertEquals('%sDUNECPPLINT_DUNECPPLINT_TEST_HEADER_H_' %(expected_prefix),
+                      dunecpplint.GetHeaderGuardCPPVariable(file_path))
 
-    cpplint._root = None
+    dunecpplint._root = None
 
     # Restore previous CWD.
     os.chdir(cur_dir)
 
   def testPathSplitToList(self):
     self.assertEquals([''],
-                      cpplint.PathSplitToList(os.path.join('')))
+                      dunecpplint.PathSplitToList(os.path.join('')))
 
     self.assertEquals(['.'],
-                      cpplint.PathSplitToList(os.path.join('.')))
+                      dunecpplint.PathSplitToList(os.path.join('.')))
 
     self.assertEquals(['..'],
-                      cpplint.PathSplitToList(os.path.join('..')))
+                      dunecpplint.PathSplitToList(os.path.join('..')))
 
     self.assertEquals(['..', 'a', 'b'],
-                      cpplint.PathSplitToList(os.path.join('..', 'a', 'b')))
+                      dunecpplint.PathSplitToList(os.path.join('..', 'a', 'b')))
 
     self.assertEquals(['a', 'b', 'c', 'd'],
-                      cpplint.PathSplitToList(os.path.join('a', 'b', 'c', 'd')))
+                      dunecpplint.PathSplitToList(os.path.join('a', 'b', 'c', 'd')))
 
   def testBuildInclude(self):
     # Test that include statements have slashes in them.
@@ -4345,7 +4345,7 @@ class CpplintTest(CpplintTestBase):
 
   def testBuildPrintfFormat(self):
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(
+    dunecpplint.ProcessFileData(
         'foo.cc', 'cc',
         [r'printf("\%%d", value);',
          r'snprintf(buffer, sizeof(buffer), "\[%d", value);',
@@ -4359,7 +4359,7 @@ class CpplintTest(CpplintTestBase):
             '  [build/printf_format] [3]'))
 
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(
+    dunecpplint.ProcessFileData(
         'foo.cc', 'cc',
         ['// Copyright 2014 Your Company.',
          r'printf("\\%%%d", value);',
@@ -4478,13 +4478,13 @@ class CpplintTest(CpplintTestBase):
 
     # There should be a copyright message in the first 10 lines
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'cc', [], error_collector)
+    dunecpplint.ProcessFileData(file_path, 'cc', [], error_collector)
     self.assertEquals(
         1,
         error_collector.ResultList().count(legal_copyright_message))
 
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(
+    dunecpplint.ProcessFileData(
         file_path, 'cc',
         ['' for unused_i in range(10)] + [copyright_line],
         error_collector)
@@ -4494,13 +4494,13 @@ class CpplintTest(CpplintTestBase):
 
     # Test that warning isn't issued if Copyright line appears early enough.
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(file_path, 'cc', [copyright_line], error_collector)
+    dunecpplint.ProcessFileData(file_path, 'cc', [copyright_line], error_collector)
     for message in error_collector.ResultList():
       if message.find('legal/copyright') != -1:
         self.fail('Unexpected error: %s' % message)
 
     error_collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(
+    dunecpplint.ProcessFileData(
         file_path, 'cc',
         ['' for unused_i in range(9)] + [copyright_line],
         error_collector)
@@ -4518,7 +4518,7 @@ class CpplintTest(CpplintTestBase):
     self.TestLint('snprintf(fisk, 1, format)',
                   'If you can, use sizeof(fisk) instead of 1 as the 2nd arg '
                   'to snprintf.  [runtime/printf] [3]')
-class Cxx11Test(CpplintTestBase):
+class Cxx11Test(DunecpplintTestBase):
 
   def Helper(self, package, extension, lines, count):
     filename = package + '/foo.' + extension
@@ -4536,16 +4536,16 @@ class Cxx11Test(CpplintTestBase):
 
     # Process the file and check resulting error count.
     collector = ErrorCollector(self.assert_)
-    cpplint.ProcessFileData(filename, extension, lines, collector)
+    dunecpplint.ProcessFileData(filename, extension, lines, collector)
     error_list = collector.ResultList()
     self.assertEquals(count, len(error_list), error_list)
 
   def TestCxx11Feature(self, code, expected_error):
     lines = code.split('\n')
     collector = ErrorCollector(self.assert_)
-    cpplint.RemoveMultiLineComments('foo.h', lines, collector)
-    clean_lines = cpplint.CleansedLines(lines)
-    cpplint.FlagCxx11Features('foo.cc', clean_lines, 0, collector)
+    dunecpplint.RemoveMultiLineComments('foo.h', lines, collector)
+    clean_lines = dunecpplint.CleansedLines(lines)
+    dunecpplint.FlagCxx11Features('foo.cc', clean_lines, 0, collector)
     self.assertEquals(expected_error, collector.Results())
 
   def testBlockedHeaders(self):
@@ -4596,14 +4596,14 @@ class Cxx11Test(CpplintTestBase):
                   '  [build/explicit_make_pair] [4]')
     self.TestLint('my_make_pair<int, int>', '')
 
-class Cxx14Test(CpplintTestBase):
+class Cxx14Test(DunecpplintTestBase):
 
   def TestCxx14Feature(self, code, expected_error):
     lines = code.split('\n')
     collector = ErrorCollector(self.assert_)
-    cpplint.RemoveMultiLineComments('foo.h', lines, collector)
-    clean_lines = cpplint.CleansedLines(lines)
-    cpplint.FlagCxx14Features('foo.cc', clean_lines, 0, collector)
+    dunecpplint.RemoveMultiLineComments('foo.h', lines, collector)
+    clean_lines = dunecpplint.CleansedLines(lines)
+    dunecpplint.FlagCxx14Features('foo.cc', clean_lines, 0, collector)
     self.assertEquals(expected_error, collector.Results())
 
   def testBlockedHeaders(self):
@@ -4624,7 +4624,7 @@ class CleansedLinesTest(unittest.TestCase):
              'Line 4 /* Comment test */',
              'Line 5 "foo"']
 
-    clean_lines = cpplint.CleansedLines(lines)
+    clean_lines = dunecpplint.CleansedLines(lines)
     self.assertEquals(lines, clean_lines.raw_lines)
     self.assertEquals(5, clean_lines.NumLines())
 
@@ -4643,12 +4643,12 @@ class CleansedLinesTest(unittest.TestCase):
                       clean_lines.elided)
 
   def testInitEmpty(self):
-    clean_lines = cpplint.CleansedLines([])
+    clean_lines = dunecpplint.CleansedLines([])
     self.assertEquals([], clean_lines.raw_lines)
     self.assertEquals(0, clean_lines.NumLines())
 
   def testCollapseStrings(self):
-    collapse = cpplint.CleansedLines._CollapseStrings
+    collapse = dunecpplint.CleansedLines._CollapseStrings
     self.assertEquals('""', collapse('""'))             # ""     (empty)
     self.assertEquals('"""', collapse('"""'))           # """    (bad)
     self.assertEquals('""', collapse('"xyz"'))          # "xyz"  (string)
@@ -4689,100 +4689,100 @@ class CleansedLinesTest(unittest.TestCase):
                       collapse('\'"\' "foo"'))
 
 
-class OrderOfIncludesTest(CpplintTestBase):
+class OrderOfIncludesTest(DunecpplintTestBase):
 
   def setUp(self):
-    CpplintTestBase.setUp(self)
-    self.include_state = cpplint._IncludeState()
+    DunecpplintTestBase.setUp(self)
+    self.include_state = dunecpplint._IncludeState()
     os.path.abspath = lambda value: value
 
   def testCheckNextIncludeOrder_OtherThenCpp(self):
     self.assertEqual('', self.include_state.CheckNextIncludeOrder(
-        cpplint._OTHER_HEADER))
+        dunecpplint._OTHER_HEADER))
     self.assertEqual('Found C++ system header after other header',
                      self.include_state.CheckNextIncludeOrder(
-                         cpplint._CPP_SYS_HEADER))
+                         dunecpplint._CPP_SYS_HEADER))
 
   def testCheckNextIncludeOrder_CppThenC(self):
     self.assertEqual('', self.include_state.CheckNextIncludeOrder(
-        cpplint._CPP_SYS_HEADER))
+        dunecpplint._CPP_SYS_HEADER))
     self.assertEqual('Found C system header after C++ system header',
                      self.include_state.CheckNextIncludeOrder(
-                         cpplint._C_SYS_HEADER))
+                         dunecpplint._C_SYS_HEADER))
 
   def testCheckNextIncludeOrder_LikelyThenCpp(self):
     self.assertEqual('', self.include_state.CheckNextIncludeOrder(
-        cpplint._LIKELY_MY_HEADER))
+        dunecpplint._LIKELY_MY_HEADER))
     self.assertEqual('', self.include_state.CheckNextIncludeOrder(
-        cpplint._CPP_SYS_HEADER))
+        dunecpplint._CPP_SYS_HEADER))
 
   def testCheckNextIncludeOrder_PossibleThenCpp(self):
     self.assertEqual('', self.include_state.CheckNextIncludeOrder(
-        cpplint._POSSIBLE_MY_HEADER))
+        dunecpplint._POSSIBLE_MY_HEADER))
     self.assertEqual('', self.include_state.CheckNextIncludeOrder(
-        cpplint._CPP_SYS_HEADER))
+        dunecpplint._CPP_SYS_HEADER))
 
   def testCheckNextIncludeOrder_CppThenLikely(self):
     self.assertEqual('', self.include_state.CheckNextIncludeOrder(
-        cpplint._CPP_SYS_HEADER))
+        dunecpplint._CPP_SYS_HEADER))
     # This will eventually fail.
     self.assertEqual('', self.include_state.CheckNextIncludeOrder(
-        cpplint._LIKELY_MY_HEADER))
+        dunecpplint._LIKELY_MY_HEADER))
 
   def testCheckNextIncludeOrder_CppThenPossible(self):
     self.assertEqual('', self.include_state.CheckNextIncludeOrder(
-        cpplint._CPP_SYS_HEADER))
+        dunecpplint._CPP_SYS_HEADER))
     self.assertEqual('', self.include_state.CheckNextIncludeOrder(
-        cpplint._POSSIBLE_MY_HEADER))
+        dunecpplint._POSSIBLE_MY_HEADER))
 
   def testClassifyInclude(self):
-    file_info = cpplint.FileInfo
-    classify_include = cpplint._ClassifyInclude
-    self.assertEqual(cpplint._C_SYS_HEADER,
+    file_info = dunecpplint.FileInfo
+    classify_include = dunecpplint._ClassifyInclude
+    self.assertEqual(dunecpplint._C_SYS_HEADER,
                      classify_include(file_info('foo/foo.cc'),
                                       'stdio.h',
                                       True))
-    self.assertEqual(cpplint._CPP_SYS_HEADER,
+    self.assertEqual(dunecpplint._CPP_SYS_HEADER,
                      classify_include(file_info('foo/foo.cc'),
                                       'string',
                                       True))
-    self.assertEqual(cpplint._CPP_SYS_HEADER,
+    self.assertEqual(dunecpplint._CPP_SYS_HEADER,
                      classify_include(file_info('foo/foo.cc'),
                                       'typeinfo',
                                       True))
-    self.assertEqual(cpplint._OTHER_HEADER,
+    self.assertEqual(dunecpplint._OTHER_HEADER,
                      classify_include(file_info('foo/foo.cc'),
                                       'string',
                                       False))
 
-    self.assertEqual(cpplint._LIKELY_MY_HEADER,
+    self.assertEqual(dunecpplint._LIKELY_MY_HEADER,
                      classify_include(file_info('foo/foo.cc'),
                                       'foo/foo-inl.h',
                                       False))
-    self.assertEqual(cpplint._LIKELY_MY_HEADER,
+    self.assertEqual(dunecpplint._LIKELY_MY_HEADER,
                      classify_include(file_info('foo/internal/foo.cc'),
                                       'foo/public/foo.h',
                                       False))
-    self.assertEqual(cpplint._POSSIBLE_MY_HEADER,
+    self.assertEqual(dunecpplint._POSSIBLE_MY_HEADER,
                      classify_include(file_info('foo/internal/foo.cc'),
                                       'foo/other/public/foo.h',
                                       False))
-    self.assertEqual(cpplint._OTHER_HEADER,
+    self.assertEqual(dunecpplint._OTHER_HEADER,
                      classify_include(file_info('foo/internal/foo.cc'),
                                       'foo/other/public/foop.h',
                                       False))
 
   def testTryDropCommonSuffixes(self):
-    self.assertEqual('foo/foo', cpplint._DropCommonSuffixes('foo/foo-inl.h'))
+    self.assertEqual('foo/foo', dunecpplint._DropCommonSuffixes('foo/foo-inl.h'))
     self.assertEqual('foo/bar/foo',
-                     cpplint._DropCommonSuffixes('foo/bar/foo_inl.h'))
-    self.assertEqual('foo/foo', cpplint._DropCommonSuffixes('foo/foo.cc'))
+                     dunecpplint._DropCommonSuffixes('foo/bar/foo_inl.h'))
+    self.assertEqual('foo/foo', dunecpplint._DropCommonSuffixes('foo/foo.cc'))
     self.assertEqual('foo/foo_unusualinternal',
-                     cpplint._DropCommonSuffixes('foo/foo_unusualinternal.h'))
+                     dunecpplint._DropCommonSuffixes('foo/foo_unusualinternal.h'))
     self.assertEqual('',
-                     cpplint._DropCommonSuffixes('_test.cc'))
+                     dunecpplint._DropCommonSuffixes('_test.cc'))
     self.assertEqual('test',
-                     cpplint._DropCommonSuffixes('test.cc'))
+                     dunecpplint._DropCommonSuffixes('test.cc'))
 
   def testRegression(self):
     def Format(includes):
@@ -4848,7 +4848,7 @@ class OrderOfIncludesTest(CpplintTestBase):
                                 Format(['"foo/public/foo.h"', '<string>']),
                                 '')
     # OK to have my header in other dir (not stylistically, but
-    # cpplint isn't as good as a human).
+    # dunecpplint isn't as good as a human).
     self.TestLanguageRulesCheck('foo/internal/foo.cc',
                                 Format(['"foo/other/public/foo.h"',
                                         '<string>']),
@@ -4921,19 +4921,19 @@ class OrderOfIncludesTest(CpplintTestBase):
                                 '')
 
 
-class CheckForFunctionLengthsTest(CpplintTestBase):
+class CheckForFunctionLengthsTest(DunecpplintTestBase):
 
   def setUp(self):
     # Reducing these thresholds for the tests speeds up tests significantly.
-    self.old_normal_trigger = cpplint._FunctionState._NORMAL_TRIGGER
-    self.old_test_trigger = cpplint._FunctionState._TEST_TRIGGER
+    self.old_normal_trigger = dunecpplint._FunctionState._NORMAL_TRIGGER
+    self.old_test_trigger = dunecpplint._FunctionState._TEST_TRIGGER
 
-    cpplint._FunctionState._NORMAL_TRIGGER = 10
-    cpplint._FunctionState._TEST_TRIGGER = 25
+    dunecpplint._FunctionState._NORMAL_TRIGGER = 10
+    dunecpplint._FunctionState._TEST_TRIGGER = 25
 
   def tearDown(self):
-    cpplint._FunctionState._NORMAL_TRIGGER = self.old_normal_trigger
-    cpplint._FunctionState._TEST_TRIGGER = self.old_test_trigger
+    dunecpplint._FunctionState._NORMAL_TRIGGER = self.old_normal_trigger
+    dunecpplint._FunctionState._TEST_TRIGGER = self.old_test_trigger
 
   def TestFunctionLengthsCheck(self, code, expected_message):
     """Check warnings for long function bodies are as expected.
@@ -4949,32 +4949,32 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
     """Return number of lines needed to trigger a function length warning.
 
     Args:
-      error_level: --v setting for cpplint.
+      error_level: --v setting for dunecpplint.
 
     Returns:
       Number of lines needed to trigger a function length warning.
     """
-    return cpplint._FunctionState._NORMAL_TRIGGER * 2**error_level
+    return dunecpplint._FunctionState._NORMAL_TRIGGER * 2**error_level
 
   def TestLines(self, error_level):
     """Return number of lines needed to trigger a test function length warning.
 
     Args:
-      error_level: --v setting for cpplint.
+      error_level: --v setting for dunecpplint.
 
     Returns:
       Number of lines needed to trigger a test function length warning.
     """
-    return cpplint._FunctionState._TEST_TRIGGER * 2**error_level
+    return dunecpplint._FunctionState._TEST_TRIGGER * 2**error_level
 
   def TestFunctionLengthCheckDefinition(self, lines, error_level):
     """Generate long function definition and check warnings are as expected.
 
     Args:
       lines: Number of lines to generate.
-      error_level:  --v setting for cpplint.
+      error_level:  --v setting for dunecpplint.
     """
-    trigger_level = self.TriggerLines(cpplint._VerboseLevel())
+    trigger_level = self.TriggerLines(dunecpplint._VerboseLevel())
     self.TestFunctionLengthsCheck(
         'void test(int x)' + self.FunctionBody(lines),
         ('Small and focused functions are preferred: '
@@ -4997,7 +4997,7 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
     """Generate and check function at the trigger level for --v setting.
 
     Args:
-      error_level: --v setting for cpplint.
+      error_level: --v setting for dunecpplint.
     """
     self.TestFunctionLengthCheckDefinition(self.TriggerLines(error_level),
                                            error_level)
@@ -5006,7 +5006,7 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
     """Generate and check function just below the trigger level for --v setting.
 
     Args:
-      error_level: --v setting for cpplint.
+      error_level: --v setting for dunecpplint.
     """
     self.TestFunctionLengthCheckDefinition(self.TriggerLines(error_level)-1,
                                            error_level-1)
@@ -5015,7 +5015,7 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
     """Generate and check function just above the trigger level for --v setting.
 
     Args:
-      error_level: --v setting for cpplint.
+      error_level: --v setting for dunecpplint.
     """
     self.TestFunctionLengthCheckDefinition(self.TriggerLines(error_level)+1,
                                            error_level)
@@ -5058,29 +5058,29 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
         '')
 
   def testFunctionLengthCheckDefinitionBelowSeverity0(self):
-    old_verbosity = cpplint._SetVerboseLevel(0)
+    old_verbosity = dunecpplint._SetVerboseLevel(0)
     self.TestFunctionLengthCheckDefinitionOK(self.TriggerLines(0)-1)
-    cpplint._SetVerboseLevel(old_verbosity)
+    dunecpplint._SetVerboseLevel(old_verbosity)
 
   def testFunctionLengthCheckDefinitionAtSeverity0(self):
-    old_verbosity = cpplint._SetVerboseLevel(0)
+    old_verbosity = dunecpplint._SetVerboseLevel(0)
     self.TestFunctionLengthCheckDefinitionOK(self.TriggerLines(0))
-    cpplint._SetVerboseLevel(old_verbosity)
+    dunecpplint._SetVerboseLevel(old_verbosity)
 
   def testFunctionLengthCheckDefinitionAboveSeverity0(self):
-    old_verbosity = cpplint._SetVerboseLevel(0)
+    old_verbosity = dunecpplint._SetVerboseLevel(0)
     self.TestFunctionLengthCheckAboveErrorLevel(0)
-    cpplint._SetVerboseLevel(old_verbosity)
+    dunecpplint._SetVerboseLevel(old_verbosity)
 
   def testFunctionLengthCheckDefinitionBelowSeverity1v0(self):
-    old_verbosity = cpplint._SetVerboseLevel(0)
+    old_verbosity = dunecpplint._SetVerboseLevel(0)
     self.TestFunctionLengthCheckBelowErrorLevel(1)
-    cpplint._SetVerboseLevel(old_verbosity)
+    dunecpplint._SetVerboseLevel(old_verbosity)
 
   def testFunctionLengthCheckDefinitionAtSeverity1v0(self):
-    old_verbosity = cpplint._SetVerboseLevel(0)
+    old_verbosity = dunecpplint._SetVerboseLevel(0)
     self.TestFunctionLengthCheckAtErrorLevel(1)
-    cpplint._SetVerboseLevel(old_verbosity)
+    dunecpplint._SetVerboseLevel(old_verbosity)
 
   def testFunctionLengthCheckDefinitionBelowSeverity1(self):
     self.TestFunctionLengthCheckDefinitionOK(self.TriggerLines(1)-1)
@@ -5094,7 +5094,7 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
   def testFunctionLengthCheckDefinitionSeverity1PlusBlanks(self):
     error_level = 1
     error_lines = self.TriggerLines(error_level) + 1
-    trigger_level = self.TriggerLines(cpplint._VerboseLevel())
+    trigger_level = self.TriggerLines(dunecpplint._VerboseLevel())
     self.TestFunctionLengthsCheck(
         'void test_blanks(int x)' + self.FunctionBody(error_lines),
         ('Small and focused functions are preferred: '
@@ -5106,7 +5106,7 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
   def testFunctionLengthCheckComplexDefinitionSeverity1(self):
     error_level = 1
     error_lines = self.TriggerLines(error_level) + 1
-    trigger_level = self.TriggerLines(cpplint._VerboseLevel())
+    trigger_level = self.TriggerLines(dunecpplint._VerboseLevel())
     self.TestFunctionLengthsCheck(
         ('my_namespace::my_other_namespace::MyVeryLongTypeName*\n'
          'my_namespace::my_other_namespace::MyFunction(int arg1, char* arg2)'
@@ -5121,7 +5121,7 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
   def testFunctionLengthCheckDefinitionSeverity1ForTest(self):
     error_level = 1
     error_lines = self.TestLines(error_level) + 1
-    trigger_level = self.TestLines(cpplint._VerboseLevel())
+    trigger_level = self.TestLines(dunecpplint._VerboseLevel())
     self.TestFunctionLengthsCheck(
         'TEST_F(Test, Mutator)' + self.FunctionBody(error_lines),
         ('Small and focused functions are preferred: '
@@ -5133,7 +5133,7 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
   def testFunctionLengthCheckDefinitionSeverity1ForSplitLineTest(self):
     error_level = 1
     error_lines = self.TestLines(error_level) + 1
-    trigger_level = self.TestLines(cpplint._VerboseLevel())
+    trigger_level = self.TestLines(dunecpplint._VerboseLevel())
     self.TestFunctionLengthsCheck(
         ('TEST_F(GoogleUpdateRecoveryRegistryProtectedTest,\n'
          '    FixGoogleUpdate_AllValues_MachineApp)'  # note: 4 spaces
@@ -5148,7 +5148,7 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
   def testFunctionLengthCheckDefinitionSeverity1ForBadTestDoesntBreak(self):
     error_level = 1
     error_lines = self.TestLines(error_level) + 1
-    trigger_level = self.TestLines(cpplint._VerboseLevel())
+    trigger_level = self.TestLines(dunecpplint._VerboseLevel())
     self.TestFunctionLengthsCheck(
         ('TEST_F('
          + self.FunctionBody(error_lines)),
@@ -5161,7 +5161,7 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
   def testFunctionLengthCheckDefinitionSeverity1WithEmbeddedNoLints(self):
     error_level = 1
     error_lines = self.TriggerLines(error_level)+1
-    trigger_level = self.TriggerLines(cpplint._VerboseLevel())
+    trigger_level = self.TriggerLines(dunecpplint._VerboseLevel())
     self.TestFunctionLengthsCheck(
         'void test(int x)' + self.FunctionBodyWithNoLints(error_lines),
         ('Small and focused functions are preferred: '
@@ -5233,7 +5233,7 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
         '  [readability/fn_size] [5]')
 
   def testFunctionLengthCheckWithNamespace(self):
-    old_verbosity = cpplint._SetVerboseLevel(1)
+    old_verbosity = dunecpplint._SetVerboseLevel(1)
     self.TestFunctionLengthsCheck(
         ('namespace {\n'
          'void CodeCoverageCL35256059() {\n' +
@@ -5244,7 +5244,7 @@ class CheckForFunctionLengthsTest(CpplintTestBase):
          'CodeCoverageCL35256059() has 3000 non-comment lines '
          '(error triggered by exceeding 20 lines).'
          '  [readability/fn_size] [5]'))
-    cpplint._SetVerboseLevel(old_verbosity)
+    dunecpplint._SetVerboseLevel(old_verbosity)
 
 
 def TrimExtraIndent(text_block):
@@ -5276,7 +5276,7 @@ def TrimExtraIndent(text_block):
 class CloseExpressionTest(unittest.TestCase):
 
   def setUp(self):
-    self.lines = cpplint.CleansedLines(
+    self.lines = dunecpplint.CleansedLines(
         #           1         2         3         4         5
         # 0123456789012345678901234567890123456789012345678901234567890
         ['// Line 0',
@@ -5319,7 +5319,7 @@ class CloseExpressionTest(unittest.TestCase):
                  (17, 22, 18, 46),
                  (18, 47, 20, 1)]
     for p in positions:
-      (_, line, column) = cpplint.CloseExpression(self.lines, p[0], p[1])
+      (_, line, column) = dunecpplint.CloseExpression(self.lines, p[0], p[1])
       self.assertEquals((p[2], p[3]), (line, column))
 
   def testReverseCloseExpression(self):
@@ -5339,18 +5339,18 @@ class CloseExpressionTest(unittest.TestCase):
                  (18, 45, 17, 22),
                  (20, 0, 18, 47)]
     for p in positions:
-      (_, line, column) = cpplint.ReverseCloseExpression(self.lines, p[0], p[1])
+      (_, line, column) = dunecpplint.ReverseCloseExpression(self.lines, p[0], p[1])
       self.assertEquals((p[2], p[3]), (line, column))
 
 
 class NestingStateTest(unittest.TestCase):
 
   def setUp(self):
-    self.nesting_state = cpplint.NestingState()
+    self.nesting_state = dunecpplint.NestingState()
     self.error_collector = ErrorCollector(self.assert_)
 
   def UpdateWithLines(self, lines):
-    clean_lines = cpplint.CleansedLines(lines)
+    clean_lines = dunecpplint.CleansedLines(lines)
     for line in xrange(clean_lines.NumLines()):
       self.nesting_state.Update('test.cc',
                                 clean_lines, line, self.error_collector)
@@ -5363,7 +5363,7 @@ class NestingStateTest(unittest.TestCase):
     self.UpdateWithLines(['namespace {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
     self.assertTrue(isinstance(self.nesting_state.stack[0],
-                               cpplint._NamespaceInfo))
+                               dunecpplint._NamespaceInfo))
     self.assertTrue(self.nesting_state.stack[0].seen_open_brace)
     self.assertEquals(self.nesting_state.stack[0].name, '')
 
@@ -5385,7 +5385,7 @@ class NestingStateTest(unittest.TestCase):
   def testClass(self):
     self.UpdateWithLines(['class A {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'A')
     self.assertFalse(self.nesting_state.stack[0].is_derived)
     self.assertEquals(self.nesting_state.stack[0].class_indent, 0)
@@ -5393,7 +5393,7 @@ class NestingStateTest(unittest.TestCase):
     self.UpdateWithLines(['};',
                           'struct B : public A {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'B')
     self.assertTrue(self.nesting_state.stack[0].is_derived)
 
@@ -5401,7 +5401,7 @@ class NestingStateTest(unittest.TestCase):
                           'class C',
                           ': public A {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'C')
     self.assertTrue(self.nesting_state.stack[0].is_derived)
 
@@ -5411,10 +5411,10 @@ class NestingStateTest(unittest.TestCase):
 
     self.UpdateWithLines(['class D {', '  class E {'])
     self.assertEquals(len(self.nesting_state.stack), 2)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'D')
     self.assertFalse(self.nesting_state.stack[0].is_derived)
-    self.assertTrue(isinstance(self.nesting_state.stack[1], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[1], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[1].name, 'E')
     self.assertFalse(self.nesting_state.stack[1].is_derived)
     self.assertEquals(self.nesting_state.stack[1].class_indent, 2)
@@ -5426,7 +5426,7 @@ class NestingStateTest(unittest.TestCase):
   def testClassAccess(self):
     self.UpdateWithLines(['class A {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].access, 'private')
 
     self.UpdateWithLines([' public:'])
@@ -5440,7 +5440,7 @@ class NestingStateTest(unittest.TestCase):
 
     self.UpdateWithLines(['  struct B {'])
     self.assertEquals(len(self.nesting_state.stack), 2)
-    self.assertTrue(isinstance(self.nesting_state.stack[1], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[1], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[1].access, 'public')
     self.assertEquals(self.nesting_state.stack[0].access, 'private')
 
@@ -5454,7 +5454,7 @@ class NestingStateTest(unittest.TestCase):
   def testStruct(self):
     self.UpdateWithLines(['struct A {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'A')
     self.assertFalse(self.nesting_state.stack[0].is_derived)
 
@@ -5462,7 +5462,7 @@ class NestingStateTest(unittest.TestCase):
                           'void Func(struct B arg) {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
     self.assertFalse(isinstance(self.nesting_state.stack[0],
-                                cpplint._ClassInfo))
+                                dunecpplint._ClassInfo))
 
     self.UpdateWithLines(['}'])
     self.assertEquals(len(self.nesting_state.stack), 0)
@@ -5496,7 +5496,7 @@ class NestingStateTest(unittest.TestCase):
                           '#endif'])
     self.assertEquals(len(self.nesting_state.pp_stack), 0)
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'A')
     self.UpdateWithLines(['};'])
     self.assertEquals(len(self.nesting_state.stack), 0)
@@ -5505,7 +5505,7 @@ class NestingStateTest(unittest.TestCase):
                           '#ifdef MACRO7'])
     self.assertEquals(len(self.nesting_state.pp_stack), 1)
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'D')
     self.assertFalse(self.nesting_state.stack[0].is_derived)
 
@@ -5539,7 +5539,7 @@ class NestingStateTest(unittest.TestCase):
     self.assertEquals(len(self.nesting_state.stack), 0)
     self.UpdateWithLines(['class A {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'A')
 
     self.UpdateWithLines(['};',
@@ -5547,14 +5547,14 @@ class NestingStateTest(unittest.TestCase):
                           '  template <typename, typename> class B>',
                           'class C'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'C')
     self.UpdateWithLines([';'])
     self.assertEquals(len(self.nesting_state.stack), 0)
 
     self.UpdateWithLines(['class D : public Tmpl<E>'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'D')
 
     self.UpdateWithLines(['{', '};'])
@@ -5567,29 +5567,29 @@ class NestingStateTest(unittest.TestCase):
                           'static void Func() {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
     self.assertFalse(isinstance(self.nesting_state.stack[0],
-                                cpplint._ClassInfo))
+                                dunecpplint._ClassInfo))
     self.UpdateWithLines(['}',
                           'template <class J> class K {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'K')
 
   def testTemplateInnerClass(self):
     self.UpdateWithLines(['class A {',
                           ' public:'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
 
     self.UpdateWithLines(['  template <class B>',
                           '  class C<alloc<B> >',
                           '      : public A {'])
     self.assertEquals(len(self.nesting_state.stack), 2)
-    self.assertTrue(isinstance(self.nesting_state.stack[1], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[1], dunecpplint._ClassInfo))
 
   def testArguments(self):
     self.UpdateWithLines(['class A {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'A')
     self.assertEquals(self.nesting_state.stack[-1].open_parentheses, 0)
 
@@ -5606,7 +5606,7 @@ class NestingStateTest(unittest.TestCase):
 
     self.UpdateWithLines(['struct B {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
-    self.assertTrue(isinstance(self.nesting_state.stack[0], cpplint._ClassInfo))
+    self.assertTrue(isinstance(self.nesting_state.stack[0], dunecpplint._ClassInfo))
     self.assertEquals(self.nesting_state.stack[0].name, 'B')
 
     self.UpdateWithLines(['#ifdef MACRO',
@@ -5638,13 +5638,13 @@ class NestingStateTest(unittest.TestCase):
                           '                  int count) {'])
     self.assertEquals(len(self.nesting_state.stack), 1)
     self.assertEquals(self.nesting_state.stack[-1].open_parentheses, 0)
-    self.assertEquals(self.nesting_state.stack[-1].inline_asm, cpplint._NO_ASM)
+    self.assertEquals(self.nesting_state.stack[-1].inline_asm, dunecpplint._NO_ASM)
 
     self.UpdateWithLines(['  asm volatile ('])
     self.assertEquals(len(self.nesting_state.stack), 1)
     self.assertEquals(self.nesting_state.stack[-1].open_parentheses, 1)
     self.assertEquals(self.nesting_state.stack[-1].inline_asm,
-                      cpplint._INSIDE_ASM)
+                      dunecpplint._INSIDE_ASM)
 
     self.UpdateWithLines(['    "sub        %0,%1                         \\n"',
                           '  "1:                                         \\n"',
@@ -5663,31 +5663,31 @@ class NestingStateTest(unittest.TestCase):
     self.assertEquals(len(self.nesting_state.stack), 1)
     self.assertEquals(self.nesting_state.stack[-1].open_parentheses, 1)
     self.assertEquals(self.nesting_state.stack[-1].inline_asm,
-                      cpplint._INSIDE_ASM)
+                      dunecpplint._INSIDE_ASM)
 
     self.UpdateWithLines(['#if defined(__SSE2__)',
                           '    , "xmm0", "xmm1"'])
     self.assertEquals(len(self.nesting_state.stack), 1)
     self.assertEquals(self.nesting_state.stack[-1].open_parentheses, 1)
     self.assertEquals(self.nesting_state.stack[-1].inline_asm,
-                      cpplint._INSIDE_ASM)
+                      dunecpplint._INSIDE_ASM)
 
     self.UpdateWithLines(['#endif'])
     self.assertEquals(len(self.nesting_state.stack), 1)
     self.assertEquals(self.nesting_state.stack[-1].open_parentheses, 1)
     self.assertEquals(self.nesting_state.stack[-1].inline_asm,
-                      cpplint._INSIDE_ASM)
+                      dunecpplint._INSIDE_ASM)
 
     self.UpdateWithLines(['  );'])
     self.assertEquals(len(self.nesting_state.stack), 1)
     self.assertEquals(self.nesting_state.stack[-1].open_parentheses, 0)
-    self.assertEquals(self.nesting_state.stack[-1].inline_asm, cpplint._END_ASM)
+    self.assertEquals(self.nesting_state.stack[-1].inline_asm, dunecpplint._END_ASM)
 
     self.UpdateWithLines(['__asm {'])
     self.assertEquals(len(self.nesting_state.stack), 2)
     self.assertEquals(self.nesting_state.stack[-1].open_parentheses, 0)
     self.assertEquals(self.nesting_state.stack[-1].inline_asm,
-                      cpplint._BLOCK_ASM)
+                      dunecpplint._BLOCK_ASM)
 
     self.UpdateWithLines(['}'])
     self.assertEquals(len(self.nesting_state.stack), 1)
@@ -5701,15 +5701,15 @@ class QuietTest(unittest.TestCase):
   def setUp(self):
     self.this_dir_path = os.path.dirname(os.path.abspath(__file__))
     self.python_executable = sys.executable or 'python'
-    self.cpplint_test_h = os.path.join(self.this_dir_path,
-                                       'cpplint_test_header.h')
+    self.dunecpplint_test_h = os.path.join(self.this_dir_path,
+                                       'dunecpplint_test_header.h')
 
-  def _runCppLint(self, *args):
-    cpplint_abspath = os.path.join(self.this_dir_path, 'cpplint.py')
+  def _runDunecpplint(self, *args):
+    dunecpplint_abspath = os.path.join(self.this_dir_path, 'dunecpplint.py')
 
-    cmd_line = [self.python_executable, cpplint_abspath] +                     \
+    cmd_line = [self.python_executable, dunecpplint_abspath] +                     \
         list(args) +                                                           \
-        [ self.cpplint_test_h ]
+        [ self.dunecpplint_test_h ]
 
     return_code = 0
     try:
@@ -5723,7 +5723,7 @@ class QuietTest(unittest.TestCase):
 
   def testNonQuietWithErrors(self):
     # This will fail: the test header is missing a copyright and header guard.
-    (return_code, output) = self._runCppLint()
+    (return_code, output) = self._runDunecpplint()
     self.assertEquals(1, return_code)
     # Always-on behavior: Print error messages as they come up.
     self.assertIn("[legal/copyright]", output)
@@ -5734,7 +5734,7 @@ class QuietTest(unittest.TestCase):
 
   def testQuietWithErrors(self):
     # When there are errors, behavior is identical to not passing --quiet.
-    (return_code, output) = self._runCppLint('--quiet')
+    (return_code, output) = self._runDunecpplint('--quiet')
     self.assertEquals(1, return_code)
     self.assertIn("[legal/copyright]", output)
     self.assertIn("[build/header_guard]", output)
@@ -5744,11 +5744,11 @@ class QuietTest(unittest.TestCase):
 
   def testNonQuietWithoutErrors(self):
     # This will succeed. We filtered out all the known errors for that file.
-    (return_code, output) = self._runCppLint('--filter=' +
+    (return_code, output) = self._runDunecpplint('--filter=' +
                                                 '-legal/copyright,' +
                                                 '-build/header_guard')
     self.assertEquals(0, return_code, output)
-    # No cpplint errors are printed since there were no errors.
+    # No dunecpplint errors are printed since there were no errors.
     self.assertNotIn("[legal/copyright]", output)
     self.assertNotIn("[build/header_guard]", output)
     # Print 'Done processing' and 'Total errors found' since
@@ -5758,12 +5758,12 @@ class QuietTest(unittest.TestCase):
 
   def testQuietWithoutErrors(self):
     # This will succeed. We filtered out all the known errors for that file.
-    (return_code, output) = self._runCppLint('--quiet',
+    (return_code, output) = self._runDunecpplint('--quiet',
                                              '--filter=' +
                                                  '-legal/copyright,' +
                                                  '-build/header_guard')
     self.assertEquals(0, return_code, output)
-    # No cpplint errors are printed since there were no errors.
+    # No dunecpplint errors are printed since there were no errors.
     self.assertNotIn("[legal/copyright]", output)
     self.assertNotIn("[build/header_guard]", output)
     # --quiet was specified and there were no errors:
@@ -5778,8 +5778,8 @@ def setUp():
   """Runs before all tests are executed.
   """
   # Enable all filters, so we don't miss anything that is off by default.
-  cpplint._DEFAULT_FILTERS = []
-  cpplint._cpplint_state.SetFilters('')
+  dunecpplint._DEFAULT_FILTERS = []
+  dunecpplint._dunecpplint_state.SetFilters('')
 
 
 # pylint: disable-msg=C6409
