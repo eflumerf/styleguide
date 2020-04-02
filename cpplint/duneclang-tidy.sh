@@ -91,7 +91,7 @@ for sourcefile in $( find $codedir -name "*.cc" ); do
     echo
     echo "=========================Validating $sourcefile========================="
 
-    clang-tidy -p=$compile_commands -checks=* $sourcefile    
+    clang-tidy -p=$compile_commands -checks=* -header-filter=.* $sourcefile    
 
 done
 
