@@ -67,15 +67,19 @@ except NameError:
 
 
 _USAGE = """
-Syntax: cpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
+Usage: dunecpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
                    [--counting=total|toplevel|detailed] [--root=subdir]
                    [--linelength=digits] [--headers=x,y,...]
                    [--quiet]
         <file> [file] ...
 
-  The style guidelines this tries to follow are those in
-    https://google-styleguide.googlecode.com/svn/trunk/cppguide.xml
+  You probably don't want to call this script directly but rather dunecpplint.sh
 
+  The style guidelines this tries to follow are those in
+    https://github.com/DUNE-DAQ/styleguide/blob/dune-daq-cppguide/dune-daq-cppguide.md
+
+JCF, Apr-3-2020: I can't vouch (yet) for anything below this line:
+======================================================================
   Every problem is given a confidence score from 1-5, with 5 meaning we are
   certain of the problem, and 1 meaning it could be a legitimate construct.
   This will miss some errors, and is not a substitute for a code review.

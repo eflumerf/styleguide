@@ -2,6 +2,18 @@
 
 if [[ "$#" != "1" ]]; then
     echo "Usage: "$(basename $0)" <dir to examine>" >&2
+    echo
+    cat <<EOF >&2
+
+The DUNE C++ style guide this script tries to look for violations of can be found in 
+https://github.com/DUNE-DAQ/styleguide/blob/dune-daq-cppguide/dune-daq-cppguide.md
+
+Given a directory, it will apply a linter (dunecpplint.py) to all the
+source (*.cc) and header (*.hh) files in that directory as well as all
+of its subdirectories.
+
+EOF
+    
     exit 1
 fi
 
