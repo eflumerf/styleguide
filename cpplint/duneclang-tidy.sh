@@ -4,7 +4,14 @@ if [[ "$#" != "2" ]]; then
 
 cat<<EOF >&2
 
-    Usage: $(basename $0) <dir to examine> <full pathname of compile_commands.json for your build>
+    Usage: $(basename $0) <file or directory to examine> <full pathname of compile_commands.json for your build>
+
+Given a file, it will apply a linter (clang-tidy) to that file
+
+Given a directory, it will apply clang-tidy to all the
+source (*.cc) and header (*.hh) files in that directory as well as all
+of its subdirectories.
+
 
 compile_commands.json is a file which this script needs to forward to
 clang-tidy. It can be automatically produced in a cmake build; to get
@@ -20,10 +27,26 @@ EOF
     exit 1
 fi
 
-codedir=$1
+filename=$1
 
-if [[ ! -d $codedir ]]; then
-    echo "Directory $codedir not found; exiting..." >&2
+source_files=""
+
+if [[ -d $filename ]]; then
+    source_files=$( find $filename -name "*.cc" ) 
+elif [[ -f $filename ]]; then
+
+    if [[ "$filename" =~ ^.*cc$ ]]; then
+	source_files=$filename
+    elif [[ "$filename" =~ ^.*hh$ ]]; then
+	echo $(basename $0)" can only accept source files, not header files; exiting..." >&2
+	exit 1
+    else
+	echo "Filename provided has unknown extension; exiting..." >&2
+	exit 1
+    fi
+
+else
+    echo "Unable to find $filename; exiting..." >&2
     exit 2
 fi
 
@@ -203,12 +226,12 @@ readability-isolate-declaration"
 
 
 
-for sourcefile in $( find $codedir -name "*.cc" ); do
+for source_file in $source_files; do
 
     echo
-    echo "=========================Validating $sourcefile========================="
+    echo "=========================Validating $source_file========================="
 
-    clang-tidy -p=$compile_commands -checks=${musts},${maybes} -header-filter=.* $sourcefile    
+    clang-tidy -p=$compile_commands -checks=${musts},${maybes} -header-filter=.* $source_file    
 
 done
 

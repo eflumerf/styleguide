@@ -10,9 +10,9 @@ https://github.com/DUNE-DAQ/styleguide/blob/dune-daq-cppguide/dune-daq-cppguide.
 
 Given a file, it will apply a linter (dunecpplint.py) to that file
 
-Given a directory, it will apply a linter (dunecpplint.py) to all the
-source (*.cc) and header (*.hh) files in that directory as well as all
-of its subdirectories.
+Given a directory, it will apply dunecpplint.py to all the source
+(*.cc) and header (*.hh) files in that directory as well as all of its
+subdirectories.
 
 EOF
     
