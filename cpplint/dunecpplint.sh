@@ -1,12 +1,14 @@
 #!/bin/bash
 
 if [[ "$#" != "1" ]]; then
-    echo "Usage: "$(basename $0)" <dir to examine>" >&2
+    echo "Usage: "$(basename $0)" <file or directory to examine>" >&2
     echo
     cat <<EOF >&2
 
 The DUNE C++ style guide this script tries to look for violations of can be found in 
 https://github.com/DUNE-DAQ/styleguide/blob/dune-daq-cppguide/dune-daq-cppguide.md
+
+Given a file, it will apply a linter (dunecpplint.py) to that file
 
 Given a directory, it will apply a linter (dunecpplint.py) to all the
 source (*.cc) and header (*.hh) files in that directory as well as all
@@ -17,6 +19,7 @@ EOF
     exit 1
 fi
 
+filename=$1
 
 # -build/c++11/14 : No headers are explicitly disallowed
 
@@ -44,28 +47,43 @@ header_filters="-build/c++11,-build/c++14,-readability/check,-readability/constr
 source_filters="-build/c++11,-build/c++14,-build/namespaces,-readability/check,-readability/constructors,-runtime/indentation_namespace,-runtime/references,-runtime/string,-runtime/vlog,-whitespace"
 
 
-codedir=$1
+header_files=""
+source_files=""
 
-if [[ ! -d $codedir ]]; then
-    echo "Directory $codedir not found; exiting..." >&2
+if [[ -d $filename ]]; then
+    header_files=$( find $filename -name "*.hh" )
+    source_files=$( find $filename -name "*.cc" ) 
+elif [[ -f $filename ]]; then
+
+    if [[ "$filename" =~ ^.*cc$ ]]; then
+	source_files=$filename
+    elif [[ "$filename" =~ ^.*hh$ ]]; then
+	header_files=$filename
+    else
+	echo "Filename provided has unknown extension; exiting..." >&2
+	exit 1
+    fi
+
+else
+    echo "Unable to find $filename; exiting..." >&2
     exit 2
 fi
 
-for headerfile in $( find $codedir -name "*.hh" ); do
+for header_file in $header_files; do
 
     echo
-    echo "=========================Validating $headerfile========================="
+    echo "=========================Validating $header_file========================="
     
-    $( dirname $0 )/dunecpplint.py --extensions=hh,cc --headers=hh --filter=${header_filters} $headerfile 
+    $( dirname $0 )/dunecpplint.py --extensions=hh,cc --headers=hh --filter=${header_filters} $header_file 
 
 done
 
-for sourcefile in $( find $codedir -name "*.cc" ); do
+for source_file in $source_files; do
 
     echo
-    echo "=========================Validating $sourcefile========================="
+    echo "=========================Validating $source_file========================="
     
-    $( dirname $0 )/dunecpplint.py --extensions=hh,cc --headers=hh --filter=${source_filters} $sourcefile 
+    $( dirname $0 )/dunecpplint.py --extensions=hh,cc --headers=hh --filter=${source_filters} $source_file 
 
 done
 
