@@ -721,9 +721,10 @@ class _IncludeState(object):
   # needs to move backwards, CheckNextIncludeOrder will raise an error.
   _INITIAL_SECTION = 0
   _MY_H_SECTION = 1
-  _C_SECTION = 2
+  _OTHER_H_SECTION = 2
   _CPP_SECTION = 3
-  _OTHER_H_SECTION = 4
+  _C_SECTION = 4
+
 
   _TYPE_NAMES = {
       _C_SYS_HEADER: 'C system header',
@@ -4608,7 +4609,7 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
           _ClassifyInclude(fileinfo, include, is_system))
       if error_message:
         error(filename, linenum, 'build/include_order', 4,
-              '%s. Should be: %s.h, c system, c++ system, other.' %
+              '%s. Should be: %s.hh, other non-system headers, C++ system, C system.' %
               (error_message, fileinfo.BaseName()))
       canonical_include = include_state.CanonicalizeAlphabeticalOrder(include)
       if not include_state.IsInAlphabeticalOrder(
