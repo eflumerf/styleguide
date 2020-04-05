@@ -1767,14 +1767,25 @@ def ReverseCloseExpression(clean_lines, linenum, pos):
 def CheckForCopyright(filename, lines, error):
   """Logs an error if no Copyright message appears at the top of the file."""
 
-  # We'll say it should occur by line 10. Don't forget there's a
+  # We'll say it should occur by line 30. Don't forget there's a
   # dummy line at the front.
-  for line in xrange(1, min(len(lines), 11)):
-    if re.search(r'Copyright', lines[line], re.I): break
-  else:                       # means no copyright line was found
+
+  maxline=30
+  matching_lines=0
+  line1="* This is part of the DUNE DAQ Application Framework, copyright 2020."
+  line2="* Licensing/copyright details are in the COPYING file that you should have received with this code."
+  for line in xrange(1, min(len(lines), maxline)):
+    if line1 in lines[line]:
+      matching_lines += 1
+    elif line2 in lines[line]:
+      matching_lines +=1
+
+    if matching_lines == 2:
+      break
+
+  if matching_lines != 2:
     error(filename, 0, 'legal/copyright', 5,
-          'No copyright message found.  '
-          'You should have a line: "Copyright [year] <Copyright Owner>"')
+          'The standard copyright message wasn\'t found.')
 
 
 def GetIndentLevel(line):
