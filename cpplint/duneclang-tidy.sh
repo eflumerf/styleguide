@@ -4,7 +4,7 @@ if [[ "$#" != "2" ]]; then
 
 cat<<EOF >&2
 
-    Usage: $(basename $0) <file or directory to examine> <full pathname of compile_commands.json for your build>
+    Usage: $(basename $0) <full pathname of compile_commands.json for your build> <file or directory to examine> 
 
 Given a file, it will apply a linter (clang-tidy) to that file
 
@@ -27,7 +27,16 @@ EOF
     exit 1
 fi
 
-filename=$1
+compile_commands=$1
+
+# May also want to add logic making sure this file is up-to-date
+if [[ ! -f $compile_commands ]]; then
+    echo "CMake-produced compile commands file $compile_commands not found; exiting..." >&2
+    exit 3
+fi
+
+
+filename=$2
 
 source_files=""
 
@@ -50,13 +59,6 @@ else
     exit 2
 fi
 
-compile_commands=$2
-
-# May also want to add logic making sure this file is up-to-date
-if [[ ! -f $compile_commands ]]; then
-    echo "CMake-produced compile commands file $compile_commands not found; exiting..." >&2
-    exit 3
-fi
 
 clang_products_dir=/cvmfs/fermilab.opensciencegrid.org/products/larsoft
 . $clang_products_dir/setup
@@ -231,7 +233,7 @@ for source_file in $source_files; do
     echo
     echo "=========================Validating $source_file========================="
 
-    clang-tidy -p=$compile_commands -checks=${musts},${maybes} -header-filter=.* $source_file    
+    clang-tidy -p=$compile_commands -checks=${musts},${maybes} -header-filter=.* $source_file # -- -I/home/nfs/dunecet/products/gcc/v6_4_0/Linux64bit+3.10-2.17/include/c++/6.4.0   
 
 done
 
