@@ -217,6 +217,7 @@ _ERROR_CATEGORIES = [
     'build/c++11',
     'build/c++14',
     'build/c++tr1',
+    'build/define_used',
     'build/deprecated',
     'build/endif_comment',
     'build/explicit_make_pair',
@@ -2822,6 +2823,7 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
   - text after #endif is not allowed.
   - invalid inner-style forward declaration.
   - >? and <? operators, and their >?= and <?= cousins.
+  - don't use a #define outside of the context of a header guard
 
   Additionally, check for constructor/destructor style violations and reference
   members, as it is very convenient to do so while checking for
@@ -2854,6 +2856,10 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
   if Search(r'("|\').*\\(%|\[|\(|{)', line):
     error(filename, linenum, 'build/printf_format', 3,
           '%, [, (, and { are undefined character escapes.  Unescape them.')
+
+  if Search(r'^\s*#define\s+\S+\s+\S+', line):
+    error(filename, linenum, 'build/define_used', 3,
+          '#define appears to be used outside of a conditional compilation context. Macros should be avoided.')
 
   # For the rest, work with both comments and strings removed.
   line = clean_lines.elided[linenum]
