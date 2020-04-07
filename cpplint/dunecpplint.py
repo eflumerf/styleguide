@@ -528,11 +528,13 @@ _ALT_TOKEN_REPLACEMENT_PATTERN = re.compile(
 
 # These constants define types of headers for use with
 # _IncludeState.CheckNextIncludeOrder().
-_C_SYS_HEADER = 1
-_CPP_SYS_HEADER = 2
-_LIKELY_MY_HEADER = 3
-_POSSIBLE_MY_HEADER = 4
-_OTHER_HEADER = 5
+
+_LIKELY_MY_HEADER = 1
+_OTHER_HEADER = 2
+_CPP_SYS_HEADER = 3
+_C_SYS_HEADER = 4
+
+_POSSIBLE_MY_HEADER = 5
 
 # These constants define the current inline assembly state
 _NO_ASM = 0       # Outside of inline assembly block
@@ -831,6 +833,7 @@ class _IncludeState(object):
       error message describing what's wrong.
 
     """
+
     error_message = ('Found %s after %s' %
                      (self._TYPE_NAMES[header_type],
                       self._SECTION_NAMES[self._section]))
@@ -853,7 +856,8 @@ class _IncludeState(object):
       if self._section <= self._MY_H_SECTION:
         self._section = self._MY_H_SECTION
       else:
-        self._section = self._OTHER_H_SECTION
+        self._last_header = ''
+        return error_message
     elif header_type == _POSSIBLE_MY_HEADER:
       if self._section <= self._MY_H_SECTION:
         self._section = self._MY_H_SECTION
@@ -863,7 +867,11 @@ class _IncludeState(object):
         self._section = self._OTHER_H_SECTION
     else:
       assert header_type == _OTHER_HEADER
-      self._section = self._OTHER_H_SECTION
+      if self._section <= _OTHER_HEADER:
+        self._section = self._OTHER_H_SECTION
+      else:
+        self.last_header = ''
+        return error_message
 
     if last_section != self._section:
       self._last_header = ''
@@ -4595,16 +4603,18 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
       include_state.include_list[-1].append((include, linenum))
 
       # We want to ensure that headers appear in the right order:
-      # 1) for foo.cc, foo.h  (preferred location)
-      # 2) c system files
-      # 3) cpp system files
-      # 4) for foo.cc, foo.h  (deprecated location)
-      # 5) other google headers
+      # 1) for foo.cc, foo.hh 
+      # 2) other non-system headers
+      # 3) c system files
+      # 4) cpp system files
+
       #
       # We classify each include statement as one of those 5 types
       # using a number of techniques. The include_state object keeps
       # track of the highest type seen, and complains if we see a
       # lower type after that.
+
+
       error_message = include_state.CheckNextIncludeOrder(
           _ClassifyInclude(fileinfo, include, is_system))
       if error_message:
