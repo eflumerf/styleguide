@@ -3084,9 +3084,6 @@ def CheckForFunctionLengths(filename, clean_lines, linenum,
                             function_state, error):
   """Reports for long function bodies.
 
-  For an overview why this is done, see:
-  https://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Write_Short_Functions
-
   Uses a simplistic algorithm assuming other style guidelines
   (especially spacing) are followed.
   Only checks unindented functions, so class members are unchecked.
@@ -4875,7 +4872,7 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension,
       and line[-1] != '\\'):
     error(filename, linenum, 'build/namespaces', 4,
           'Do not use unnamed namespaces in header files.  See '
-          'https://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Namespaces'
+          'https://github.com/DUNE-DAQ/styleguide/blob/dune-daq-cppguide/dune-daq-cppguide.md#Unnamed_Namespaces_and_Static_Variables'
           ' for more information.')
 
 
