@@ -304,7 +304,13 @@ project `foo` should have the following guard:
 
 All header files should have `#define` guards to prevent multiple
 inclusion. The format of the symbol name should be
-`<PROJECT>_<PATH>_<FILE>_HH_`.
+`<PROJECT>_<PATH>_<FILE>_HH_`. The symbol should appear three times, like so:
+```
+#ifndef APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
+#define APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
+... 
+#endif // APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
+```
 
 
 ### Forward Declarations  [GOOGLE VERSION]
@@ -1342,7 +1348,7 @@ hard to work with correctly).
 
 ### Doing Work in Constructors [DUNE VERSION]
 
- - Don't call any of a class's virtual functions in its constructor. This will not result in the correct invokation of subclass implementatiosn of those virtual functions.
+ - Don't call any of a class's virtual functions in its constructor. This will not result in the correct invocation of subclass implementations of those virtual functions.
 
  - If an error occurs that will prevent the class from being constructed, have it throw an exception. As its destructor won't execute in this scenario, make sure you clean up any resources the constructor allocated before throwing.
 
@@ -1765,7 +1771,9 @@ less encapsulation than, say, having class B contain a member of class
 A and use its functionality ("composition"). Multiple inheritance of implementation is *especially* bad. 
 
 Explicitly annotate overrides of virtual functions or virtual
-destructors with exactly one of an `override` or `final` specifier. 
+destructors with exactly one of an `override` or `final` specifier. Do
+not use the keyword `virtual` in this case as this is already denoted
+by one of those two specifiers.
 
 ### Operator Overloading [GOOGLE VERSION]
 
