@@ -4,7 +4,7 @@ if [[ "$#" != "2" ]]; then
 
 cat<<EOF >&2
 
-    Usage: $(basename $0) <full pathname of compile_commands.json for your build> <file or directory to examine> 
+    Usage: $(basename $0) <directory containing the compile_commands.json file for your build> <file or directory to examine> 
 
 Given a file, it will apply a linter (clang-tidy) to that file
 
@@ -27,12 +27,39 @@ EOF
     exit 1
 fi
 
-compile_commands=$1
+compile_commands_dir=$1
 
-# May also want to add logic making sure this file is up-to-date
-if [[ ! -f $compile_commands ]]; then
-    echo "CMake-produced compile commands file $compile_commands not found; exiting..." >&2
+# May also want to add logic making sure compile_commands.json is up-to-date
+
+if [[ ! -e $compile_commands_dir ]]; then
+
+    cat<<EOF >&2
+
+Directory meant to provide compile_commands.json file,
+"$compile_commands_dir", doesn't appear to exist; exiting...
+
+EOF
     exit 3
+elif [[ ! -d $compile_commands_dir ]]; then
+
+    cat<<EOF >&2
+
+"$compile_commands_dir" appears to be a file; all this script needs is
+the directory which contains compile_commands.json. Exiting...
+
+EOF
+
+    exit 4
+    
+elif [[ ! -f $compile_commands_dir/compile_commands.json ]]; then
+
+cat<<EOF >&2
+
+Expected file "compile_commands.json" not found in provided directory,
+$compile_commands_dir; exiting...
+
+EOF
+    exit 5
 fi
 
 
@@ -233,7 +260,7 @@ for source_file in $source_files; do
     echo
     echo "=========================Validating $source_file========================="
 
-    clang-tidy -p=$compile_commands -checks=${musts},${maybes} -header-filter=.* $source_file # -- -I/home/nfs/dunecet/products/gcc/v6_4_0/Linux64bit+3.10-2.17/include/c++/6.4.0   
+    clang-tidy -p=$compile_commands_dir -checks=${musts},${maybes} -header-filter=.* $source_file # -- -I/home/nfs/dunecet/products/gcc/v6_4_0/Linux64bit+3.10-2.17/include/c++/6.4.0   
 
 done
 
