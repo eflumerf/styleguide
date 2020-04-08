@@ -88,8 +88,19 @@ fi
 
 
 clang_products_dir=/cvmfs/fermilab.opensciencegrid.org/products/larsoft
-. $clang_products_dir/setup
-retval="$?"
+
+if [[ -d $clang_products_dir ]]; then
+    . $clang_products_dir/setup
+    retval="$?"
+else
+    cat <<EOF >&2
+
+The $clang_products_dir products area
+is not found; this is currently needed for the script to find clang-tidy. Exiting...
+
+EOF
+    exit 20;
+fi
 
 if [[ "$retval" == 0 ]]; then
     echo "Set up the products directory $clang_products_dir"
@@ -260,7 +271,7 @@ for source_file in $source_files; do
     echo
     echo "=========================Validating $source_file========================="
 
-    clang-tidy -p=$compile_commands_dir -checks=${musts},${maybes} -header-filter=.* $source_file # -- -I/home/nfs/dunecet/products/gcc/v6_4_0/Linux64bit+3.10-2.17/include/c++/6.4.0   
+    clang-tidy -p=$compile_commands_dir -checks=${musts},${maybes} -header-filter=.* $source_file 
 
 done
 
