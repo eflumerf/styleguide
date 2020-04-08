@@ -5261,6 +5261,11 @@ def CheckCasts(filename, clean_lines, linenum, error):
     CheckCStyleCast(filename, clean_lines, linenum, 'reinterpret_cast',
                     r'\((\w+\s?\*+\s?)\)', error)
 
+  if "reinterpret_cast" in line:
+    error(filename, linenum, 'runtime/castint', 4,
+          ('Use of reinterpret_cast is dangerous. If there\'s no way to avoid its use '
+           'add \" // NOLINT\" to the end of this line so this script will ignore it next time'))
+
   # In addition, we look for people taking the address of a cast.  This
   # is dangerous -- casts can assign to temporaries, so the pointer doesn't
   # point where you think.
@@ -5302,7 +5307,6 @@ def CheckCasts(filename, clean_lines, linenum, error):
             ('Are you taking an address of a cast?  '
              'This is dangerous: could be a temp var.  '
              'Take the address before doing the cast, rather than after'))
-
 
 def CheckCStyleCast(filename, clean_lines, linenum, cast_type, pattern, error):
   """Checks for a C-style cast by looking for the pattern.
