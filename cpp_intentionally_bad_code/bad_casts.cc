@@ -1,6 +1,4 @@
 
-// This is a comment to change the lines
-
 #include <cstdint>
 
 int main() {
