@@ -2372,21 +2372,6 @@ class _NamespaceInfo(_BlockInfo):
     """Check end of namespace comments."""
     line = clean_lines.raw_lines[linenum]
 
-    # Check how many lines is enclosed in this namespace.  Don't issue
-    # warning for missing namespace comments if there aren't enough
-    # lines.  However, do apply checks if there is already an end of
-    # namespace comment and it's incorrect.
-    #
-    # TODO(unknown): We always want to check end of namespace comments
-    # if a namespace is large, but sometimes we also want to apply the
-    # check if a short namespace contained nontrivial things (something
-    # other than forward declarations).  There is currently no logic on
-    # deciding what these nontrivial things are, so this check is
-    # triggered by namespace size only, which works most of the time.
-    if (linenum - self.starting_linenum < 10
-        and not Match(r'^\s*};*\s*(//|/\*).*\bnamespace\b', line)):
-      return
-
     # Look for matching comment at end of namespace.
     #
     # Note that we accept C style "/* */" comments for terminating
@@ -2405,20 +2390,13 @@ class _NamespaceInfo(_BlockInfo):
                     re.escape(self.name) + r'[\*/\.\\\s]*$'),
                    line):
         error(filename, linenum, 'readability/namespace', 5,
-              'Namespace should be terminated with "// namespace %s"' %
+              'Namespace should be terminated with \'// namespace %s  \'' %
               self.name)
     else:
       # Anonymous namespace
       if not Match(r'^\s*};*\s*(//|/\*).*\bnamespace[\*/\.\\\s]*$', line):
-        # If "// namespace anonymous" or "// anonymous namespace (more text)",
-        # mention "// anonymous namespace" as an acceptable form
-        if Match(r'^\s*}.*\b(namespace anonymous|anonymous namespace)\b', line):
-          error(filename, linenum, 'readability/namespace', 5,
-                'Anonymous namespace should be terminated with "// namespace"'
-                ' or "// anonymous namespace"')
-        else:
-          error(filename, linenum, 'readability/namespace', 5,
-                'Anonymous namespace should be terminated with "// namespace"')
+        error(filename, linenum, 'readability/namespace', 5,
+              'Anonymous namespace should be terminated with \'// namespace \"\" \'')
 
 
 class _PreprocessorInfo(object):
@@ -2810,7 +2788,7 @@ class NestingState(object):
 
 
 def CheckForNonStandardConstructs(filename, clean_lines, linenum,
-                                  nesting_state, error):
+                                  function_state, nesting_state, error):
   r"""Logs an error if we see certain non-ANSI constructs ignored by gcc-2.
 
   Complain about several constructs which gcc-2 accepts, but which are
@@ -2898,10 +2876,17 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
           'const string& members are dangerous. It is much better to use '
           'alternatives, such as pointers or simple constants.')
 
+  classinfo = nesting_state.InnermostClass()
+
+  if Search(r'\s*static\s+', line):
+    if not classinfo and not function_state.in_a_function and not nesting_state.InClassDeclaration():
+      error(filename, linenum, 'build/namespaces', 5,
+            'static storage declaration outside of class or function not allowed (if this isn\'t a header, please contact John Freeman)')
+
+
   # Everything else in this function operates on class declarations.
   # Return early if the top of the nesting stack is not a class, or if
   # the class head is not completed yet.
-  classinfo = nesting_state.InnermostClass()
   if not classinfo or not classinfo.seen_open_brace:
     return
 
@@ -4823,7 +4808,7 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension,
   if Search(r'\busing namespace\b', line):
     error(filename, linenum, 'build/namespaces', 5,
           'Do not use namespace using-directives.  '
-          'Use using-declarations instead.')
+          'Use using-declarations instead (if this isn\'t a header, please contact John Freeman)')
 
   # Detect variable-length arrays.
   match = Match(r'\s*(.+::)?(\w+) [a-z]\w*\[(.+)];', line)
@@ -5851,7 +5836,7 @@ def ProcessLine(filename, file_extension, clean_lines, line,
                 nesting_state, error)
   CheckForNonConstReference(filename, clean_lines, line, nesting_state, error)
   CheckForNonStandardConstructs(filename, clean_lines, line,
-                                nesting_state, error)
+                                function_state, nesting_state, error)
   CheckVlogArguments(filename, clean_lines, line, error)
   CheckPosixThreading(filename, clean_lines, line, error)
   CheckInvalidIncrement(filename, clean_lines, line, error)
