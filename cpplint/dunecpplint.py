@@ -259,6 +259,7 @@ _ERROR_CATEGORIES = [
     'runtime/printf',
     'runtime/printf_format',
     'runtime/references',
+    'runtime/rtti',
     'runtime/string',
     'runtime/threadsafe_fn',
     'runtime/vlog',
@@ -2878,11 +2879,14 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
 
   classinfo = nesting_state.InnermostClass()
 
-  if Search(r'\s*static\s+', line):
+  if Search(r'static\s+', line):
     if not classinfo and not function_state.in_a_function and not nesting_state.InClassDeclaration():
       error(filename, linenum, 'build/namespaces', 5,
             'static storage declaration outside of class or function not allowed (if this isn\'t a header, please contact John Freeman)')
 
+  if Search(r'typeid\s*\(', line) or Search(r'dynamic_cast', line):
+    error(filename, linenum, 'runtime/rtti', 5,
+          'Use of Run Time Type Information not allowed unless this code is meant to test other code' )
 
   # Everything else in this function operates on class declarations.
   # Return early if the top of the nesting stack is not a class, or if
