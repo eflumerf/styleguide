@@ -2192,9 +2192,6 @@ default is guaranteed to always have the same value. Always define the
 value of the argument in the header, as it's part of the function's
 interface.
 
-[KB, March 23, 2020: it would be great to talk about special situations
-in which a default argument could be supported in subclasses.]
-
 ### Trailing Return Type Syntax [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
