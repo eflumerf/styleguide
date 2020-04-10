@@ -6,11 +6,16 @@ class BaseClass {
 
 public:
   
-  virtual void PrintAValue(int value = 27);
-
+  virtual void VirtualPrintAValue(int value = 27);
+  
+  void NonVirtualPrintAValue(int value = 127);
 };
 
-void BaseClass::PrintAValue(int value) {
+void BaseClass::VirtualPrintAValue(int value) {
+  std::cout << "BaseClass: The value is " << value << std::endl;
+}
+
+void BaseClass::NonVirtualPrintAValue(int value) {
   std::cout << "BaseClass: The value is " << value << std::endl;
 }
 
@@ -18,7 +23,7 @@ class DerivedClass : public BaseClass {
 
 public:
 
-  void PrintAValue(int value = 49) override {
+  void VirtualPrintAValue(int value = 49) override {
     std::cout << "DerivedClass: The value is " << value << std::endl;
   }
 
@@ -29,7 +34,9 @@ int main() {
   auto bc = std::make_unique<BaseClass>();
   auto dc = std::make_unique<DerivedClass>();
 
-  bc->PrintAValue();
-  dc->PrintAValue();
-
+  bc->VirtualPrintAValue();
+  dc->VirtualPrintAValue();
+  
+  bc->NonVirtualPrintAValue();
+  dc->NonVirtualPrintAValue();
 }
