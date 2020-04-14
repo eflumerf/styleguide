@@ -249,7 +249,6 @@ hicpp-exception-baseclass,\
 hicpp-multiway-paths-covered,\
 misc-no-recursion,\
 misc-unconventional-assign-operator,\
-misc-unused-parameters,\
 modernize-make-shared,\
 modernize-make-unique,\
 modernize-use-default-member-init,\
