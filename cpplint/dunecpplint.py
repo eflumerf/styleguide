@@ -3144,7 +3144,9 @@ def CheckForFunctionLengths(filename, clean_lines, linenum,
     function_state.Count()  # Count non-blank/non-comment lines.
 
 
-_RE_PATTERN_TODO = re.compile(r'^//(\s*)TODO(\(.+?\))?:?(\s|$)?')
+usernames = os.listdir("%s/%s" % (os.environ["HOME"], ".."))
+
+_RE_PATTERN_TODO = re.compile(r'^//(\s*)TODO')
 
 
 def CheckComment(line, filename, linenum, next_line_start, error):
@@ -3180,17 +3182,19 @@ def CheckComment(line, filename, linenum, next_line_start, error):
           error(filename, linenum, 'whitespace/todo', 2,
                 'Too many spaces before TODO')
 
-        username = match.group(2)
-        if not username:
+        if not Search(r"[A-Za-z]+\-[0-9]+\-20[0-9][0-9]", line[commentpos:]) and \
+           not Search(r"[0-9]+/[0-9]+/20[0-9][0-9]", line[commentpos:]):
           error(filename, linenum, 'readability/todo', 2,
-                'Missing username in TODO; it should look like '
-                '"// TODO(my_username): Stuff."')
+                'Missing date in TODO comment; it should appear on same line as the TODO, preferably in a form like "Apr-14-2020"')
 
-        middle_whitespace = match.group(3)
-        # Comparisons made explicit for correctness -- pylint: disable=g-explicit-bool-comparison
-        if middle_whitespace != ' ' and middle_whitespace != '':
-          error(filename, linenum, 'whitespace/todo', 2,
-                'TODO(my_username) should be followed by a space')
+        
+        if not Search(r"[A-Z]\w+ [A-Z]\w+", line[commentpos:]):
+          error(filename, linenum, 'readability/todo', 2,
+                'Missing author name in TODO comment; it should appear on the same line as the TODO, as Firstname Lastname')
+
+        if not Search(r"\s+\S+@\S+", line[commentpos:]):
+          error(filename, linenum, 'readability/todo', 2,
+                'Missing email address in TODO comment; it should appear on the same line as the TODO')
 
       # If the comment contains an alphanumeric character, there
       # should be a space somewhere between it and the // unless
