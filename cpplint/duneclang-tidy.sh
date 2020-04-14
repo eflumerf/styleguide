@@ -271,7 +271,7 @@ for source_file in $source_files; do
     echo
     echo "=========================Validating $source_file========================="
 
-    clang-tidy -p=$compile_commands_dir -checks=${musts},${maybes} -header-filter=.* $source_file 
+    clang-tidy -p=$compile_commands_dir -checks=${musts},${maybes} -header-filter=.* $source_file |& sed -r '/error:.*file not found \[clang-diagnostic-error\]\s*$/,/\^/d'
 
 done
 
