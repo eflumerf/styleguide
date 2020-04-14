@@ -243,7 +243,6 @@ cert-mem57-cpp,\
 cert-msc50-cpp,\
 cert-msc51-cpp,\
 google-readability-casting,\
-google-readability-todo,\
 google-runtime-int,\
 google-runtime-operator,\
 hicpp-exception-baseclass,\
