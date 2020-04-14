@@ -4138,13 +4138,20 @@ responses.").
 ### TODO Comments [DUNE VERSION]
 
 Use `TODO` comments for code that is temporary, a short-term solution,
-or good-enough but not perfect. Date your TODO comment, and if
-possible provide a time estimate (even if just something like "next
-few weeks") as to when you expect something should be done.
+or good-enough but not perfect. If possible provide a time estimate
+(even if just something like "next few weeks") as to when you expect
+something should be done.
 
 `TODO`s should include the string `TODO` in all caps, followed by the
-name, e-mail address, bug ID, or other identifier of the person or issue
+name, date, e-mail address, bug ID, or other identifier of the person or issue
 with the best context about the problem referenced by the `TODO`. 
+
+```
+// TODO: John Freeman (jcfree@fnal.gov), Apr-14-2020
+
+// In the next month, determine whether we can declare this function
+// noexcept and consequently benefit from compiler optimizations.
+```
 
 Stale `TODO` comments should be reviewed. If they're no longer relevant,
 they should be deleted. If they're still relevant, a message should be
