@@ -113,7 +113,6 @@ JCF, Apr-3-2020: I can't vouch (yet) for anything below this line:
       "+FOO" means "do print categories that start with FOO".
 
       Examples: --filter=-whitespace,+whitespace/braces
-                --filter=whitespace,runtime/printf,+runtime/printf_format
                 --filter=-,+build/include_what_you_use
 
       To see a list of all the categories used in cpplint, pass no arg:
@@ -228,7 +227,6 @@ _ERROR_CATEGORIES = [
     'build/include_order',
     'build/include_what_you_use',
     'build/namespaces',
-    'build/printf_format',
     'build/storage_class',
     'legal/copyright',
     'readability/alt_tokens',
@@ -257,8 +255,7 @@ _ERROR_CATEGORIES = [
     'runtime/memset',
     'runtime/indentation_namespace',
     'runtime/operator',
-    'runtime/printf',
-    'runtime/printf_format',
+    'runtime/output_format',
     'runtime/references',
     'runtime/rtti',
     'runtime/string',
@@ -2797,8 +2794,6 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
   not standard C++.  Warning about these in lint is one way to ease the
   transition to new compilers.
   - put storage class first (e.g. "static const" instead of "const static").
-  - "%lld" instead of %qd" in printf-type functions.
-  - "%1$d" is non-standard in printf-type functions.
   - "\%" is an undefined character escape sequence.
   - text after #endif is not allowed.
   - invalid inner-style forward declaration.
@@ -2822,20 +2817,13 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
   # Remove comments from the line, but leave in strings for now.
   line = clean_lines.lines[linenum]
 
-  if Search(r'printf\s*\(.*".*%[-+ ]?\d*q', line):
-    error(filename, linenum, 'runtime/printf_format', 3,
-          '%q in format strings is deprecated.  Use %ll instead.')
-
-  if Search(r'printf\s*\(.*".*%\d+\$', line):
-    error(filename, linenum, 'runtime/printf_format', 2,
-          '%N$ formats are unconventional.  Try rewriting to avoid them.')
+  for output_token in ["printf", "cout", "cerr"]:
+    if Search(r'%s' % (output_token), line):
+      error(filename, linenum, 'runtime/output_format', 3,
+            '\"%s\" should not be used for output in DUNE DAQ software.' % (output_token))
 
   # Remove escaped backslashes before looking for undefined escapes.
   line = line.replace('\\\\', '')
-
-  if Search(r'("|\').*\\(%|\[|\(|{)', line):
-    error(filename, linenum, 'build/printf_format', 3,
-          '%, [, (, and { are undefined character escapes.  Unescape them.')
 
   if Search(r'^\s*#define\s+\S+\s+\S+', line):
     error(filename, linenum, 'build/define_used', 3,
@@ -4761,7 +4749,6 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension,
   # Perform other checks now that we are sure that this is not an include line
   CheckCasts(filename, clean_lines, linenum, error)
   CheckGlobalStatic(filename, clean_lines, linenum, error)
-  CheckPrintf(filename, clean_lines, linenum, error)
 
   if IsHeaderExtension(file_extension):
     # TODO(unknown): check that 1-arg constructors are explicit.
@@ -4798,23 +4785,6 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension,
   if Search(r'\}\s*if\s*\(', line):
     error(filename, linenum, 'readability/braces', 4,
           'Did you mean "else if"? If not, start a new line for "if".')
-
-  # Check for potential format string bugs like printf(foo).
-  # We constrain the pattern not to pick things like DocidForPrintf(foo).
-  # Not perfect but it can catch printf(foo.c_str()) and printf(foo->c_str())
-  # TODO(unknown): Catch the following case. Need to change the calling
-  # convention of the whole function to process multiple line to handle it.
-  #   printf(
-  #       boy_this_is_a_really_long_variable_that_cannot_fit_on_the_prev_line);
-  printf_args = _GetTextInside(line, r'(?i)\b(string)?printf\s*\(')
-  if printf_args:
-    match = Match(r'([\w.\->()]+)$', printf_args)
-    if match and match.group(1) != '__VA_ARGS__':
-      function_name = re.search(r'\b((?:string)?printf)\s*\(',
-                                line, re.I).group(1)
-      error(filename, linenum, 'runtime/printf', 4,
-            'Potential format string bug. Do %s("%%s", %s) instead.'
-            % (function_name, match.group(1)))
 
   # Check for potential memset bugs like memset(buf, sizeof(buf), 0).
   match = Search(r'memset\s*\(([^,]*),\s*([^,]*),\s*0\s*\)', line)
@@ -4938,35 +4908,6 @@ def CheckGlobalStatic(filename, clean_lines, linenum, error):
       Search(r'\b([A-Za-z0-9_]*_)\(CHECK_NOTNULL\(\1\)\)', line)):
     error(filename, linenum, 'runtime/init', 4,
           'You seem to be initializing a member variable with itself.')
-
-
-def CheckPrintf(filename, clean_lines, linenum, error):
-  """Check for printf related issues.
-
-  Args:
-    filename: The name of the current file.
-    clean_lines: A CleansedLines instance containing the file.
-    linenum: The number of the line to check.
-    error: The function to call with any errors found.
-  """
-  line = clean_lines.elided[linenum]
-
-  # When snprintf is used, the second argument shouldn't be a literal.
-  match = Search(r'snprintf\s*\(([^,]*),\s*([0-9]*)\s*,', line)
-  if match and match.group(2) != '0':
-    # If 2nd arg is zero, snprintf is used to calculate size.
-    error(filename, linenum, 'runtime/printf', 3,
-          'If you can, use sizeof(%s) instead of %s as the 2nd arg '
-          'to snprintf.' % (match.group(1), match.group(2)))
-
-  # Check if some verboten C functions are being used.
-  if Search(r'\bsprintf\s*\(', line):
-    error(filename, linenum, 'runtime/printf', 5,
-          'Never use sprintf. Use snprintf instead.')
-  match = Search(r'\b(strcpy|strcat)\s*\(', line)
-  if match:
-    error(filename, linenum, 'runtime/printf', 4,
-          'Almost always, snprintf is better than %s' % match.group(1))
 
 
 def IsDerivedFunction(clean_lines, linenum):
