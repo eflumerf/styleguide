@@ -262,6 +262,42 @@ readability-identifier-naming,\
 readability-inconsistent-declaration-parameter-name,\
 readability-isolate-declaration"
 
+tmpdir=$( mktemp -d )
+
+if [[ ! -d $tmpdir ]]; then
+    cat<<EOF >&2
+
+There was a problem creating a temporary directory in which to modify a copy of 
+$compile_commands_dir/compile_commands.json; exiting...
+
+EOF
+
+    exit 1
+fi
+
+cp $compile_commands_dir/compile_commands.json $tmpdir/
+
+if [[ -e $tmpdir/compile_commands.json ]]; then
+
+    # JCF, Apr-14-2020
+
+    # If you see an include directory of the form
+    # /../v3_2_1/../include, have clang-tidy ignore any headers in
+    # those directories, the logic being that they probably aren't 
+    # headers the developer would modify (e.g., ups products)
+
+    sed -r -i 's!\-I(\s*\S+/v[0-9]\S+/include)(\s+)!\-isystem\1\2!g' $tmpdir/compile_commands.json
+
+else
+    cat<<EOF >&2
+
+Was able to create temporary directory $tmpdir but couldn't copy 
+$compile_commands_dir/compile_commands.json into it; exiting...
+
+EOF
+
+    exit 1
+fi
 
 
 for source_file in $source_files; do
@@ -269,7 +305,11 @@ for source_file in $source_files; do
     echo
     echo "=========================Validating $source_file========================="
 
-    clang-tidy -p=$compile_commands_dir -checks=${musts},${maybes} -header-filter=.* $source_file |& sed -r '/error:.*file not found \[clang-diagnostic-error\]\s*$/,/\^/d'
+    clang-tidy -p=$tmpdir -checks=${musts},${maybes} -header-filter=.* $source_file |& sed -r '/error:.*file not found \[clang-diagnostic-error\]\s*$/,/\^/d'
 
 done
+
+echo "Deleting $tmpdir/compile_commands.json"
+rm -f $tmpdir/compile_commands.json
+rmdir $tmpdir
 
