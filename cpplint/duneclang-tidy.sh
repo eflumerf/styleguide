@@ -216,7 +216,6 @@ readability-avoid-const-params-in-decls,\
 readability-const-return-type,\
 readability-container-size-empty,\
 readability-deleted-default,\
-readability-implicit-bool-conversion,\
 readability-redundant-access-specifiers,\
 readability-redundant-control-flow,\
 readability-redundant-preprocessor,\
