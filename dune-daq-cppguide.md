@@ -2966,11 +2966,9 @@ form and we allow either. For iterators and other template types, use
 pre-increment.
 </details>
 
-### Preincrement and Predecrement [DUNE VERSION]
+### Increment and Decrement [DUNE VERSION]
 
-Use prefix form (`++i`) of the increment and decrement operators
-
-Unless in a loop construct, a preincrement/predecrement should exist
+Unless in a loop construct, an increment `++`/decrement `--` should exist
 on its own line. In particular, it should not be used in an if
 statement.
 

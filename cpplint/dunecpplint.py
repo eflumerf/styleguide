@@ -2877,10 +2877,6 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
     error(filename, linenum, 'runtime/rtti', 5,
           'Use of Run Time Type Information not allowed unless this code is meant to test other code' )
 
-  if Search(r'\w[\w\[\]0-9]*(\+\+|\-\-)', line):
-    error(filename, linenum, 'runtime/increment_decrement', 5,
-          'Increment/decrement operator should appear before, rather than after, the variable')
-
   if Search(r'(\+\+|\-\-)\w', line) and not Search(r'^\s*(\+\+|\-\-)[\w\[\]0-9]+\s*;\s*$', line) and \
       not Search(r'(for|while)\s*\(.*(\+\+|\-\-)\w.*\)', line):
     error(filename, linenum, 'runtime/increment_decrement', 5,
