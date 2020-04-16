@@ -2019,7 +2019,7 @@ def CheckHeaderFileIncluded(filename, include_state, error):
   if Search(_TEST_FILE_SUFFIX, fileinfo.BaseName()):
     return
 
-  headerfile = filename[0:len(filename) - len(fileinfo.Extension())] + '.h'
+  headerfile = filename[0:len(filename) - len(fileinfo.Extension())] + '.hh'
   if not os.path.exists(headerfile):
     return
   headername = FileInfo(headerfile).RepositoryName()
@@ -4575,7 +4575,7 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
   match = Match(r'#include\s*"([^/]+\.h)"', line)
   if match and not _THIRD_PARTY_HEADERS_PATTERN.match(match.group(1)):
     error(filename, linenum, 'build/include', 4,
-          'Include the directory when naming .h files')
+          'Include the directory when naming .hh files')
 
   # we shouldn't include a file more than once. actually, there are a
   # handful of instances where doing so is okay, but in general it's
@@ -5442,9 +5442,9 @@ def FilesBelongToSameModule(filename_cc, filename_h):
   filename_cc = filename_cc.replace('/public/', '/')
   filename_cc = filename_cc.replace('/internal/', '/')
 
-  if not filename_h.endswith('.h'):
+  if not filename_h.endswith('.hh'):
     return (False, '')
-  filename_h = filename_h[:-len('.h')]
+  filename_h = filename_h[:-len('.hh')]
   if filename_h.endswith('-inl'):
     filename_h = filename_h[:-len('-inl')]
   filename_h = filename_h.replace('/public/', '/')
