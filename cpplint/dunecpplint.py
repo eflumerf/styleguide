@@ -2877,12 +2877,12 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
     error(filename, linenum, 'runtime/rtti', 5,
           'Use of Run Time Type Information not allowed unless this code is meant to test other code' )
 
-  if Search(r'\w+(\+\+|\-\-)', line):
+  if Search(r'\w[\w\[\]0-9]*(\+\+|\-\-)', line):
     error(filename, linenum, 'runtime/increment_decrement', 5,
           'Increment/decrement operator should appear before, rather than after, the variable')
 
-  if Search(r'(\+\+|\-\-)\w+', line) and not Search(r'^\s*(\+\+|\-\-)\w+\s*;\s*$', line) and \
-      not Search(r'(for|while)\s*\(.*(\+\+|\-\-)\w+.*\)', line):
+  if Search(r'(\+\+|\-\-)\w', line) and not Search(r'^\s*(\+\+|\-\-)[\w\[\]0-9]+\s*;\s*$', line) and \
+      not Search(r'(for|while)\s*\(.*(\+\+|\-\-)\w.*\)', line):
     error(filename, linenum, 'runtime/increment_decrement', 5,
           'Increment/decrement operator should appear alone on its line unless in a while/for loop head')
 
@@ -5298,9 +5298,14 @@ def CheckCStyleCast(filename, clean_lines, linenum, cast_type, pattern, error):
     return False
 
   # At this point, all that should be left is actual casts.
-  error(filename, linenum, 'readability/casting', 4,
-        'Using C-style cast.  Use %s<%s>(...) instead' %
-        (cast_type, match.group(1)))
+  
+  if cast_type != "reinterpret_cast":
+    error(filename, linenum, 'readability/casting', 4,
+          'Using C-style cast.  Use %s<%s>(...) instead' %
+          (cast_type, match.group(1)))
+  else:
+    error(filename, linenum, 'readability/casting', 4,
+          'Using C-style cast. Use one of the C++ cast operators instead')
 
   return True
 
