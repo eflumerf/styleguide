@@ -2968,9 +2968,9 @@ pre-increment.
 
 ### Increment and Decrement [DUNE VERSION]
 
-Unless in a loop construct, an increment `++`/decrement `--` should exist
-on its own line. In particular, it should not be used in an if
-statement.
+Unless in a loop construct, an increment (`++`) or decrement (`--`) of a
+variable should exist on its own line. In particular, it should not be
+used in an if statement.
 
 ### Use of const [GOOGLE VERSION]
 
