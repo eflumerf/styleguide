@@ -1,5 +1,6 @@
 #!/bin/env bash
 
+
 if [[ "$#" != "2" ]]; then
 
 cat<<EOF >&2
@@ -302,9 +303,9 @@ fi
 for source_file in $source_files; do
 
     echo
-    echo "=========================Validating $source_file========================="
+    echo "=========================Checking $source_file========================="
 
-    clang-tidy -p=$tmpdir -checks=${musts},${maybes} -header-filter=.* $source_file |& sed -r '/error:.*file not found \[clang-diagnostic-error\]\s*$/,/\^/d'
+    clang-tidy -p=$tmpdir -checks=${musts},${maybes} -header-filter=.* $source_file |& awk -f $(dirname $0)/duneclang-tidy_scrub_output.awk
 
 done
 
