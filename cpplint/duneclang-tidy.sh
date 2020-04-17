@@ -213,7 +213,6 @@ performance-move-const-arg,\
 performance-move-constructor-init,\
 performance-unnecessary-copy-initialization,\
 performance-unnecessary-value-param,\
-readability-avoid-const-params-in-decls,\
 readability-const-return-type,\
 readability-container-size-empty,\
 readability-deleted-default,\
