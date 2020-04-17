@@ -23,6 +23,8 @@ filename=$1
 
 # -build/c++11/14 : No headers are explicitly disallowed
 
+# -build/explicit_make_pair : related to a bug in g++ 4.6 where it couldn't handle explicit template arguments in make pair; no longer relevant
+
 # -build/namespaces: for source (not header) files, allow using-directives
 
 # -runtime/indentation_namespace: worry about whitespace with our formatting tools
@@ -43,9 +45,12 @@ filename=$1
 
 # -whitespace: worry about this with our formatting tools
 
-header_filters="-build/c++11,-build/c++14,-readability/check,-readability/constructors,-runtime/indentation_namespace,-runtime/references,-runtime/string,-runtime/vlog,-whitespace"
-source_filters="-build/c++11,-build/c++14,-build/namespaces,-readability/check,-readability/constructors,-runtime/indentation_namespace,-runtime/references,-runtime/string,-runtime/vlog,-whitespace"
 
+header_filters="-build/c++11,-build/c++14,-readability/check,-readability/constructors,-runtime/indentation_namespace,-runtime/references,-runtime/string,-runtime/vlog,-whitespace,-build/explicit_make_pair"
+source_filters="-build/c++11,-build/c++14,-build/namespaces,-readability/check,-readability/constructors,-runtime/indentation_namespace,-runtime/references,-runtime/string,-runtime/vlog,-whitespace,-build/explicit_make_pair"
+
+dev_filters=""
+#dev_filters=",-build/include_order,-build/include_what_you_use,-legal/copyright,-build/header_guard,-build/define_used,-readability/namespace,-runtime/output_format"
 
 header_files=""
 source_files=""
@@ -72,18 +77,18 @@ fi
 for header_file in $header_files; do
 
     echo
-    echo "=========================Validating $header_file========================="
+    echo "=========================Checking $header_file========================="
     
-    $( dirname $0 )/dunecpplint.py --extensions=hh,cc --headers=hh --filter=${header_filters} $header_file 
+    $( dirname $0 )/dunecpplint.py --extensions=hh,cc --headers=hh --filter=${header_filters}${dev_filters} $header_file 
 
 done
 
 for source_file in $source_files; do
 
     echo
-    echo "=========================Validating $source_file========================="
+    echo "=========================Checking $source_file========================="
     
-    $( dirname $0 )/dunecpplint.py --extensions=hh,cc --headers=hh --filter=${source_filters} $source_file 
+    $( dirname $0 )/dunecpplint.py --extensions=hh,cc --headers=hh --filter=${source_filters}${dev_filters} $source_file 
 
 done
 
