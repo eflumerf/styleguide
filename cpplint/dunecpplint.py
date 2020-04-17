@@ -227,6 +227,7 @@ _ERROR_CATEGORIES = [
     'build/include_order',
     'build/include_what_you_use',
     'build/namespaces',
+    'build/raw_ownership',
     'build/storage_class',
     'legal/copyright',
     'readability/alt_tokens',
@@ -2877,6 +2878,9 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
     error(filename, linenum, 'runtime/rtti', 5,
           'Use of Run Time Type Information not allowed unless this code is meant to test other code' )
 
+  if Search(r'[^\w]delete\s+', line) or Search(r'^delete\s+', line):
+    error(filename, linenum, 'build/raw_ownership', 5,
+          'The delete operator appears to be used; owning memory should be done with a smart pointer rather than a raw pointer' )
     
   if Search(r'(\+\+|\-\-)\w', line) and not Search(r'^\s*(\+\+|\-\-)[\w\[\]0-9\.]+[\s;){]*$', line) and \
       not Search(r'(for|while)\s*\(.*(\+\+|\-\-)\w.*\)', line):
