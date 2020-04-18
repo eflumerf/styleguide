@@ -2916,9 +2916,16 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
 
   match = Search(r"(public|protected|private)\s*:", line)
   if match:
-    print "match found on line %d: %s" % (linenum, match.group(1))
     if match.group(1) not in CheckForNonStandardConstructs.ClassAccessSpecifiers[classinfo.name]:
       CheckForNonStandardConstructs.ClassAccessSpecifiers[classinfo.name].append(match.group(1))
+
+      if match.group(1) == "public" and ("private" in CheckForNonStandardConstructs.ClassAccessSpecifiers[classinfo.name] or \
+                                         "protected" in CheckForNonStandardConstructs.ClassAccessSpecifiers[classinfo.name]):
+        error(filename, linenum, 'readability/access_specifiers', 5, 
+              'Access specifier \"public:\" appears after one (or both) of \"private:\" and/or \"protected:\", not before')
+      if match.group(1) == "protected" and "private" in CheckForNonStandardConstructs.ClassAccessSpecifiers[classinfo.name]:
+        error(filename, linenum, 'readability/access_specifiers', 5,
+              'Access specifier \"protected:\" appears after \"private:\", not before')
     else:
       error(filename, linenum, 'readability/access_specifiers', 5,
             'Access specifier "%s" has already appeared in class %s' % (match.group(1), classinfo.name))
