@@ -230,6 +230,7 @@ _ERROR_CATEGORIES = [
     'build/raw_ownership',
     'build/storage_class',
     'legal/copyright',
+    'readability/access_specifiers',
     'readability/alt_tokens',
     'readability/braces',
     'readability/casting',
@@ -2868,13 +2869,6 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
           'const string& members are dangerous. It is much better to use '
           'alternatives, such as pointers or simple constants.')
 
-  classinfo = nesting_state.InnermostClass()
-
-  if Search(r'static\s+', line):
-    if not classinfo and not function_state.in_a_function and not nesting_state.InClassDeclaration():
-      error(filename, linenum, 'build/namespaces', 5,
-            'static storage declaration outside of class or function not allowed (if this isn\'t a header, please contact John Freeman)')
-
   if Search(r'typeid\s*\(', line) or Search(r'dynamic_cast', line):
     error(filename, linenum, 'runtime/rtti', 5,
           'Use of Run Time Type Information not allowed unless this code is meant to test other code' )
@@ -2904,11 +2898,30 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
           'Increment/decrement operator should appear alone on its line unless in a while/for loop head')
 
 
+  classinfo = nesting_state.InnermostClass()
+  
+  if Search(r'static\s+', line):
+    if not classinfo and not function_state.in_a_function and not nesting_state.InClassDeclaration():
+      error(filename, linenum, 'build/namespaces', 5,
+            'static storage declaration outside of class or function not allowed (if this isn\'t a header, please contact John Freeman)')
+
   # Everything else in this function operates on class declarations.
   # Return early if the top of the nesting stack is not a class, or if
   # the class head is not completed yet.
   if not classinfo or not classinfo.seen_open_brace:
     return
+
+  if classinfo.name not in CheckForNonStandardConstructs.ClassAccessSpecifiers:
+    CheckForNonStandardConstructs.ClassAccessSpecifiers[classinfo.name] = []
+
+  match = Search(r"(public|protected|private)\s*:", line)
+  if match:
+    print "match found on line %d: %s" % (linenum, match.group(1))
+    if match.group(1) not in CheckForNonStandardConstructs.ClassAccessSpecifiers[classinfo.name]:
+      CheckForNonStandardConstructs.ClassAccessSpecifiers[classinfo.name].append(match.group(1))
+    else:
+      error(filename, linenum, 'readability/access_specifiers', 5,
+            'Access specifier "%s" has already appeared in class %s' % (match.group(1), classinfo.name))
 
   # The class may have been declared with namespace or classname qualifiers.
   # The constructor and destructor will not have those qualifiers.
@@ -2977,6 +2990,8 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
       if noarg_constructor:
         error(filename, linenum, 'runtime/explicit', 5,
               'Zero-parameter constructors should not be marked explicit.')
+
+CheckForNonStandardConstructs.ClassAccessSpecifiers = {}
 
 
 def CheckSpacingForFunctionCall(filename, clean_lines, linenum, error):
