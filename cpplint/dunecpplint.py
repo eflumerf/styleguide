@@ -2883,11 +2883,15 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
     error(filename, linenum, 'build/raw_ownership', 5,
           'The delete operator appears to be used; owning memory should be done with a smart pointer rather than a raw pointer' )
 
-  if Search(r'catch\s*\(\s*\.\.\.\s*\)', line):
-    with open(filename) as inf:
-      if not Search(r"int\s+main", inf.read()):
-        error(filename, linenum, 'runtime/exceptions', 5,
-              'A catch-all construct was found in a file which doesn\'t contain int main(); this can only be used to wrap main()' )
+  if Search(r'catch\s*\(', line):
+    if Search(r'catch\s*\(\s*\.\.\.\s*\)', line):
+      with open(filename) as inf:
+        if not Search(r"int\s+main", inf.read()):
+          error(filename, linenum, 'runtime/exceptions', 5,
+                'A catch-all-exceptions construct was found in a file which doesn\'t contain int main(); this can only be used to wrap main()' )
+    elif not Search(r'catch\s*\(.*&.*\)', line):
+      error(filename, linenum, 'runtime/exceptions', 5,
+        'An exception appears to be getting caught here, but not via a reference. ' )
     
   if Search(r'(\+\+|\-\-)\w', line) and not Search(r'^\s*(\+\+|\-\-)[\w\[\]0-9\.]+[\s;){]*$', line) and \
       not Search(r'(for|while)\s*\(.*(\+\+|\-\-)\w.*\)', line):

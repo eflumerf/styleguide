@@ -314,7 +314,7 @@ for source_file in $source_files; do
 
 done
 
-echo "Deleting $tmpdir/compile_commands.json"
+#echo "Deleting $tmpdir/compile_commands.json"
 rm -f $tmpdir/compile_commands.json
 rmdir $tmpdir
 

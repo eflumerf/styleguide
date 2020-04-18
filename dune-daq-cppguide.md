@@ -2597,7 +2597,8 @@ Never throw exceptions out of a destructor
 Only use catch(...) directly inside of main(), and then only to clean up
 resources before terminating the program
 
-Catch by const reference
+Catch by const reference, unless you plan to add info to the exception
+before rethrowing it, in which case you should a non-const reference.
 
 When you catch, print as much info about the exception as would be
 useful to users of the program
