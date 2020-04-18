@@ -87,26 +87,30 @@ else
     exit 2
 fi
 
+which clang-tidy > /dev/null 2>&1
+retval=$?
 
-clang_products_dir=/cvmfs/fermilab.opensciencegrid.org/products/larsoft
+if [[ "$retval" != "0" ]]; then
 
-if [[ -d $clang_products_dir ]]; then
-    . $clang_products_dir/setup
-    retval="$?"
-else
-    cat <<EOF >&2
+    clang_products_dir=/cvmfs/fermilab.opensciencegrid.org/products/larsoft
+
+    if [[ -d $clang_products_dir ]]; then
+	. $clang_products_dir/setup
+	retval="$?"
+    else
+	cat <<EOF >&2
 
 The $clang_products_dir products area
 is not found; this is currently needed for the script to find clang-tidy. Exiting...
 
 EOF
-    exit 20;
-fi
+	exit 20;
+    fi
 
-if [[ "$retval" == 0 ]]; then
-    echo "Set up the products directory $clang_products_dir"
-else
-    cat<<EOF >&2
+    if [[ "$retval" == 0 ]]; then
+	echo "Set up the products directory $clang_products_dir"
+    else
+	cat<<EOF >&2
 
 There was a problem setting up the products directory 
 $clang_products_dir ;
@@ -114,21 +118,21 @@ exiting...
 
 EOF
 
-    exit 1
-fi
+	exit 1
+    fi
 
-clang_version=$( ups list -aK+ clang | sort -n | tail -1 | sed -r 's/^\s*\S+\s+"([^"]+)".*/\1/' )
+    clang_version=$( ups list -aK+ clang | sort -n | tail -1 | sed -r 's/^\s*\S+\s+"([^"]+)".*/\1/' )
 
-if [[ -n $clang_version ]]; then
+    if [[ -n $clang_version ]]; then
 
-    setup clang $clang_version
-    retval="$?"
+	setup clang $clang_version
+	retval="$?"
 
-    if [[ "$retval" == "0" ]]; then
-	echo "Set up clang $clang_version"
-    else
-
-	cat <<EOF
+	if [[ "$retval" == "0" ]]; then
+	    echo "Set up clang $clang_version"
+	else
+	    
+	    cat <<EOF
 
 Error: there was a problem executing "setup clang $clang_version"
 (return value was $retval). Please check the products directories
@@ -136,16 +140,18 @@ you've got set up. Exiting...
 
 EOF
 
-	exit 1
-    fi
+	    exit 1
+	fi
 
-else
+    else
 
-    cat<<EOF >&2
+	cat<<EOF >&2
 
 Error: a products directory containing clang isn't set up. Exiting...
 EOF
-    exit 2
+	exit 2
+
+    fi
 
 fi
 
