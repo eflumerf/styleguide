@@ -1056,8 +1056,8 @@ def _RestoreFilters():
 class _FunctionState(object):
   """Tracks current function name and the number of lines in its body."""
 
-  _NORMAL_TRIGGER = 250  # for --v=0, 500 for --v=1, etc.
-  _TEST_TRIGGER = 400    # about 50% more than _NORMAL_TRIGGER.
+  _NORMAL_TRIGGER = 40  # for --v=0, 80 for --v=1, etc.
+  _TEST_TRIGGER = 60    # about 50% more than _NORMAL_TRIGGER.
 
   def __init__(self):
     self.in_a_function = False
@@ -1104,7 +1104,7 @@ class _FunctionState(object):
       error(filename, linenum, 'readability/fn_size', error_level,
             'Small and focused functions are preferred:'
             ' %s has %d non-comment lines'
-            ' (error triggered by exceeding %d lines).'  % (
+            ' (error triggered by exceeding %d lines) (disable this by putting "// NOLINT" after the function\'s closing brace.)'  % (
                 self.current_function, self.lines_in_function, trigger))
 
   def End(self):
@@ -3171,8 +3171,6 @@ def CheckForFunctionLengths(filename, clean_lines, linenum,
   elif not Match(r'^\s*$', line):
     function_state.Count()  # Count non-blank/non-comment lines.
 
-
-usernames = os.listdir("%s/%s" % (os.environ["HOME"], ".."))
 
 _RE_PATTERN_TODO = re.compile(r'^//(\s*)TODO')
 
