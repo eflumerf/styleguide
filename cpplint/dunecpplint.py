@@ -229,6 +229,7 @@ _ERROR_CATEGORIES = [
     'build/namespaces',
     'build/raw_ownership',
     'build/storage_class',
+    'build/unsigned',
     'legal/copyright',
     'readability/access_specifiers',
     'readability/alt_tokens',
@@ -2897,6 +2898,9 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
     error(filename, linenum, 'runtime/increment_decrement', 5,
           'Increment/decrement operator should appear alone on its line unless in a while/for loop head')
 
+  if Search(r'\s+unsigned\+', line) or Search(r'^unsigned\+', line) or Search(r'uint[0-9]+', line):
+    error(filename, linenum, 'build/unsigned', 3,
+          'An unsigned integer appears to be used here.')
 
   classinfo = nesting_state.InnermostClass()
   
