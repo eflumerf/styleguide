@@ -155,12 +155,12 @@ for file in $files ; do
 
     echo
     echo "Applying dunecpplint.sh"
-    dunecpplint.sh $file
+    $( dirname $0 )/dunecpplint.sh $file
 
     if [[ "$file" =~ .*cc$ ]]; then
 	echo
 	echo "Applying duneclang-tidy.sh"
-	duneclang-tidy.sh $compile_commands_dir $file
+	$( dirname $0 )/duneclang-tidy.sh $compile_commands_dir $file
     fi
 
 done
