@@ -236,6 +236,7 @@ _ERROR_CATEGORIES = [
     'readability/braces',
     'readability/casting',
     'readability/check',
+    'readability/comment',
     'readability/constructors',
     'readability/fn_size',
     'readability/inheritance',
@@ -5807,6 +5808,12 @@ def CheckItemIndentationInNamespace(filename, raw_lines_no_comments, linenum,
     error(filename, linenum, 'runtime/indentation_namespace', 4,
           'Do not indent within a namespace')
 
+def CheckForCStyleComments(filename, lines, error):
+  for i_l in range(len(lines)):
+    if Search(r'^/\*[^\*]', lines[i_l]) or Search(r'\s+/\*[^\*]', lines[i_l]) or \
+       Search(r'^/\*$', lines[i_l]) or Search(r'\s+/\*$', lines[i_l]):
+      error(filename, i_l, 'readability/comment', 3,
+            'C-style comment syntax detected; please use either C++ style "//" or Doxygen style')
 
 def ProcessLine(filename, file_extension, clean_lines, line,
                 include_state, function_state, nesting_state, error,
@@ -5949,6 +5956,7 @@ def ProcessFileData(filename, file_extension, lines, error,
 
   CheckForCopyright(filename, lines, error)
   ProcessGlobalSuppresions(lines)
+  CheckForCStyleComments(filename, lines, error)
   RemoveMultiLineComments(filename, lines, error)
   clean_lines = CleansedLines(lines)
 
