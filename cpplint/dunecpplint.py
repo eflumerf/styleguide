@@ -1173,7 +1173,8 @@ class FileInfo(object):
       if (os.path.exists(os.path.join(root_dir, ".git")) or
           os.path.exists(os.path.join(root_dir, ".hg")) or
           os.path.exists(os.path.join(root_dir, ".svn"))):
-        prefix = os.path.commonprefix([root_dir, project_dir])
+        #prefix = os.path.commonprefix([root_dir, project_dir])
+        prefix = "/".join( root_dir.split("/")[:-1] )
         return fullname[len(prefix) + 1:]
 
     # Don't know what to do; header guard warnings may be wrong...
