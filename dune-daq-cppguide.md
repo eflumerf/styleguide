@@ -1,4 +1,4 @@
-# JCF, Mar-24-2020: for the time being, the original sections of the Google style guide can be expanded for purposes of comparison with their DUNE counterparts. IF YOU MAKE EDITS MAKE SURE IT IS TO A DUNE SECTION AND NOT A GOOGLE SECTION. 
+*JCF, Mar-24-2020: for the time being, the original sections of the Google style guide can be expanded for purposes of comparison with their DUNE counterparts. IF YOU MAKE EDITS MAKE SURE IT IS TO A DUNE SECTION AND NOT A GOOGLE SECTION.*
 
 # C++ Style Guide (based on Google's C++ Style Guide)
 
@@ -23,7 +23,7 @@ increased readability will be well worth it.
 Note that this guide is not a C++ tutorial: we assume that the reader is
 familiar with the language.
 
-## Background [GOOGLE VERSION]
+### Background [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -58,7 +58,7 @@ people can use, and shorter documentation is better, all things being
 equal]
 
 
-### Goals of the Style Guide [GOOGLE VERSION, NO DUNE EQUIVALENT]
+#### Goals of the Style Guide [GOOGLE VERSION, NO DUNE EQUIVALENT]
 
 <details><summary>Expand here</summary>
 
@@ -171,7 +171,7 @@ don't hesitate to ask your project leads to get additional input.
 Currently, code should target C++17, i.e., should not use C++2x
 features.
 
-## C++ Version [GOOGLE VERSION]
+### C++ Version [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -203,7 +203,7 @@ In general, every `.cc` file should have an associated `.hh` file. There
 are some common exceptions, such as unittests and small `.cc` files
 containing just a `main()` function.
 
-## Header Files [GOOGLE VERSION OF THE INTRO]
+### Header Files [GOOGLE VERSION OF THE INTRO]
 
 <details><summary>Expand here</summary>
 
@@ -245,7 +245,7 @@ relevant sets of template arguments, or that is a private implementation
 detail of a class, is allowed to be defined in the one and only `.cc`
 file that instantiates the template.
 
-### Self-contained Headers [GOOGLE VERSION]
+#### Self-contained Headers [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -296,7 +296,7 @@ inclusion. The format of the symbol name should be
 #endif // APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
 ```
 
-### The \#define Guard [GOOGLE VERSION]
+#### The \#define Guard [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -327,7 +327,7 @@ project `foo` should have the following guard:
 ### Forward Declarations [DUNE VERSION]
 [We're not going to forbid forward declarations, since while there are costs as described in the google style manual, the benefits of faster compilation outweigh these costs]
 
-### Forward Declarations  [GOOGLE VERSION]
+#### Forward Declarations  [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -409,7 +409,7 @@ performance-critical functions. Don't inline functions with loops or
 switch statements (unless, in the common case, the loop or switch
 statement is never executed).
 
-### Inline Functions [GOOGLE VERSION]
+#### Inline Functions [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -484,7 +484,7 @@ symbols from `Bar.hh`, don't count on the fact that you included
 unless `Foo.hh` explicitly demonstrates its intent to provide you the
 symbols of `Bar.hh`.
 
-### Names and Order of Includes [GOOGLE VERSION]
+#### Names and Order of Includes [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -674,7 +674,7 @@ More complex `.cc` files might have additional details, like using-declarations.
         }  // namespace librarian
  ```
 
-### Namespaces [GOOGLE VERSION]
+#### Namespaces [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -845,7 +845,7 @@ Use unnamed namespaces/static variables for when it makes sense to maintain file
 ```
 
 
-### Unnamed Namespaces and Static Variables [GOOGLE VERSION]
+#### Unnamed Namespaces and Static Variables [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -889,7 +889,7 @@ comment, leave the namespace name empty:
  - Static methods of a class should generally be closely related to
 instances of the class or the class's static data.
 
-### Nonmember, Static Member, and Global Functions [GOOGLE VERSION]
+#### Nonmember, Static Member, and Global Functions [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -955,7 +955,7 @@ if (fptr != nullptr) {
 }
 ```
 
-### Local Variables [GOOGLE VERSION]
+#### Local Variables [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -1030,7 +1030,7 @@ better. In particular, keep in mind there's no guarantee on the order
 of construction of these variables, and hence code should never rely
 on an assumed order.
 
-### Static and Global Variables [GOOGLE VERSION]
+#### Static and Global Variables [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -1322,7 +1322,7 @@ thread-local data.
 
  - Initialize a class's member in the constructor's member initialization list rather than assign to it in the constructor's body. An exception to this might be if the member class's default constructor is much faster than its other constructors/assignment operator, but it's not guaranteed that it'll even need to be assigned to. 
 
-### Doing Work in Constructors [GOOGLE VERSION]
+#### Doing Work in Constructors [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -1383,7 +1383,7 @@ Constructors that cannot be called with a single argument may omit
 `explicit` since the C++ language does not consider multi-argument
 constructors for implicit conversions. 
 
-### Implicit Conversions [GOOGLE VERSION]
+#### Implicit Conversions [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -1477,7 +1477,7 @@ If a class contains member data, each of its copy constructor, copy
  must be either defined or explicitly deleted. "Defined" could be
  as simple as making explicit the use of the "default" keyword.
 
-### Copyable and Movable Types [GOOGLE VERSION]
+#### Copyable and Movable Types [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -1645,7 +1645,7 @@ through getter/setter methods. Any functions must not provide behavior
 but should only be used to set up the data members, e.g., constructor,
 destructor, `Initialize()`, `Reset()`.
 
-### Structs vs. Classes [GOOGLE VERSION]
+#### Structs vs. Classes [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -1690,7 +1690,7 @@ there are not specific meanings for the elements of the pair or
 tuple. Their use may also be required in order to interoperate with
 existing code or APIs.
 
-### Structs vs. Pairs and Tuples [GOOGLE VERSION]
+#### Structs vs. Pairs and Tuples [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -1728,7 +1728,7 @@ destructors with exactly one of an `override` or `final` specifier. Do
 not use the keyword `virtual` in this case as this is already denoted
 by one of those two specifiers.
 
-### Inheritance [GOOGLE VERSION]
+#### Inheritance [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -1803,7 +1803,7 @@ There's a limited set of circumstances in which it's OK to overload operators:
  - When defining comparison operators for a user-defined type
  - Outputting a type's value where it makes sense, by streaming with `operator<<`. Note this should be a nonmember function, not a member function of the type.
 
-### Operator Overloading [GOOGLE VERSION]
+#### Operator Overloading [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -1920,7 +1920,7 @@ In a class, never declare data as protected or public. Use accessor
 functions if you must. 
 
 
-### Access Control [GOOGLE VERSION]
+#### Access Control [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -1959,7 +1959,7 @@ declarations together, and generally prefer the following order:
 Do not put large method definitions inline in the class definition. See [Inline Functions](#Inline_Functions) for
 more details.
 
-### Declaration Order [GOOGLE VERSION]
+#### Declaration Order [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2000,7 +2000,7 @@ it. Otherwise, use pass-by-reference in the argument list. These
 output arguments should appear after the input arguments. Parameters
 which serve both as input *and* output should be placed in-between.
 
-### Output Parameters [GOOGLE VERSION]
+#### Output Parameters [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2034,7 +2034,7 @@ consistency with related functions may require you to bend the rule.
 [Section eliminated, material covered in "general guidelines"]
 
 
-### Write Short Functions [GOOGLE VERSION]
+#### Write Short Functions [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2065,7 +2065,7 @@ pieces.
 ### Reference Arguments [DUNE VERSION]
 [Section eliminated, unless someone thinks any of the rules Google has should apply to DUNE]
 
-### Reference Arguments [GOOGLE VERSION]
+#### Reference Arguments [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2122,7 +2122,7 @@ themselves similar (e.g., std::string vs. const char*)
 
 If the behavior is noticeably different, prefer different function names.
 
-### Function Overloading [GOOGLE VERSION]
+#### Function Overloading [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2175,7 +2175,7 @@ value of the argument in the header, as it's part of the function's
 interface.
 
 
-### Default Arguments [GOOGLE VERSION]
+#### Default Arguments [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2229,7 +2229,7 @@ cases the compiler is able to deduce a lambda's return type, but not
 in all cases.
 
 
-### Trailing Return Type Syntax [GOOGLE VERSION]
+#### Trailing Return Type Syntax [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2313,7 +2313,7 @@ will be limited to low-overhead access to pre-existing memory
 buffers, in which the user does not have ownership of the memory
 that is pointed to.
 
-### Ownership and Smart Pointers [GOOGLE VERSION]
+#### Ownership and Smart Pointers [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2420,7 +2420,7 @@ Use rvalue references to:
   - Define pairs of overloads, one taking `Foo&&` and the other taking
 `const Foo&`, when this might improve performance
 
-### Rvalue References [GOOGLE VERSION]
+#### Rvalue References [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2506,7 +2506,7 @@ An appropriate use of a friend function is if you're overloading the streaming o
 Define your friend function in the same file as the class it's a friend of. 
 
 
-### Friends [GOOGLE VERSION]
+#### Friends [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2561,7 +2561,7 @@ useful to users of the program
 exceptions we should define since Boost/STL doesn't cover our needs,
 or would that be an unnecessary vanity project?]
 
-### Exceptions [GOOGLE VERSION]
+#### Exceptions [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2657,7 +2657,7 @@ writing generic code. For this reason, intelligently choose your
 conditionals inside of noexcept()
 
 
-### `noexcept` [GOOGLE VERSION]
+#### `noexcept` [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2724,7 +2724,7 @@ unconditionally `noexcept`.
 The only time Run Time Type Information (RTTI) can be used is in code
 meant to test other code.
 
-### Run-Time Type Information (RTTI) [GOOGLE VERSION]
+#### Run-Time Type Information (RTTI) [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2815,7 +2815,7 @@ Use reinterpret_cast only for low level code, and only if you're sure
 there's no safer approach
 
 
-### Casting [GOOGLE VERSION]
+#### Casting [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2865,7 +2865,7 @@ on the use of `dynamic_cast`.
 </details>
 
 
-### alias declarations and `typedef`s [DUNE VERSION, NO GOOGLE EQUIVALENT]
+#### alias declarations and `typedef`s [DUNE VERSION, NO GOOGLE EQUIVALENT]
 
 Use alias declarations and `typedef`s to clarify the meaning of a type
 in a given context. Prefer use of alias declarations; in particular,
@@ -2883,7 +2883,7 @@ MyAllocList<Foo> foos;
 [Deleted; folded into the new "printing messages" section]
 
 
-### Streams [GOOGLE VERSION]
+#### Streams [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -2957,7 +2957,7 @@ common convention).
 </details>
 
 
-### Printing Messages [DUNE VERSION, NO GOOGLE EQUIVALENT]
+#### Printing Messages [DUNE VERSION, NO GOOGLE EQUIVALENT]
 
 *JCF, Mar-25-2020: this section can only be completed once DFWG and CCM hash out how to deal with logging. In particular, "Use TRACE for output" should be taken only as a placeholder until this happens*
 
@@ -2985,7 +2985,7 @@ variable should exist on its own line. In particular, it should not be
 used in an if statement.
 
 
-### Preincrement and Predecrement [GOOGLE VERSION]
+#### Preincrement and Predecrement [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3032,7 +3032,7 @@ state, declare it const and use "mutable" so the compiler allows the physical ch
 constexpr is even better than const; use it when you can. constexpr is described [below](#Constexpr) .
 
 
-### Use of const [GOOGLE VERSION]
+#### Use of const [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3110,7 +3110,7 @@ you don't see this ever changing, declare it constexpr.  I say "don't
 see this ever changing" since similar to "const" or "noexcept", changing this later will likely break other people's code.
 
 
-### Use of constexpr [GOOGLE VERSION]
+#### Use of constexpr [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3166,7 +3166,7 @@ other problems.
 
 Code should be 64-bit friendly. [does it need to be 32-bit friendly?]
 
-### Integer Types [GOOGLE VERSION]
+#### Integer Types [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3302,7 +3302,7 @@ If you *must* write a macro, this will avoid many of their problems:
   - Prefer not using `##` to generate function/class/variable names.
 
 
-### Preprocessor Macros  [GOOGLE VERSION]
+#### Preprocessor Macros  [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3376,7 +3376,7 @@ consisting of your project's namespace name (but upper case).
 
 Use `nullptr` for pointers, and `'\0'` for the null character. Don't use NULL, and definitely don't use the number "0" in this context. 
 
-### 0 and nullptr/NULL [GOOGLE VERSION]
+#### 0 and nullptr/NULL [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3402,7 +3402,7 @@ more readable.
 Prefer `sizeof(varname)` to `sizeof(type)`, unless you really do mean that you want the size of a particular type, and not a variable which happens to have the type in question. 
 
 
-### sizeof [GOOGLE VERSION]
+#### sizeof [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3449,7 +3449,7 @@ this explicit will typically make it clearer to both the code's reader
 and to the compiler what it is you're trying to do.
 
 
-### Type deduction [GOOGLE VERSION]
+#### Type deduction [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3608,7 +3608,7 @@ like this:
 double sqrt(double); 
 ```
 
-### Intro [GOOGLE VERSION]
+#### Intro [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3631,7 +3631,7 @@ next one may be you\!
 
 Use the `//` syntax instead of the old C-style `/* */` syntax
 
-### Comment Style [GOOGLE VERSION]
+#### Comment Style [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3664,7 +3664,7 @@ if necessary.
 
 
 
-### File Comments [GOOGLE VERSION]
+#### File Comments [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3691,7 +3691,7 @@ The following License stanza should be included in your Doxygen @file section:
 
 [JCF, Mar-27-2020: The details of what license would be in the COPYING file are TBD, and should probably involve Giovanna]
 
-#### Legal Notice and Author Line [GOOGLE VERSION]
+##### Legal Notice and Author Line [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3719,7 +3719,7 @@ Do not duplicate comments in both the `.hh` and the `.cc`. Duplicated
 comments diverge.
 
 
-#### File Contents [GOOGLE VERSION]
+##### File Contents [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3749,7 +3749,7 @@ the class can be accessed by multiple threads, take extra care to
 document the rules and invariants surrounding multithreaded use.
 
 
-### Class Comments [GOOGLE VERSION]
+#### Class Comments [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3795,7 +3795,7 @@ non-obvious); comments at the definition of a function describe
 operation.
 
 
-### Function Comments [GOOGLE VERSION]
+#### Function Comments [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3838,7 +3838,7 @@ destructors not to have a header comment.
 
 
 
-#### Function Declarations [GOOGLE VERSION]
+##### Function Declarations [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3921,7 +3921,7 @@ briefly what the function does, but the focus of the comments should be
 on how it does it.
 
 
-#### Function Definitions [GOOGLE VERSION]
+##### Function Definitions [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3966,7 +3966,7 @@ like DUNE_GLOBAL_VAR, in the comment, so it'll be easy to find global
 variables?]
 
 
-### Variable Comments [GOOGLE VERSION]
+#### Variable Comments [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -4015,7 +4015,7 @@ tricky and non-obvious code should be avoided unless absolutely
 necessary.
 
 
-### Implementation Comments [GOOGLE VERSION]
+#### Implementation Comments [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -4153,7 +4153,7 @@ code, can sometimes be less formal.
 
 
 
-### Punctuation, Spelling, and Grammar [GOOGLE VERSION]
+#### Punctuation, Spelling, and Grammar [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -4198,7 +4198,7 @@ sent to the person whose e-mail is given in the comment. When in
 doubt, send an e-mail.
 
 
-### TODO Comments [GOOGLE VERSION]
+#### TODO Comments [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -4235,7 +4235,7 @@ responses.").
  - Lines should (almost) always be less than 120 characters
 
 
-## Formatting [GOOGLE VERSION]
+### Formatting [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -5188,7 +5188,7 @@ may be confusing to future developers, it may be worth adding comments on
 how the style deviates from the standard. 
 
 
-## Exceptions to the Rules [GOOGLE VERSION]
+### Exceptions to the Rules [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -5266,7 +5266,7 @@ on Windows:
 </details>
 
 
-## Parting Words [GOOGLE VERSION, NO DUNE EQUIVALENT]
+### Parting Words [GOOGLE VERSION, NO DUNE EQUIVALENT]
 
 <details><summary>Expand here</summary>
 
