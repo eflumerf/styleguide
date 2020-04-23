@@ -4,6 +4,25 @@
 
 ###### tags: `Software Management` `DAQ` `DUNE`
 
+
+## Background [DUNE VERSION]
+
+C++ is the main development language of DUNE's DAQ software
+processes. It is an unusually complex language, which can make code
+more bug-prone and harder to read and maintain.
+
+The goal of this guide is to manage this complexity by describing in
+detail the dos and don'ts of writing C++ code for the DUNE data acquisition system. These rules exist to
+keep the code base manageable while still allowing coders to use C++
+language features productively. While it will take a certain amount of
+time to learn these rules and adhering to them may mean that creating
+a piece of code that "just works" might take a little longer than it
+otherwise would, the payoff in terms of reduced debugging time and
+increased readability will be well worth it.
+
+Note that this guide is not a C++ tutorial: we assume that the reader is
+familiar with the language.
+
 ## Background [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
@@ -30,23 +49,14 @@ familiar with the language.
 
 </details>
 
-## Background [DUNE VERSION]
 
-C++ is the main development language of DUNE's DAQ software
-processes. It is an unusually complex language, which can make code
-more bug-prone and harder to read and maintain.
+### Goals of the Style Guide [DUNE VERSION]
 
-The goal of this guide is to manage this complexity by describing in
-detail the dos and don'ts of writing C++ code for the DUNE data acquisition system. These rules exist to
-keep the code base manageable while still allowing coders to use C++
-language features productively. While it will take a certain amount of
-time to learn these rules and adhering to them may mean that creating
-a piece of code that "just works" might take a little longer than it
-otherwise would, the payoff in terms of reduced debugging time and
-increased readability will be well worth it.
+[Eliminated. It's not that there's anything actively wrong with
+Google's section, it's just that there's not a lot of concrete info
+people can use, and shorter documentation is better, all things being
+equal]
 
-Note that this guide is not a C++ tutorial: we assume that the reader is
-familiar with the language.
 
 ### Goals of the Style Guide [GOOGLE VERSION, NO DUNE EQUIVALENT]
 
@@ -155,12 +165,11 @@ don't hesitate to ask your project leads to get additional input.
 
 </details>
 
-### Goals of the Style Guide [DUNE VERSION]
 
-[Eliminated. It's not that there's anything actively wrong with
-Google's section, it's just that there's not a lot of concrete info
-people can use, and shorter documentation is better, all things being
-equal]
+## C++ Version [DUNE VERSION]
+
+Currently, code should target C++17, i.e., should not use C++2x
+features.
 
 ## C++ Version [GOOGLE VERSION]
 
@@ -178,10 +187,21 @@ Consider portability to other environments before using features from
 C++14 and C++17 in your project.
 </details>
 
-## C++ Version [DUNE VERSION]
 
-Currently, code should target C++17, i.e., should not use C++2x
-features.
+
+## Header Files [DUNE VERSION OF THE INTRO]
+
+Header files should have an `.hh` extension. They fall into one of two
+categories: public header files (those meant to be included by code
+using a library) and private header files (those only included by
+library implementation files). Public header files shall be placed in
+the `include/package_name` directory (where `package_name` is a
+stand-in for the name of the package). Private headers are kept with
+source files under the `src/` directory.
+
+In general, every `.cc` file should have an associated `.hh` file. There
+are some common exceptions, such as unittests and small `.cc` files
+containing just a `main()` function.
 
 ## Header Files [GOOGLE VERSION OF THE INTRO]
 
@@ -200,19 +220,30 @@ The following rules will guide you through the various pitfalls of using
 header files.
 </details>
 
-## Header Files [DUNE VERSION OF THE INTRO]
 
-Header files should have an `.hh` extension. They fall into one of two
-categories: public header files (those meant to be included by code
-using a library) and private header files (those only included by
-library implementation files). Public header files shall be placed in
-the `include/package_name` directory (where `package_name` is a
-stand-in for the name of the package). Private headers are kept with
-source files under the `src/` directory.
 
-In general, every `.cc` file should have an associated `.hh` file. There
-are some common exceptions, such as unittests and small `.cc` files
-containing just a `main()` function.
+### Self-contained Headers [DUNE VERSION]
+
+Header files should be self-contained (compile on their own) and end in
+`.hh`. Non-header files that are meant for inclusion should end in `.inc`
+and be used very rarely. 
+
+Users and refactoring tools
+should not have to adhere to special conditions to include the header.
+Specifically, a header should have [header guards](#The__define_Guard)
+and include all other headers it needs.
+
+Prefer placing the definitions for template and inline functions in the
+same file as their declarations. The definitions of these constructs
+must be included into every `.cc` file that uses them, or the program
+may fail to link in some build configurations. If declarations and
+definitions are in different files, including the former should
+transitively include the latter. 
+
+As an exception, a template that is explicitly instantiated for all
+relevant sets of template arguments, or that is a private implementation
+detail of a class, is allowed to be defined in the one and only `.cc`
+file that instantiates the template.
 
 ### Self-contained Headers [GOOGLE VERSION]
 
@@ -251,29 +282,19 @@ prerequisites. Name such files with the `.inc` extension. Use sparingly,
 and prefer self-contained headers when possible.
 </details>
 
-### Self-contained Headers [DUNE VERSION]
 
-Header files should be self-contained (compile on their own) and end in
-`.hh`. Non-header files that are meant for inclusion should end in `.inc`
-and be used very rarely. 
+<a name="The__define_Guard"></a>
+### The \#define Guard [DUNE VERSION]
 
-Users and refactoring tools
-should not have to adhere to special conditions to include the header.
-Specifically, a header should have [header guards](#The__define_Guard)
-and include all other headers it needs.
-
-Prefer placing the definitions for template and inline functions in the
-same file as their declarations. The definitions of these constructs
-must be included into every `.cc` file that uses them, or the program
-may fail to link in some build configurations. If declarations and
-definitions are in different files, including the former should
-transitively include the latter. 
-
-As an exception, a template that is explicitly instantiated for all
-relevant sets of template arguments, or that is a private implementation
-detail of a class, is allowed to be defined in the one and only `.cc`
-file that instantiates the template.
-
+All header files should have `#define` guards to prevent multiple
+inclusion. The format of the symbol name should be
+`<PROJECT>_<PATH>_<FILE>_HH_`. The symbol should appear three times, like so:
+```
+#ifndef APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
+#define APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
+... 
+#endif // APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
+```
 
 ### The \#define Guard [GOOGLE VERSION]
 
@@ -299,19 +320,12 @@ project `foo` should have the following guard:
 ```
 </details>
 
-<a name="The__define_Guard"></a>
-### The \#define Guard [DUNE VERSION]
 
-All header files should have `#define` guards to prevent multiple
-inclusion. The format of the symbol name should be
-`<PROJECT>_<PATH>_<FILE>_HH_`. The symbol should appear three times, like so:
-```
-#ifndef APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
-#define APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
-... 
-#endif // APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
-```
 
+<a name="Forward_Declarations"></a>
+
+### Forward Declarations [DUNE VERSION]
+[We're not going to forbid forward declarations, since while there are costs as described in the google style manual, the benefits of faster compilation outweigh these costs]
 
 ### Forward Declarations  [GOOGLE VERSION]
 
@@ -383,10 +397,17 @@ Please see [Names and Order of Includes](#Names_and_Order_of_Includes)
 for rules about when to \#include a header.
 </details>
 
-<a name="Forward_Declarations"></a>
 
-### Forward Declarations [DUNE VERSION]
-[We're not going to forbid forward declarations, since while there are costs as described in the google style manual, the benefits of faster compilation outweigh these costs]
+
+<a name="Inline_Functions"></a>
+
+### Inline Functions [DUNE VERSION]
+
+Define functions inline only when they are small, say, 10 lines or
+fewer. Feel free to inline getters and setters, and other short,
+performance-critical functions. Don't inline functions with loops or
+switch statements (unless, in the common case, the loop or switch
+statement is never executed).
 
 ### Inline Functions [GOOGLE VERSION]
 
@@ -428,16 +449,40 @@ its definition in the class, either for convenience or to document its
 behavior, e.g., for accessors and mutators.
 </details>
 
-<a name="Inline_Functions"></a>
 
-### Inline Functions [DUNE VERSION]
 
-Define functions inline only when they are small, say, 10 lines or
-fewer. Feel free to inline getters and setters, and other short,
-performance-critical functions. Don't inline functions with loops or
-switch statements (unless, in the common case, the loop or switch
-statement is never executed).
+<a name="Names_and_Order_of_Includes"></a>
 
+### Names and Order of Includes [DUNE VERSION]
+
+In *any* file which performs an include, if the included header is the
+"related header" - meaning, you're editing foo.cc and the header is
+foo.hh - put it before all the other headers.
+
+Then, in order:
+
+ - private headers
+ - public headers from current package
+ - public headers from other packages in project
+ - public headers from external dependencies
+ - standard library headers
+
+All of a project's header files should be listed as descendants of the
+project's source directory without use of UNIX directory aliases `.`
+(the current directory) or `..` (the parent directory). For example,
+`DUNE-awesome-DAQ-project/src/base/GetAllSupernovaData.hh` should be included as:
+
+```c++
+#include "base/GetAllSupernovaData.hh"
+```
+
+You should include all the headers that define the symbols you rely
+upon, except in the case of forward declarations. Note that the order of header
+declarations described above helps enforce this rule. If you rely on
+symbols from `Bar.hh`, don't count on the fact that you included
+`Foo.hh` which (currently) includes `Bar.hh`: include `Bar.hh` yourself,
+unless `Foo.hh` explicitly demonstrates its intent to provide you the
+symbols of `Bar.hh`.
 
 ### Names and Order of Includes [GOOGLE VERSION]
 
@@ -535,42 +580,99 @@ system-specific code small and localized. Example:
 ```
 </details>
 
-<a name="Names_and_Order_of_Includes"></a>
-
-### Names and Order of Includes [DUNE VERSION]
-
-In *any* file which performs an include, if the included header is the
-"related header" - meaning, you're editing foo.cc and the header is
-foo.hh - put it before all the other headers.
-
-Then, in order:
-
- - private headers
- - public headers from current package
- - public headers from other packages in project
- - public headers from external dependencies
- - standard library headers
-
-All of a project's header files should be listed as descendants of the
-project's source directory without use of UNIX directory aliases `.`
-(the current directory) or `..` (the parent directory). For example,
-`DUNE-awesome-DAQ-project/src/base/GetAllSupernovaData.hh` should be included as:
-
-```c++
-#include "base/GetAllSupernovaData.hh"
-```
-
-You should include all the headers that define the symbols you rely
-upon, except in the case of forward declarations. Note that the order of header
-declarations described above helps enforce this rule. If you rely on
-symbols from `Bar.hh`, don't count on the fact that you included
-`Foo.hh` which (currently) includes `Bar.hh`: include `Bar.hh` yourself,
-unless `Foo.hh` explicitly demonstrates its intent to provide you the
-symbols of `Bar.hh`.
-
-
 
 ## Scoping
+
+
+### Namespaces [DUNE VERSION]
+
+With few exceptions, place code in a namespace. As of this writing, Mar-17-2020, there aren't yet a standard set of namespaces for DUNE DAQ software, but this may well change. Avoid putting *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
+
+Also in the vein of reducing code clutter, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass`) can be useful for improving readability. For unnamed namespaces, see [Unnamed Namespaces and Static
+Variables](#Unnamed_Namespaces_and_Static_Variables).
+
+When creating nonmember functions which work with a class, keep in mind that these functions are part of the class's interface and therefore should be in the same namespace as the class, though not necessarily the same files. 
+
+Namespaces should be used as follows:
+
+  - Terminate namespaces with comments as shown in the given examples.
+
+  - Namespaces wrap the entire source file after includes,
+    definitions/declarations
+    and forward declarations of classes from other namespaces.
+    
+ ```c++
+     // In the .hh file
+     namespace mynamespace {
+     
+        // All declarations are within the namespace scope.
+        // Notice the indentation of four spaces
+
+        class MyClass {
+           public:
+               ...
+               void Foo();
+        };
+     
+     }  // namespace mynamespace
+ 
+     // In the .cc file
+     namespace mynamespace {
+     
+         // Definition of functions is within scope of the namespace.
+         void MyClass::Foo() {
+             ...
+         }
+     
+     }  // namespace mynamespace
+```
+
+More complex `.cc` files might have additional details, like using-declarations.
+  
+``` c++
+    #include "AHeader.hh"
+    
+    namespace mynamespace {
+    
+        using ::foo::Bar;
+    
+        ...code for mynamespace... 
+    
+    }  // namespace mynamespace
+```
+
+
+  - Do not declare anything in namespace `std`, including forward
+    declarations of standard library classes. Declaring entities in
+    namespace `std` is undefined behavior, i.e., not portable. To
+    declare entities from the standard library, include the appropriate
+    header file.
+   
+
+  - Do not use *Namespace aliases* at namespace scope in header files
+    except in explicitly marked internal-only namespaces, because
+    anything imported into a namespace in a header file becomes part of
+    the public API exported by that file.
+    
+    The following are examples of proper use of a namespace alias:
+
+  ``` c++  
+        // Shorten access to some commonly used names in .cc files.
+        namespace baz = ::foo::bar::baz;
+    
+        // Shorten access to some commonly used names (in a .hh file).
+        namespace librarian {
+            namespace impl {  // Internal, not part of the API.
+            namespace sidetable = ::pipeline_diagnostics::sidetable;
+        }  // namespace impl
+        
+        inline void my_inline_function() {
+            // namespace alias local to a function (or method).
+            namespace baz = ::foo::bar::baz;
+            ...
+        }
+        }  // namespace librarian
+ ```
 
 ### Namespaces [GOOGLE VERSION]
 
@@ -718,96 +820,29 @@ More complex `.cc` files might have additional details, like flags or using-decl
   - Do not use inline namespaces.
 </details>
 
-### Namespaces [DUNE VERSION]
 
-With few exceptions, place code in a namespace. As of this writing, Mar-17-2020, there aren't yet a standard set of namespaces for DUNE DAQ software, but this may well change. Avoid putting *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
+<a name="Unnamed_Namespaces_and_Static_Variables"></a>
 
-Also in the vein of reducing code clutter, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass`) can be useful for improving readability. For unnamed namespaces, see [Unnamed Namespaces and Static
-Variables](#Unnamed_Namespaces_and_Static_Variables).
+### Unnamed Namespaces and Static Variables [DUNE VERSION]
 
-When creating nonmember functions which work with a class, keep in mind that these functions are part of the class's interface and therefore should be in the same namespace as the class, though not necessarily the same files. 
+When definitions in a `.cc` file do not need to be referenced outside
+that file, place them in an unnamed namespace or declare them `static`.
+Do not use either of these constructs in `.hh` files.
 
-Namespaces should be used as follows:
+Format unnamed namespaces like named namespaces. In the terminating
+comment, use a pair of double quotes in place of the (nonexistent) namespace name
 
-  - Terminate namespaces with comments as shown in the given examples.
+Use unnamed namespaces/static variables for when it makes sense to maintain file scope (as opposed to local or global scope) for that variable. An example might be 
 
-  - Namespaces wrap the entire source file after includes,
-    definitions/declarations
-    and forward declarations of classes from other namespaces.
-    
- ```c++
-     // In the .hh file
-     namespace mynamespace {
-     
-        // All declarations are within the namespace scope.
-        // Notice the indentation of four spaces
-
-        class MyClass {
-           public:
-               ...
-               void Foo();
-        };
-     
-     }  // namespace mynamespace
+```c++
+    namespace {
  
-     // In the .cc file
-     namespace mynamespace {
-     
-         // Definition of functions is within scope of the namespace.
-         void MyClass::Foo() {
-             ...
-         }
-     
-     }  // namespace mynamespace
-```
-
-More complex `.cc` files might have additional details, like using-declarations.
-  
-``` c++
-    #include "AHeader.hh"
-    
-    namespace mynamespace {
-    
-        using ::foo::Bar;
-    
-        ...code for mynamespace... 
-    
-    }  // namespace mynamespace
-```
-
-
-  - Do not declare anything in namespace `std`, including forward
-    declarations of standard library classes. Declaring entities in
-    namespace `std` is undefined behavior, i.e., not portable. To
-    declare entities from the standard library, include the appropriate
-    header file.
-   
-
-  - Do not use *Namespace aliases* at namespace scope in header files
-    except in explicitly marked internal-only namespaces, because
-    anything imported into a namespace in a header file becomes part of
-    the public API exported by that file.
-    
-    The following are examples of proper use of a namespace alias:
-
-  ``` c++  
-        // Shorten access to some commonly used names in .cc files.
-        namespace baz = ::foo::bar::baz;
-    
-        // Shorten access to some commonly used names (in a .hh file).
-        namespace librarian {
-            namespace impl {  // Internal, not part of the API.
-            namespace sidetable = ::pipeline_diagnostics::sidetable;
-        }  // namespace impl
-        
-        inline void my_inline_function() {
-            // namespace alias local to a function (or method).
-            namespace baz = ::foo::bar::baz;
+        void utility_function_only_meaningful_to_this_file() {
             ...
-        }
-        }  // namespace librarian
- ```
+        }   
 
+    }  // namespace ""
+```
 
 
 ### Unnamed Namespaces and Static Variables [GOOGLE VERSION]
@@ -841,28 +876,18 @@ comment, leave the namespace name empty:
 ```
 </details>
 
-<a name="Unnamed_Namespaces_and_Static_Variables"></a>
 
-### Unnamed Namespaces and Static Variables [DUNE VERSION]
 
-When definitions in a `.cc` file do not need to be referenced outside
-that file, place them in an unnamed namespace or declare them `static`.
-Do not use either of these constructs in `.hh` files.
+### Nonmember, Static Member, and Global Functions [DUNE VERSION]
 
-Format unnamed namespaces like named namespaces. In the terminating
-comment, use a pair of double quotes in place of the (nonexistent) namespace name
+ - Use completely global functions rarely, and only if there's a compelling reason
 
-Use unnamed namespaces/static variables for when it makes sense to maintain file scope (as opposed to local or global scope) for that variable. An example might be 
+ - If a nonmember function can accomplish what a member function can, prefer a nonmember function. This is because the less code a class's data is exposed to, the less opportunity there is for bugs.
 
-```c++
-    namespace {
- 
-        void utility_function_only_meaningful_to_this_file() {
-            ...
-        }   
+ - Nonmember functions should always be in a namespace, and unless there's a compelling reason to violate this rule, to go in the same namespace as the class it works with
 
-    }  // namespace ""
-```
+ - Static methods of a class should generally be closely related to
+instances of the class or the class's static data.
 
 ### Nonmember, Static Member, and Global Functions [GOOGLE VERSION]
 
@@ -896,16 +921,39 @@ file, use [internal linkage](#Unnamed_Namespaces_and_Static_Variables)
 to limit its scope.
 </details>
 
-### Nonmember, Static Member, and Global Functions [DUNE VERSION]
 
- - Use completely global functions rarely, and only if there's a compelling reason
 
- - If a nonmember function can accomplish what a member function can, prefer a nonmember function. This is because the less code a class's data is exposed to, the less opportunity there is for bugs.
+### Local Variables [DUNE VERSION]
 
- - Nonmember functions should always be in a namespace, and unless there's a compelling reason to violate this rule, to go in the same namespace as the class it works with
+Declare local variables in as local a scope as possible, and as close to the
+first use as possible. Always initialize variables in the declaration.
 
- - Static methods of a class should generally be closely related to
-instances of the class or the class's static data.
+There is one caveat: if the variable is an object, its constructor is
+invoked every time it enters scope and is created, and its destructor is
+invoked every time it goes out of scope.
+
+``` c++
+// Inefficient implementation:
+for (int i = 0; i < 1000000; ++i) {
+    Foo f;  // My ctor and dtor get called 1000000 times each.
+    f.DoSomething(i);
+}
+```
+
+For pointer variables, this would translate to initializing the pointer to nullptr:
+``` c++
+
+// Assume we don't yet know the Foo instance fptr will point to...
+std::unique_ptr<Foo> fptr = nullptr;
+
+if (able_to_read_data) {
+    fptr.reset( new Foo() ); 
+    // fill the Foo instance with the data
+}
+if (fptr != nullptr) {
+    // send data
+}
+```
 
 ### Local Variables [GOOGLE VERSION]
 
@@ -972,38 +1020,15 @@ outside that loop:
 ```
 </details>
 
-### Local Variables [DUNE VERSION]
 
-Declare local variables in as local a scope as possible, and as close to the
-first use as possible. Always initialize variables in the declaration.
 
-There is one caveat: if the variable is an object, its constructor is
-invoked every time it enters scope and is created, and its destructor is
-invoked every time it goes out of scope.
+### Static and Global Variables [DUNE VERSION]
 
-``` c++
-// Inefficient implementation:
-for (int i = 0; i < 1000000; ++i) {
-    Foo f;  // My ctor and dtor get called 1000000 times each.
-    f.DoSomething(i);
-}
-```
-
-For pointer variables, this would translate to initializing the pointer to nullptr:
-``` c++
-
-// Assume we don't yet know the Foo instance fptr will point to...
-std::unique_ptr<Foo> fptr = nullptr;
-
-if (able_to_read_data) {
-    fptr.reset( new Foo() ); 
-    // fill the Foo instance with the data
-}
-if (fptr != nullptr) {
-    // send data
-}
-```
-
+The less complex the constructors and destructors of classes that are
+used as static and global variables anywhere in the code, the
+better. In particular, keep in mind there's no guarantee on the order
+of construction of these variables, and hence code should never rely
+on an assumed order.
 
 ### Static and Global Variables [GOOGLE VERSION]
 
@@ -1285,24 +1310,17 @@ namespace scope must be annotated with
 thread-local data.
 </details>
 
-### Static and Global Variables [DUNE VERSION]
-
-The less complex the constructors and destructors of classes that are
-used as static and global variables anywhere in the code, the
-better. In particular, keep in mind there's no guarantee on the order
-of construction of these variables, and hence code should never rely
-on an assumed order.
 
 ## Classes 
 
-<details><summary>Expand here for Google's intro, removed for DUNE</summary>
 
+### Doing Work in Constructors [DUNE VERSION]
 
+ - Don't call any of a class's virtual functions in its constructor. This will not result in the correct invocation of subclass implementations of those virtual functions.
 
-Classes are the fundamental unit of code in C++. Naturally, we use them
-extensively. This section lists the main dos and don'ts you should
-follow when writing a class.
-</details>
+ - If an error occurs that will prevent the class from being constructed, have it throw an exception. As its destructor won't execute in this scenario, make sure you clean up any resources the constructor allocated before throwing.
+
+ - Initialize a class's member in the constructor's member initialization list rather than assign to it in the constructor's body. An exception to this might be if the member class's default constructor is much faster than its other constructors/assignment operator, but it's not guaranteed that it'll even need to be assigned to. 
 
 ### Doing Work in Constructors [GOOGLE VERSION]
 
@@ -1346,14 +1364,24 @@ may be called (semi-constructed objects of this form are particularly
 hard to work with correctly).
 </details>
 
-### Doing Work in Constructors [DUNE VERSION]
 
- - Don't call any of a class's virtual functions in its constructor. This will not result in the correct invocation of subclass implementations of those virtual functions.
 
- - If an error occurs that will prevent the class from being constructed, have it throw an exception. As its destructor won't execute in this scenario, make sure you clean up any resources the constructor allocated before throwing.
+<a name="Implicit_Conversions"></a>
 
- - Initialize a class's member in the constructor's member initialization list rather than assign to it in the constructor's body. An exception to this might be if the member class's default constructor is much faster than its other constructors/assignment operator, but it's not guaranteed that it'll even need to be assigned to. 
+### Implicit Conversions [DUNE VERSION]
 
+In general, use the `explicit` keyword in the declaration of constructors
+to avoid having them used to perform an implicit conversion in user code. Type conversion
+operators, and constructors that are callable with a single argument,
+should be marked `explicit` in the class definition. As an exception,
+copy and move constructors should not be `explicit`, since they do not
+perform type conversion. Also, implicit conversions can sometimes be
+necessary and appropriate for types that are designed to transparently
+wrap other types; in this case an exception to the rule is allowed.
+
+Constructors that cannot be called with a single argument may omit
+`explicit` since the C++ language does not consider multi-argument
+constructors for implicit conversions. 
 
 ### Implicit Conversions [GOOGLE VERSION]
 
@@ -1440,22 +1468,14 @@ parameter should also omit `explicit`, in order to support
 copy-initialization (e.g. `MyType m = {1, 2};`).
 </details>
 
-<a name="Implicit_Conversions"></a>
 
-### Implicit Conversions [DUNE VERSION]
 
-In general, use the `explicit` keyword in the declaration of constructors
-to avoid having them used to perform an implicit conversion in user code. Type conversion
-operators, and constructors that are callable with a single argument,
-should be marked `explicit` in the class definition. As an exception,
-copy and move constructors should not be `explicit`, since they do not
-perform type conversion. Also, implicit conversions can sometimes be
-necessary and appropriate for types that are designed to transparently
-wrap other types; in this case an exception to the rule is allowed.
+### Copyable and Movable Types [DUNE VERSION]
 
-Constructors that cannot be called with a single argument may omit
-`explicit` since the C++ language does not consider multi-argument
-constructors for implicit conversions. 
+If a class contains member data, each of its copy constructor, copy
+ assignment operator, move constructor and move assignment operators
+ must be either defined or explicitly deleted. "Defined" could be
+ as simple as making explicit the use of the "default" keyword.
 
 ### Copyable and Movable Types [GOOGLE VERSION]
 
@@ -1609,12 +1629,21 @@ virtual `Clone()` method, and a protected copy constructor that derived
 classes can use to implement it.
 </details>
 
-### Copyable and Movable Types [DUNE VERSION]
 
-If a class contains member data, each of its copy constructor, copy
- assignment operator, move constructor and move assignment operators
- must be either defined or explicitly deleted. "Defined" could be
- as simple as making explicit the use of the "default" keyword.
+
+<a name="Structs_vs._Classes"></a>
+
+### Structs vs. Classes [DUNE VERSION]
+
+Always use a `class` rather than `struct` unless you're creating:
+
+ - A passive object only meant to carry data
+ - A small callable with an `operator()` defined
+
+If using a struct to carry data, all fields must be public, and accessed directly rather than
+through getter/setter methods. Any functions must not provide behavior
+but should only be used to set up the data members, e.g., constructor,
+destructor, `Initialize()`, `Reset()`.
 
 ### Structs vs. Classes [GOOGLE VERSION]
 
@@ -1649,20 +1678,17 @@ Note that member variables in structs and classes have [different naming
 rules](#Variable_Names).
 </details>
 
-<a name="Structs_vs._Classes"></a>
 
-### Structs vs. Classes [DUNE VERSION]
 
-Always use a `class` rather than `struct` unless you're creating:
+### Structs vs. Pairs and Tuples [DUNE VERSION]
 
- - A passive object only meant to carry data
- - A small callable with an `operator()` defined
+Prefer to use a `struct` instead of a pair or a tuple whenever the
+elements can have meaningful names.
 
-If using a struct to carry data, all fields must be public, and accessed directly rather than
-through getter/setter methods. Any functions must not provide behavior
-but should only be used to set up the data members, e.g., constructor,
-destructor, `Initialize()`, `Reset()`.
-
+Exception: Pairs and tuples may be appropriate in generic code where
+there are not specific meanings for the elements of the pair or
+tuple. Their use may also be required in order to interoperate with
+existing code or APIs.
 
 ### Structs vs. Pairs and Tuples [GOOGLE VERSION]
 
@@ -1686,18 +1712,21 @@ specific meanings for the elements of the pair or tuple. Their use may
 also be required in order to interoperate with existing code or APIs.
 </details>
 
-### Structs vs. Pairs and Tuples [DUNE VERSION]
-
-Prefer to use a `struct` instead of a pair or a tuple whenever the
-elements can have meaningful names.
-
-Exception: Pairs and tuples may be appropriate in generic code where
-there are not specific meanings for the elements of the pair or
-tuple. Their use may also be required in order to interoperate with
-existing code or APIs.
-
 
 <span id="Multiple_Inheritance"></span>
+
+### Inheritance [DUNE VERSION]
+
+When class B inherits from class A, it should almost always be public
+inheritance ("inheritance of interface"). Protected and private
+inheritance is known as "inheritance of implementation" and results in
+less encapsulation than, say, having class B contain a member of class
+A and use its functionality ("composition"). Multiple inheritance of implementation is *especially* bad. 
+
+Explicitly annotate overrides of virtual functions or virtual
+destructors with exactly one of an `override` or `final` specifier. Do
+not use the keyword `virtual` in this case as this is already denoted
+by one of those two specifiers.
 
 ### Inheritance [GOOGLE VERSION]
 
@@ -1762,18 +1791,17 @@ Multiple inheritance is permitted, but multiple *implementation*
 inheritance is strongly discouraged.
 </details>
 
-### Inheritance [DUNE VERSION]
 
-When class B inherits from class A, it should almost always be public
-inheritance ("inheritance of interface"). Protected and private
-inheritance is known as "inheritance of implementation" and results in
-less encapsulation than, say, having class B contain a member of class
-A and use its functionality ("composition"). Multiple inheritance of implementation is *especially* bad. 
 
-Explicitly annotate overrides of virtual functions or virtual
-destructors with exactly one of an `override` or `final` specifier. Do
-not use the keyword `virtual` in this case as this is already denoted
-by one of those two specifiers.
+
+### Operator Overloading [DUNE VERSION]
+
+There's a limited set of circumstances in which it's OK to overload operators:
+
+ - For copying, `operator=`. 
+ - For type conversions, `operator()`. More in [implicit conversions](#Implicit_Conversions).
+ - When defining comparison operators for a user-defined type
+ - Outputting a type's value where it makes sense, by streaming with `operator<<`. Note this should be a nonmember function, not a member function of the type.
 
 ### Operator Overloading [GOOGLE VERSION]
 
@@ -1877,14 +1905,20 @@ also the rules on [function overloading](#Function_Overloading), which
 apply to operator overloading as well.
 </details>
 
-### Operator Overloading [DUNE VERSION]
 
-There's a limited set of circumstances in which it's OK to overload operators:
+<a name="Access_Control"></a>
 
- - For copying, `operator=`. 
- - For type conversions, `operator()`. More in [implicit conversions](#Implicit_Conversions).
- - When defining comparison operators for a user-defined type
- - Outputting a type's value where it makes sense, by streaming with `operator<<`. Note this should be a nonmember function, not a member function of the type.
+### Access Control [DUNE VERSION]
+
+In the interests of encapsulation, keep the access level of a class's
+member functions only as generous as necessary. I.e., prefer private
+functions over protected functions, protected functions over public
+functions. Of course, use common sense: if you're writing an abstract
+base class, your functions will be public!
+
+In a class, never declare data as protected or public. Use accessor
+functions if you must. 
+
 
 ### Access Control [GOOGLE VERSION]
 
@@ -1903,19 +1937,27 @@ Test](https://github.com/google/googletest)).
 
 </details>
 
-<a name="Access_Control"></a>
 
-### Access Control [DUNE VERSION]
 
-In the interests of encapsulation, keep the access level of a class's
-member functions only as generous as necessary. I.e., prefer private
-functions over protected functions, protected functions over public
-functions. Of course, use common sense: if you're writing an abstract
-base class, your functions will be public!
+### Declaration Order [DUNE VERSION]
 
-In a class, never declare data as protected or public. Use accessor
-functions if you must. 
+A class definition should start with a `public:` section,
+followed by `protected:`, then `private:`. Omit sections that would be
+empty.
 
+Within each section, generally prefer grouping similar kinds of
+declarations together, and generally prefer the following order: 
+
+ - types (including alias declarations/`typedef`s, `using`, and nested structs and classes)
+ - constants 
+ - constructors
+ - assignment operators
+ - destructor
+ - all other methods
+ - data members.
+
+Do not put large method definitions inline in the class definition. See [Inline Functions](#Inline_Functions) for
+more details.
 
 ### Declaration Order [GOOGLE VERSION]
 
@@ -1941,34 +1983,22 @@ may be defined inline. See [Inline Functions](#Inline_Functions) for
 more details.
 </details>
 
-### Declaration Order [DUNE VERSION]
-
-A class definition should start with a `public:` section,
-followed by `protected:`, then `private:`. Omit sections that would be
-empty.
-
-Within each section, generally prefer grouping similar kinds of
-declarations together, and generally prefer the following order: 
-
- - types (including alias declarations/`typedef`s, `using`, and nested structs and classes)
- - constants 
- - constructors
- - assignment operators
- - destructor
- - all other methods
- - data members.
-
-Do not put large method definitions inline in the class definition. See [Inline Functions](#Inline_Functions) for
-more details.
-
 
 ## Functions
 
-### General guidelines for writing a function [DUNE VERSION, NO GOOGLE EQUIVALENT]
+### General guidelines for writing a function 
 
  - Have it do one thing, rather than many things (the "Swiss army knife" trap)
  - If it starts getting long (say, beyond 40 lines) think about ways it could be broken up into other functions
  - Prefer names that describe, to an appropriate level of precision, what the function does
+
+### Output Parameters [DUNE VERSION]
+
+If your function creates a single value and you don't anticipate it ever
+needing to return more than a single value, have it return
+it. Otherwise, use pass-by-reference in the argument list. These
+output arguments should appear after the input arguments. Parameters
+which serve both as input *and* output should be placed in-between.
 
 ### Output Parameters [GOOGLE VERSION]
 
@@ -1999,13 +2029,9 @@ output (often classes/structs) muddy the waters, and, as always,
 consistency with related functions may require you to bend the rule.
 </details>
 
-### Output Parameters [DUNE VERSION]
 
-If your function creates a single value and you don't anticipate it ever
-needing to return more than a single value, have it return
-it. Otherwise, use pass-by-reference in the argument list. These
-output arguments should appear after the input arguments. Parameters
-which serve both as input *and* output should be placed in-between.
+### Write Short Functions [DUNE VERSION]
+[Section eliminated, material covered in "general guidelines"]
 
 
 ### Write Short Functions [GOOGLE VERSION]
@@ -2035,8 +2061,9 @@ consider breaking up the function into smaller and more manageable
 pieces.
 </details>
 
-### Write Short Functions [DUNE VERSIONS]
-[Section eliminated, material covered in "general guidelines"]
+
+### Reference Arguments [DUNE VERSION]
+[Section eliminated, unless someone thinks any of the rules Google has should apply to DUNE]
 
 ### Reference Arguments [GOOGLE VERSION]
 
@@ -2083,8 +2110,17 @@ otherwise it will likely confuse readers by making them look for an
 explanation that doesn't exist.
 </details>
 
-### Reference Arguments [DUNE VERSION]
-[Section eliminated, unless someone thinks any of the rules Google has should apply to DUNE]
+
+
+<a name="Function_Overloading"></a>
+
+### Function Overloading [DUNE VERSION]
+
+If a function is overloaded by the argument types alone, make sure its
+behavior is very similar across the types, especially if the types are
+themselves similar (e.g., std::string vs. const char*)
+
+If the behavior is noticeably different, prefer different function names.
 
 ### Function Overloading [GOOGLE VERSION]
 
@@ -2130,15 +2166,14 @@ set with a single comment in the header, that is a good sign that it is
 a well-designed overload set.
 </details>
 
-<a name="Function_Overloading"></a>
 
-### Function Overloading [DUNE VERSION]
+### Default Arguments [DUNE VERSION]
 
-If a function is overloaded by the argument types alone, make sure its
-behavior is very similar across the types, especially if the types are
-themselves similar (e.g., std::string vs. const char*)
+Default arguments are allowed on non-virtual functions when the
+default is guaranteed to always have the same value. Always define the
+value of the argument in the header, as it's part of the function's
+interface.
 
-If the behavior is noticeably different, prefer different function names.
 
 ### Default Arguments [GOOGLE VERSION]
 
@@ -2185,12 +2220,14 @@ their function declarations enough to overcome the downsides above, so
 they are allowed. When in doubt, use overloads.
 </details>
 
-### Default Arguments [DUNE VERSION]
 
-Default arguments are allowed on non-virtual functions when the
-default is guaranteed to always have the same value. Always define the
-value of the argument in the header, as it's part of the function's
-interface.
+### Trailing Return Type Syntax [DUNE VERSION]
+
+The only time it's OK to use a trailing return type (when the return type is listed after the function name and the argument list in the declaration; C++11) is when specifying
+the return type of a lambda expression. In some
+cases the compiler is able to deduce a lambda's return type, but not
+in all cases.
+
 
 ### Trailing Return Type Syntax [GOOGLE VERSION]
 
@@ -2262,12 +2299,19 @@ template code, which is [discouraged in most
 cases](#Template_metaprogramming).
 </details>
 
-### Trailing Return Type Syntax [DUNE VERSION]
 
-The only time it's OK to use a trailing return type (when the return type is listed after the function name and the argument list in the declaration; C++11) is when specifying
-the return type of a lambda expression. In some
-cases the compiler is able to deduce a lambda's return type, but not
-in all cases.
+
+### Ownership and Smart Pointers [DUNE VERSION]
+
+ - You should find yourself using `std::unique_ptr` more often than `std::shared_ptr`
+
+ - Use of raw pointers should be very rare. One of the few times it's OK is when you want to point to an object where you don't want to change anything about its ownership. Even there, a std::weak_ptr is preferable. 
+
+ - A corollary is that you should (almost) never use delete on a raw
+pointer because we expect that the use of raw pointers in DUNE DAQ
+will be limited to low-overhead access to pre-existing memory
+buffers, in which the user does not have ownership of the memory
+that is pointed to.
 
 ### Ownership and Smart Pointers [GOOGLE VERSION]
 
@@ -2358,20 +2402,23 @@ you do use shared ownership, prefer to use `std::shared_ptr`.
 Never use `std::auto_ptr`. Instead, use `std::unique_ptr`.
 </details>
 
-### Ownership and Smart Pointers [DUNE VERSION]
-
- - You should find yourself using `std::unique_ptr` more often than `std::shared_ptr`
-
- - Use of raw pointers should be very rare. One of the few times it's OK is when you want to point to an object where you don't want to change anything about its ownership. Even there, a std::weak_ptr is preferable. 
-
- - A corollary is that you should (almost) never use delete on a raw
-pointer because we expect that the use of raw pointers in DUNE DAQ
-will be limited to low-overhead access to pre-existing memory
-buffers, in which the user does not have ownership of the memory
-that is pointed to.
-
 
 ## Other C++ Features
+
+
+### Rvalue References [DUNE VERSION]
+
+Use rvalue references to:
+
+  - Define move constructors and move assignment operators. You should
+    always have these defined when you've created a new type and
+    there's the possibility that its copy operations may be
+    significantly slower.
+
+  - Support perfect forwarding in generic code
+
+  - Define pairs of overloads, one taking `Foo&&` and the other taking
+`const Foo&`, when this might improve performance
 
 ### Rvalue References [GOOGLE VERSION]
 
@@ -2444,19 +2491,20 @@ You may use forwarding references in conjunction with `  std::forward `,
 to support perfect forwarding.
 </details>
 
-### Rvalue References [DUNE VERSION]
 
-Use rvalue references to:
+### Friends [DUNE VERSION]
 
-  - Define move constructors and move assignment operators. You should
-    always have these defined when you've created a new type and
-    there's the possibility that its copy operations may be
-    significantly slower.
+Use friend classes when alternatives result in less
+encapsulation. An example of this would be if there's only one
+nonmember function which you could imagine would ever need a given
+member of a class - in this case, while you could make that given
+member public, it would result in less encapsulation than use of a
+friend function.
 
-  - Support perfect forwarding in generic code
+An appropriate use of a friend function is if you're overloading the streaming operator, `operator<<`, and want to print a type's private data.
 
-  - Define pairs of overloads, one taking `Foo&&` and the other taking
-`const Foo&`, when this might improve performance
+Define your friend function in the same file as the class it's a friend of. 
+
 
 ### Friends [GOOGLE VERSION]
 
@@ -2480,18 +2528,38 @@ to give only one other class access to it. However, most classes should
 interact with other classes solely through their public members.
 </details>
 
-### Friends [DUNE VERSION]
 
-Use friend classes when alternatives result in less
-encapsulation. An example of this would be if there's only one
-nonmember function which you could imagine would ever need a given
-member of a class - in this case, while you could make that given
-member public, it would result in less encapsulation than use of a
-friend function.
+### Exceptions [DUNE VERSION]
 
-An appropriate use of a friend function is if you're overloading the streaming operator, `operator<<`, and want to print a type's private data.
+Throw an exception if your code's encountered a problem it can't
+recover from on its own. Don't throw if you can implement a local
+recovery, and definitely don't throw exceptions as form of flow
+control when there's not an unexpected problem. 
+ 
+Before you throw an exception, try to clean up as much as possible -
+release resources, etc. RAII is your friend here. 
 
-Define your friend function in the same file as the class it's a friend of. 
+Like the parameters a function takes and a function's return value,
+the types of exception a function throws are part of the interface it
+presents to the caller. For this reason, think carefully when adding
+an exception throw to a function other callers are already using. Will
+they be able to handle the new exception? If not, can they at least
+release resources correctly?
+
+Never throw exceptions out of a destructor
+
+Only use catch(...) directly inside of main(), and then only to clean up
+resources before terminating the program
+
+Catch by const reference, unless you plan to add info to the exception
+before rethrowing it, in which case you should a non-const reference.
+
+When you catch, print as much info about the exception as would be
+useful to users of the program
+
+[Rules about which types of exception to use? Are there DUNE-specific
+exceptions we should define since Boost/STL doesn't cover our needs,
+or would that be an unnecessary vanity project?]
 
 ### Exceptions [GOOGLE VERSION]
 
@@ -2575,38 +2643,18 @@ There is an [exception](#Windows_Code) to this rule (no pun intended)
 for Windows code.
 </details>
 
-### Exceptions [DUNE VERSION]
 
-Throw an exception if your code's encountered a problem it can't
-recover from on its own. Don't throw if you can implement a local
-recovery, and definitely don't throw exceptions as form of flow
-control when there's not an unexpected problem. 
- 
-Before you throw an exception, try to clean up as much as possible -
-release resources, etc. RAII is your friend here. 
 
-Like the parameters a function takes and a function's return value,
-the types of exception a function throws are part of the interface it
-presents to the caller. For this reason, think carefully when adding
-an exception throw to a function other callers are already using. Will
-they be able to handle the new exception? If not, can they at least
-release resources correctly?
+### `noexcept` [ DUNE VERSION]
 
-Never throw exceptions out of a destructor
+If you've designed a type, strive to make its move and copy functions
+noexcept. This is because compilers can perform optimizations when it
+comes to STL functionality if noexcept is specified. 
 
-Only use catch(...) directly inside of main(), and then only to clean up
-resources before terminating the program
-
-Catch by const reference, unless you plan to add info to the exception
-before rethrowing it, in which case you should a non-const reference.
-
-When you catch, print as much info about the exception as would be
-useful to users of the program
-
-[Rules about which types of exception to use? Are there DUNE-specific
-exceptions we should define since Boost/STL doesn't cover our needs,
-or would that be an unnecessary vanity project?]
-
+Otherwise, use noexcept judiciously. Keep in mind you can't take it
+back later, and that it's very hard to make this guarantee if you're
+writing generic code. For this reason, intelligently choose your
+conditionals inside of noexcept()
 
 
 ### `noexcept` [GOOGLE VERSION]
@@ -2669,16 +2717,12 @@ your component doesn’t support hash functions throwing and make it
 unconditionally `noexcept`.
 </details>
 
-### `noexcept` [ DUNE VERSION]
 
-If you've designed a type, strive to make its move and copy functions
-noexcept. This is because compilers can perform optimizations when it
-comes to STL functionality if noexcept is specified. 
 
-Otherwise, use noexcept judiciously. Keep in mind you can't take it
-back later, and that it's very hard to make this guarantee if you're
-writing generic code. For this reason, intelligently choose your
-conditionals inside of noexcept()
+### Run-Time Type Information (RTTI) [DUNE VERSION]
+
+The only time Run Time Type Information (RTTI) can be used is in code
+meant to test other code.
 
 ### Run-Time Type Information (RTTI) [GOOGLE VERSION]
 
@@ -2763,10 +2807,12 @@ RTTI apply just as much to workarounds like class hierarchies with type
 tags. Moreover, workarounds disguise your true intent.
 </details>
 
-### Run-Time Type Information (RTTI) [DUNE VERSION]
+### Casting [DUNE VERSION]
 
-The only time Run Time Type Information (RTTI) can be used is in code
-meant to test other code.
+Do not use C-style casts (e.g., "(float)3.5" or "float(3.5)")
+
+Use reinterpret_cast only for low level code, and only if you're sure
+there's no safer approach
 
 
 ### Casting [GOOGLE VERSION]
@@ -2818,12 +2864,6 @@ See the [RTTI section](#Run-Time_Type_Information__RTTI_) for guidance
 on the use of `dynamic_cast`.
 </details>
 
-### Casting [DUNE VERSION]
-
-Do not use C-style casts (e.g., "(float)3.5" or "float(3.5)")
-
-Use reinterpret_cast only for low level code, and only if you're sure
-there's no safer approach
 
 ### alias declarations and `typedef`s [DUNE VERSION, NO GOOGLE EQUIVALENT]
 
@@ -2838,6 +2878,10 @@ using MyAllocList = std::list<T, MyAlloc<T>>;
 
 MyAllocList<Foo> foos;
 ```
+
+### Streams [DUNE VERSION]
+[Deleted; folded into the new "printing messages" section]
+
 
 ### Streams [GOOGLE VERSION]
 
@@ -2912,8 +2956,6 @@ use named functions instead (a method named `DebugString()` is the most
 common convention).
 </details>
 
-### Streams [DUNE VERSION]
-[Deleted; folded into the new "printing messages" section]
 
 ### Printing Messages [DUNE VERSION, NO GOOGLE EQUIVALENT]
 
@@ -2935,6 +2977,12 @@ other equally-or-even-more-important messages
 Distinguish between print statements meant for users, and for yourself and other developers. Use TRACE levels above 0-4 for the former, and 5+ for the latter. 
 
 [Re: TRACE levels. Perhaps we should come up with a formal system for what levels for what time of messages? E.g., benchmark messages in trace levels 10-14, intermediate variable value messages in levels 15-19, etc.]
+
+### Increment and Decrement [DUNE VERSION]
+
+Unless in a loop construct, an increment (`++`) or decrement (`--`) of a
+variable should exist on its own line. In particular, it should not be
+used in an if statement.
 
 
 ### Preincrement and Predecrement [GOOGLE VERSION]
@@ -2967,11 +3015,22 @@ form and we allow either. For iterators and other template types, use
 pre-increment.
 </details>
 
-### Increment and Decrement [DUNE VERSION]
 
-Unless in a loop construct, an increment (`++`) or decrement (`--`) of a
-variable should exist on its own line. In particular, it should not be
-used in an if statement.
+
+### Use of const [DUNE VERSION]
+
+Particularly since DUNE processes will involve many threads, intelligent use of "const" is important. 
+
+Use "const" on variables whose values won't change now or in future
+code revisions UNLESS you need to pass it to a (poorly-designed) API
+which doesn't change the variable's value but doesn't declare it const
+in its function signatures
+
+If a class method alters the class instance's physical state but not its logical
+state, declare it const and use "mutable" so the compiler allows the physical changes.
+
+constexpr is even better than const; use it when you can. constexpr is described [below](#Constexpr) .
+
 
 ### Use of const [GOOGLE VERSION]
 
@@ -3041,19 +3100,15 @@ That said, while we encourage putting `const` first, we do not require
 it. But be consistent with the code around you\!
 </details>
 
-### Use of const [DUNE VERSION]
 
-Particularly since DUNE processes will involve many threads, intelligent use of "const" is important. 
+<a name="Constexpr"></a>
 
-Use "const" on variables whose values won't change now or in future
-code revisions UNLESS you need to pass it to a (poorly-designed) API
-which doesn't change the variable's value but doesn't declare it const
-in its function signatures
+### Use of constexpr [DUNE VERSION]
 
-If a class method alters the class instance's physical state but not its logical
-state, declare it const and use "mutable" so the compiler allows the physical changes.
+If a variable or function's return value is fixed at compile time and
+you don't see this ever changing, declare it constexpr.  I say "don't
+see this ever changing" since similar to "const" or "noexcept", changing this later will likely break other people's code.
 
-constexpr is even better than const; use it when you can. constexpr is described [below](#Constexpr) .
 
 ### Use of constexpr [GOOGLE VERSION]
 
@@ -3084,14 +3139,32 @@ complexifying function definitions to enable their use with `constexpr`.
 Do not use `constexpr` to force inlining.
 </details>
 
-<a name="Constexpr"></a>
 
-### Use of constexpr [DUNE VERSION]
 
-If a variable or function's return value is fixed at compile time and
-you don't see this ever changing, declare it constexpr.  I say "don't
-see this ever changing" since similar to "const" or "noexcept", changing this later will likely break other people's code.
+### Integer Types [DUNE VERSION]
 
+Unless you have a good reason not to, use "int". An obvious good
+reason would be that you need 64 bits to represent a value, e.g., a timestamp. Another would be that the variable represents a discrete quantity, in which case size_t would clarify its semantics. 
+
+When you want a specific size in bytes, don't use C integer types
+besides "int": no "short", "long", etc. Use "intN_t", N being the
+number of bits.
+
+You should not use the unsigned integer types such as `uint32_t`, unless
+there is a valid reason such as representing a bit pattern rather than a
+number, or you need defined overflow modulo 2^N. In particular, do not
+use unsigned types to say a number will never be negative. Instead, use
+assertions for this.
+
+If your code is a container that returns a size, be sure to use a type
+that will accommodate any possible usage of your container. When in
+doubt, use a larger type rather than a smaller type.
+
+Use care when converting integer types. Integer conversions and
+promotions can cause undefined behavior, leading to security bugs and
+other problems.
+
+Code should be 64-bit friendly. [does it need to be 32-bit friendly?]
 
 ### Integer Types [GOOGLE VERSION]
 
@@ -3210,30 +3283,23 @@ printing, comparisons, and structure alignment.
 ```
 </details>
 
-### Integer Types [DUNE VERSION]
 
-Unless you have a good reason not to, use "int". An obvious good
-reason would be that you need 64 bits to represent a value, e.g., a timestamp. Another would be that the variable represents a discrete quantity, in which case size_t would clarify its semantics. 
+### Preprocessor Macros [DUNE VERSION]
 
-When you want a specific size in bytes, don't use C integer types
-besides "int": no "short", "long", etc. Use "intN_t", N being the
-number of bits.
+While not explicitly forbidden, macros come with the very heavy price of the code you see not being the code the compiler sees, a problem compounded by their de-facto global scope. Avoid them if at all possible, using inline functions,
+enums, `const` variables, and putting repeated code inside of functions. 
 
-You should not use the unsigned integer types such as `uint32_t`, unless
-there is a valid reason such as representing a bit pattern rather than a
-number, or you need defined overflow modulo 2^N. In particular, do not
-use unsigned types to say a number will never be negative. Instead, use
-assertions for this.
+If you *must* write a macro, this will avoid many of their problems:
 
-If your code is a container that returns a size, be sure to use a type
-that will accommodate any possible usage of your container. When in
-doubt, use a larger type rather than a smaller type.
-
-Use care when converting integer types. Integer conversions and
-promotions can cause undefined behavior, leading to security bugs and
-other problems.
-
-Code should be 64-bit friendly. [does it need to be 32-bit friendly?]
+  - Don't define macros in a header file.
+  - `#define` macros right before you use them, and `#undef` them right
+    after.
+  - Do not just `#undef` an existing macro before replacing it with your
+    own; instead, pick a name that's likely to be unique.
+  - Try not to use macros that expand to unbalanced C++ constructs, or
+    at least document that behavior well.
+  - Have the variable names in your macro be very unlikely to be used elsewhere in unrelated code
+  - Prefer not using `##` to generate function/class/variable names.
 
 
 ### Preprocessor Macros  [GOOGLE VERSION]
@@ -3304,22 +3370,11 @@ globally unique name. To achieve this, it must be named with a prefix
 consisting of your project's namespace name (but upper case).
 </details>
 
-### Preprocessor Macros [DUNE VERSION]
 
-While not explicitly forbidden, macros come with the very heavy price of the code you see not being the code the compiler sees, a problem compounded by their de-facto global scope. Avoid them if at all possible, using inline functions,
-enums, `const` variables, and putting repeated code inside of functions. 
 
-If you *must* write a macro, this will avoid many of their problems:
+### 0 and nullptr/NULL [DUNE VERSION]
 
-  - Don't define macros in a header file.
-  - `#define` macros right before you use them, and `#undef` them right
-    after.
-  - Do not just `#undef` an existing macro before replacing it with your
-    own; instead, pick a name that's likely to be unique.
-  - Try not to use macros that expand to unbalanced C++ constructs, or
-    at least document that behavior well.
-  - Have the variable names in your macro be very unlikely to be used elsewhere in unrelated code
-  - Prefer not using `##` to generate function/class/variable names.
+Use `nullptr` for pointers, and `'\0'` for the null character. Don't use NULL, and definitely don't use the number "0" in this context. 
 
 ### 0 and nullptr/NULL [GOOGLE VERSION]
 
@@ -3342,9 +3397,10 @@ Use `'\0'` for the null character. Using the correct type makes the code
 more readable.
 </details>
 
-### 0 and nullptr/NULL [DUNE VERSION]
+### sizeof [DUNE VERSION]
 
-Use `nullptr` for pointers, and `'\0'` for the null character. Don't use NULL, and definitely don't use the number "0" in this context. 
+Prefer `sizeof(varname)` to `sizeof(type)`, unless you really do mean that you want the size of a particular type, and not a variable which happens to have the type in question. 
+
 
 ### sizeof [GOOGLE VERSION]
 
@@ -3377,9 +3433,21 @@ memset(&data, 0, sizeof(Struct));
 ```
 </details>
  
-### sizeof [DUNE VERSION]
 
-Prefer `sizeof(varname)` to `sizeof(type)`, unless you really do mean that you want the size of a particular type, and not a variable which happens to have the type in question. 
+
+### Type deduction [DUNE VERSION]
+
+The `auto` and `decltype` keywords save a lot of hassle for the
+*writer* of a piece of code, but not necessarily for the
+*reader*. Keep in mind the reader might be you in 18 months. Use your
+best judgement as to when the benefits of these keywords (reduced code
+clutter) outweigh the costs (the reader has trouble figuring out
+the type of a variable).
+
+While a function template can deduce the type of the argument, making
+this explicit will typically make it clearer to both the code's reader
+and to the compiler what it is you're trying to do.
+
 
 ### Type deduction [GOOGLE VERSION]
 
@@ -3517,25 +3585,28 @@ code:
     a constant, as in `INT_MAX`
 </details>
 
-### Type deduction [DUNE VERSION]
-
-The `auto` and `decltype` keywords save a lot of hassle for the
-*writer* of a piece of code, but not necessarily for the
-*reader*. Keep in mind the reader might be you in 18 months. Use your
-best judgement as to when the benefits of these keywords (reduced code
-clutter) outweigh the costs (the reader has trouble figuring out
-the type of a variable).
-
-While a function template can deduce the type of the argument, making
-this explicit will typically make it clearer to both the code's reader
-and to the compiler what it is you're trying to do.
-
 
 ## Comments
 
 
-*JCF, Mar-24-2020: this section needs to be made consistent with DOxygen standards on DUNE. Pengfei has agreed to take a look*
+*JCF, Mar-24-2020: this section needs to be made consistent with Doxygen standards on DUNE. Pengfei has agreed to take a look*
 
+
+
+### Intro [DUNE VERSION]
+
+Comments are absolutely vital to keeping our code readable. But
+remember: while comments are very important, the best code is
+self-documenting. Give sensible names to types and variables, and
+don't make code "clever" unless it creates clear performance
+improvements in bottleneck regions. If it's obvious what a function
+does, don't clutter the code with a comment. E.g., don't do something
+like this:
+
+```
+// "sqrt" calculates the square root of a variable
+double sqrt(double); 
+```
 
 ### Intro [GOOGLE VERSION]
 
@@ -3554,21 +3625,11 @@ next one may be you\!
 
 </details>
 
-### Intro [DUNE VERSION]
 
-Comments are absolutely vital to keeping our code readable. But
-remember: while comments are very important, the best code is
-self-documenting. Give sensible names to types and variables, and
-don't make code "clever" unless it creates clear performance
-improvements in bottleneck regions. If it's obvious what a function
-does, don't clutter the code with a comment. E.g., don't do something
-like this:
 
-```
-// "sqrt" calculates the square root of a variable
-double sqrt(double); 
-```
+### Comment Style [DUNE VERSION]
 
+Use the `//` syntax instead of the old C-style `/* */` syntax
 
 ### Comment Style [GOOGLE VERSION]
 
@@ -3580,24 +3641,6 @@ Use either the `//` or `/* */` syntax, as long as you are consistent.
 You can use either the `//` or the `/* */` syntax; however, `//` is
 *much* more common. Be consistent with how you comment and what style
 you use where.
-</details>
-
-
-### Comment Style [DUNE VERSION]
-
-Use the `//` syntax instead of the old C-style `/* */` syntax
-
-### File Comments [GOOGLE VERSION]
-
-<details><summary>Expand here</summary>
-
-
-Start each file with license boilerplate.
-
-File comments describe the contents of a file. If a file declares,
-implements, or tests exactly one abstraction that is documented by a
-comment at the point of declaration, file comments are not required. All
-other files must have file comments.
 </details>
 
 ### File Comments [DUNE VERSION]
@@ -3619,6 +3662,35 @@ danger is greatest when it comes to the comment at the top of the
 file. Be aware of this when you modify code, and update the comments
 if necessary.
 
+
+
+### File Comments [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+
+Start each file with license boilerplate.
+
+File comments describe the contents of a file. If a file declares,
+implements, or tests exactly one abstraction that is documented by a
+comment at the point of declaration, file comments are not required. All
+other files must have file comments.
+</details>
+
+
+
+<a name="Legal_Notice"></a>
+#### Legal Notice and Author Line [DUNE VERSION]
+
+The following License stanza should be included in your Doxygen @file section:
+
+```
+* This is part of the DUNE DAQ Application Framework, copyright 2020.
+* Licensing/copyright details are in the COPYING file that you should have received with this code.
+```
+
+[JCF, Mar-27-2020: The details of what license would be in the COPYING file are TBD, and should probably involve Giovanna]
+
 #### Legal Notice and Author Line [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
@@ -3633,17 +3705,19 @@ deleting the author line. New files should usually not contain copyright
 notice or author line.
 </details>
 
-<a name="Legal_Notice"></a>
-#### Legal Notice and Author Line [DUNE VERSION]
+#### File Contents [DUNE VERSION]
 
-The following License stanza should be included in your Doxygen @file section:
+[The below is untouched from the google version, modulo making the header end in hh instead of h]
 
-```
-* This is part of the DUNE DAQ Application Framework, copyright 2020.
-* Licensing/copyright details are in the COPYING file that you should have received with this code.
-```
+If a `.hh` declares multiple abstractions, the file-level comment should
+broadly describe the contents of the file, and how the abstractions are
+related. A 1 or 2 sentence file-level comment may be sufficient. The
+detailed documentation about individual abstractions belongs with those
+abstractions, not at the file level.
 
-[JCF, Mar-27-2020: The details of what license would be in the COPYING file are TBD, and should probably involve Giovanna]
+Do not duplicate comments in both the `.hh` and the `.cc`. Duplicated
+comments diverge.
+
 
 #### File Contents [GOOGLE VERSION]
 
@@ -3660,18 +3734,19 @@ Do not duplicate comments in both the `.h` and the `.cc`. Duplicated
 comments diverge.
 </details>
 
-#### File Contents [DUNE VERSION]
 
-[The below is untouched from the google version, modulo making the header end in hh instead of h]
 
-If a `.hh` declares multiple abstractions, the file-level comment should
-broadly describe the contents of the file, and how the abstractions are
-related. A 1 or 2 sentence file-level comment may be sufficient. The
-detailed documentation about individual abstractions belongs with those
-abstractions, not at the file level.
+### Class Comments [DUNE VERSION]
 
-Do not duplicate comments in both the `.hh` and the `.cc`. Duplicated
-comments diverge.
+Every non-obvious class declaration should have an accompanying comment
+that describes what it is for and how it should be used.
+
+The class comment should provide the reader with enough information to
+know how and when to use the class, as well as any additional
+considerations necessary to correctly use the class. Document the
+synchronization assumptions the class makes, if any. If an instance of
+the class can be accessed by multiple threads, take extra care to
+document the rules and invariants surrounding multithreaded use.
 
 
 ### Class Comments [GOOGLE VERSION]
@@ -3711,17 +3786,14 @@ definition; comments about the class operation and implementation should
 accompany the implementation of the class's methods.
 </details>
 
-### Class Comments [DUNE VERSION]
+### Function Comments [DUNE VERSION]
 
-Every non-obvious class declaration should have an accompanying comment
-that describes what it is for and how it should be used.
+[Untouched from google]
 
-The class comment should provide the reader with enough information to
-know how and when to use the class, as well as any additional
-considerations necessary to correctly use the class. Document the
-synchronization assumptions the class makes, if any. If an instance of
-the class can be accessed by multiple threads, take extra care to
-document the rules and invariants surrounding multithreaded use.
+Declaration comments describe use of the function (when it is
+non-obvious); comments at the definition of a function describe
+operation.
+
 
 ### Function Comments [GOOGLE VERSION]
 
@@ -3733,13 +3805,37 @@ non-obvious); comments at the definition of a function describe
 operation.
 </details>
 
-### Function Comments [DUNE VERSION]
 
-[Untouched from google]
+#### Function Declarations [DUNE VERSION]
 
-Declaration comments describe use of the function (when it is
-non-obvious); comments at the definition of a function describe
-operation.
+Function declaration should have comments immediately
+preceding it that describe what the function does and how to use it *unless* the function is simple and obvious. 
+
+Types of things to mention in comments at the function declaration:
+
+  - What the inputs and outputs are, if not obvious
+  - For class member functions: whether the object remembers reference
+    arguments beyond the duration of the method call, and whether it
+    will free them or not.
+  - Any non-obvious preconditions and postconditions. E.g., can a
+    pointer argument be null? 
+  - If there are any performance implications of how a function is used.
+  - If the function is re-entrant. What are its synchronization
+    assumptions?
+
+When documenting function overrides, focus on the specifics of the
+override itself, rather than repeating the comment from the overridden
+function. In many of these cases, the override needs no additional
+documentation and thus no comment is required.
+
+When commenting constructors and destructors, remember that the person
+reading your code knows what constructors and destructors are for, so
+comments that just say something like "destroys this object" are not
+useful. Document what constructors do with their arguments (for example,
+if they take ownership of pointers), and what cleanup the destructor
+does. If this is trivial, just skip the comment. It is quite common for
+destructors not to have a header comment.
+
 
 
 #### Function Declarations [GOOGLE VERSION]
@@ -3807,35 +3903,22 @@ does. If this is trivial, just skip the comment. It is quite common for
 destructors not to have a header comment.
 </details>
 
-#### Function Declarations [DUNE VERSION]
 
-Function declaration should have comments immediately
-preceding it that describe what the function does and how to use it *unless* the function is simple and obvious. 
+#### Function Definitions [DUNE VERSION]
 
-Types of things to mention in comments at the function declaration:
+If there is anything tricky about how a function does its job, the
+function definition should have an explanatory comment. For example, in
+the definition comment you might describe any coding tricks you use,
+give an overview of the steps you go through, or explain why you chose
+to implement the function in the way you did rather than using a viable
+alternative. For instance, you might mention why it must acquire a lock
+for the first half of the function but why it is not needed for the
+second half.
 
-  - What the inputs and outputs are, if not obvious
-  - For class member functions: whether the object remembers reference
-    arguments beyond the duration of the method call, and whether it
-    will free them or not.
-  - Any non-obvious preconditions and postconditions. E.g., can a
-    pointer argument be null? 
-  - If there are any performance implications of how a function is used.
-  - If the function is re-entrant. What are its synchronization
-    assumptions?
-
-When documenting function overrides, focus on the specifics of the
-override itself, rather than repeating the comment from the overridden
-function. In many of these cases, the override needs no additional
-documentation and thus no comment is required.
-
-When commenting constructors and destructors, remember that the person
-reading your code knows what constructors and destructors are for, so
-comments that just say something like "destroys this object" are not
-useful. Document what constructors do with their arguments (for example,
-if they take ownership of pointers), and what cleanup the destructor
-does. If this is trivial, just skip the comment. It is quite common for
-destructors not to have a header comment.
+Note you should *not* just repeat the comments given with the function
+declaration, in the `.hh` file or wherever. It's okay to recapitulate
+briefly what the function does, but the focus of the comments should be
+on how it does it.
 
 
 #### Function Definitions [GOOGLE VERSION]
@@ -3858,21 +3941,29 @@ briefly what the function does, but the focus of the comments should be
 on how it does it.
 </details>
 
-#### Function Definitions [DUNE VERSION]
 
-If there is anything tricky about how a function does its job, the
-function definition should have an explanatory comment. For example, in
-the definition comment you might describe any coding tricks you use,
-give an overview of the steps you go through, or explain why you chose
-to implement the function in the way you did rather than using a viable
-alternative. For instance, you might mention why it must acquire a lock
-for the first half of the function but why it is not needed for the
-second half.
+### Variable Comments [DUNE VERSION]
 
-Note you should *not* just repeat the comments given with the function
-declaration, in the `.hh` file or wherever. It's okay to recapitulate
-briefly what the function does, but the focus of the comments should be
-on how it does it.
+In general the actual name of the variable should be descriptive enough
+to give a good idea of what the variable is used for. 
+
+#### Class Data Members
+
+If there are any invariants (special values, relationships between
+members, lifetime requirements) not clearly expressed by the type and
+name, they must be commented.
+
+In particular, add comments to describe the existence and meaning of
+sentinel values, such as nullptr or -1, when they are not obvious. 
+
+#### Global Variables
+
+Along with the usual rules, a global variable should have a comment as
+to why it needs to be global unless it's completely clear. 
+
+[An idea: should people have to stick some easily-searchable token,
+like DUNE_GLOBAL_VAR, in the comment, so it'll be easy to find global
+variables?]
 
 
 ### Variable Comments [GOOGLE VERSION]
@@ -3915,28 +4006,13 @@ example:
 ```
 </details>
 
-### Variable Comments [DUNE VERSION]
 
-In general the actual name of the variable should be descriptive enough
-to give a good idea of what the variable is used for. 
+### Implementation Comments [DUNE VERSION]
 
-#### Class Data Members
-
-If there are any invariants (special values, relationships between
-members, lifetime requirements) not clearly expressed by the type and
-name, they must be commented.
-
-In particular, add comments to describe the existence and meaning of
-sentinel values, such as nullptr or -1, when they are not obvious. 
-
-#### Global Variables
-
-Along with the usual rules, a global variable should have a comment as
-to why it needs to be global unless it's completely clear. 
-
-[An idea: should people have to stick some easily-searchable token,
-like DUNE_GLOBAL_VAR, in the comment, so it'll be easy to find global
-variables?]
+In your implementation you should have comments in tricky,
+non-obvious, interesting, or important parts of your code. Of course,
+tricky and non-obvious code should be avoided unless absolutely
+necessary.
 
 
 ### Implementation Comments [GOOGLE VERSION]
@@ -4057,12 +4133,24 @@ example above would be obvious:
 ```
 </details>
 
-### Implementation Comments [DUNE VERSION]
+### Punctuation, Spelling, and Grammar [DUNE VERSION]
 
-In your implementation you should have comments in tricky,
-non-obvious, interesting, or important parts of your code. Of course,
-tricky and non-obvious code should be avoided unless absolutely
-necessary.
+Pay attention to punctuation, spelling, and grammar; it is easier to
+read well-written comments than badly written ones. In particular, a
+spelling mistake can make it hard to grep for a comment in the future.
+
+In general, comments should be in English. An exception might be if
+you know the only people working on your code will be the fellow
+speakers of your language, especially if they're not fluent in
+English. Since this is a C++ style guide and not an English style
+guide, it's understandable if English written by a non-native speaker
+is less than perfect; however, don't hesitate to have a native English
+speaker look over your comment if you feel it would help.
+
+Generally, complete sentences are more readable than sentence
+fragments. Shorter comments, such as comments at the end of a line of
+code, can sometimes be less formal.
+
 
 
 ### Punctuation, Spelling, and Grammar [GOOGLE VERSION]
@@ -4086,24 +4174,28 @@ readability. Proper punctuation, spelling, and grammar help with that
 goal.
 </details>
 
-### Punctuation, Spelling, and Grammar [DUNE VERSION]
+### TODO Comments [DUNE VERSION]
 
-Pay attention to punctuation, spelling, and grammar; it is easier to
-read well-written comments than badly written ones. In particular, a
-spelling mistake can make it hard to grep for a comment in the future.
+Use `TODO` comments for code that is temporary, a short-term solution,
+or good-enough but not perfect. If possible provide a time estimate
+(even if just something like "next few weeks") as to when you expect
+something should be done.
 
-In general, comments should be in English. An exception might be if
-you know the only people working on your code will be the fellow
-speakers of your language, especially if they're not fluent in
-English. Since this is a C++ style guide and not an English style
-guide, it's understandable if English written by a non-native speaker
-is less than perfect; however, don't hesitate to have a native English
-speaker look over your comment if you feel it would help.
+`TODO`s should include the string `TODO` in all caps, followed by the
+name, date, e-mail address, bug ID, or other identifier of the person or issue
+with the best context about the problem referenced by the `TODO`. 
 
-Generally, complete sentences are more readable than sentence
-fragments. Shorter comments, such as comments at the end of a line of
-code, can sometimes be less formal.
+```
+// TODO: John Freeman (jcfree@fnal.gov), Apr-14-2020
 
+// In the next month, determine whether we can declare this function
+// noexcept and consequently benefit from compiler optimizations.
+```
+
+Stale `TODO` comments should be reviewed. If they're no longer relevant,
+they should be deleted. If they're still relevant, a message should be
+sent to the person whose e-mail is given in the comment. When in
+doubt, send an e-mail.
 
 
 ### TODO Comments [GOOGLE VERSION]
@@ -4134,28 +4226,13 @@ a very specific event ("Remove this code when all clients can handle XML
 responses.").
 </details>
 
-### TODO Comments [DUNE VERSION]
 
-Use `TODO` comments for code that is temporary, a short-term solution,
-or good-enough but not perfect. If possible provide a time estimate
-(even if just something like "next few weeks") as to when you expect
-something should be done.
 
-`TODO`s should include the string `TODO` in all caps, followed by the
-name, date, e-mail address, bug ID, or other identifier of the person or issue
-with the best context about the problem referenced by the `TODO`. 
+## Formatting [DUNE VERSION]
 
-```
-// TODO: John Freeman (jcfree@fnal.gov), Apr-14-2020
-
-// In the next month, determine whether we can declare this function
-// noexcept and consequently benefit from compiler optimizations.
-```
-
-Stale `TODO` comments should be reviewed. If they're no longer relevant,
-they should be deleted. If they're still relevant, a message should be
-sent to the person whose e-mail is given in the comment. When in
-doubt, send an e-mail.
+ - Indentation should involve four spaces. Tabs should NOT be used.
+ - Send your code through clang-format before committing
+ - Lines should (almost) always be less than 120 characters
 
 
 ## Formatting [GOOGLE VERSION]
@@ -5095,11 +5172,21 @@ Some rules of thumb to help when blank lines may be useful:
     following thing instead of the preceding.
 </details>
 
-## Formatting [DUNE VERSION]
 
- - Indentation should involve four spaces. Tabs should NOT be used.
- - Send your code through clang-format before committing
- - Lines should (almost) always be less than 120 characters
+## Exceptions to the Rules [DUNE VERSION]
+
+For new code, deviations from this guide should be quite rare. However: to the extent
+that we reuse already-existing code in the DUNE DAQ codebase, the
+already-existing code won't adhere to directives in this guide. If the
+code is never going to be touched again, then this won't be a big
+issue. If we plan on altering it in the future, it may be worth at
+least getting it to be *somewhat* more conformant to the rules,
+especially if the changes are relatively non-invasive (e.g., running
+it through clang-format, as opposed to breaking up a long but
+well-tested function). If anything about the style in existing code
+may be confusing to future developers, it may be worth adding comments on
+how the style deviates from the standard. 
+
 
 ## Exceptions to the Rules [GOOGLE VERSION]
 
@@ -5178,21 +5265,8 @@ on Windows:
     only macros, do not need to conform to these style guidelines.
 </details>
 
-## Exceptions to the Rules [DUNE VERSION]
 
-For new code, deviations from this guide should be quite rare. However: to the extent
-that we reuse already-existing code in the DUNE DAQ codebase, the
-already-existing code won't adhere to directives in this guide. If the
-code is never going to be touched again, then this won't be a big
-issue. If we plan on altering it in the future, it may be worth at
-least getting it to be *somewhat* more conformant to the rules,
-especially if the changes are relatively non-invasive (e.g., running
-it through clang-format, as opposed to breaking up a long but
-well-tested function). If anything about the style in existing code
-may be confusing to future developers, it may be worth adding comments on
-how the style deviates from the standard. 
-
-## Parting Words [GOOGLE VERSION]
+## Parting Words [GOOGLE VERSION, NO DUNE EQUIVALENT]
 
 <details><summary>Expand here</summary>
 
@@ -5216,9 +5290,5 @@ it. Try to avoid this.
 OK, enough writing about writing code; the code itself is much more
 interesting. Have fun\!
 </details>
-
-
-## Parting Words [ DUNE VERSION]
-[This section seems unnecessary. "Good night, and good luck"?]. 
 
 -----
