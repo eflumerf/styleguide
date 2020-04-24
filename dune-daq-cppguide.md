@@ -166,7 +166,7 @@ don't hesitate to ask your project leads to get additional input.
 </details>
 
 
-## 1. C++ Version [DUNE VERSION]
+## 1.  C++ Version [DUNE VERSION]
 
 Currently, code should target C++17, i.e., should not use C++2x
 features.
@@ -189,7 +189,7 @@ C++14 and C++17 in your project.
 
 
 
-## 2. Header Files [DUNE VERSION OF THE INTRO]
+## 2.  Header Files [DUNE VERSION OF THE INTRO]
 
 Header files should have an `.hh` extension. They fall into one of two
 categories: public header files (those meant to be included by code
@@ -222,7 +222,7 @@ header files.
 
 
 
-### 2.1 Self-contained Headers [DUNE VERSION]
+### 2.1  Self-contained Headers [DUNE VERSION]
 
 Header files should be self-contained (compile on their own) and end in
 `.hh`. Non-header files that are meant for inclusion should end in `.inc`
@@ -284,7 +284,7 @@ and prefer self-contained headers when possible.
 
 
 <a name="The__define_Guard"></a>
-### 2.2 The \#define Guard [DUNE VERSION]
+### 2.2  The \#define Guard [DUNE VERSION]
 
 All header files should have `#define` guards to prevent multiple
 inclusion. The format of the symbol name should be
@@ -324,7 +324,7 @@ project `foo` should have the following guard:
 
 <a name="Forward_Declarations"></a>
 
-### 2.3 Forward Declarations [DUNE VERSION]
+### 2.3  Forward Declarations [DUNE VERSION]
 [We're not going to forbid forward declarations, since while there are costs as described in the google style manual, the benefits of faster compilation outweigh these costs]
 
 #### Forward Declarations  [GOOGLE VERSION]
@@ -401,7 +401,7 @@ for rules about when to \#include a header.
 
 <a name="Inline_Functions"></a>
 
-### 2.4 Inline Functions [DUNE VERSION]
+### 2.4  Inline Functions [DUNE VERSION]
 
 Define functions inline only when they are small, say, 10 lines or
 fewer. Feel free to inline getters and setters, and other short,
@@ -453,7 +453,7 @@ behavior, e.g., for accessors and mutators.
 
 <a name="Names_and_Order_of_Includes"></a>
 
-### 2.5 Names and Order of Includes [DUNE VERSION]
+### 2.5  Names and Order of Includes [DUNE VERSION]
 
 In *any* file which performs an include, if the included header is the
 "related header" - meaning, you're editing foo.cc and the header is
@@ -581,10 +581,10 @@ system-specific code small and localized. Example:
 </details>
 
 
-## 3. Scoping
+## 3.  Scoping
 
 
-### 3.1 Namespaces [DUNE VERSION]
+### 3.1  Namespaces [DUNE VERSION]
 
 With few exceptions, place code in a namespace. As of this writing, Mar-17-2020, there aren't yet a standard set of namespaces for DUNE DAQ software, but this may well change. Avoid putting *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
 
@@ -823,7 +823,7 @@ More complex `.cc` files might have additional details, like flags or using-decl
 
 <a name="Unnamed_Namespaces_and_Static_Variables"></a>
 
-### 3.2 Unnamed Namespaces and Static Variables [DUNE VERSION]
+### 3.2  Unnamed Namespaces and Static Variables [DUNE VERSION]
 
 When definitions in a `.cc` file do not need to be referenced outside
 that file, place them in an unnamed namespace or declare them `static`.
@@ -878,7 +878,7 @@ comment, leave the namespace name empty:
 
 
 
-### 3.3 Nonmember, Static Member, and Global Functions [DUNE VERSION]
+### 3.3  Nonmember, Static Member, and Global Functions [DUNE VERSION]
 
  - Use completely global functions rarely, and only if there's a compelling reason
 
@@ -923,7 +923,7 @@ to limit its scope.
 
 
 
-### 3.4 Local Variables [DUNE VERSION]
+### 3.4  Local Variables [DUNE VERSION]
 
 Declare local variables in as local a scope as possible, and as close to the
 first use as possible. Always initialize variables in the declaration.
@@ -1022,7 +1022,7 @@ outside that loop:
 
 
 
-### 3.5 Static and Global Variables [DUNE VERSION]
+### 3.5  Static and Global Variables [DUNE VERSION]
 
 The less complex the constructors and destructors of classes that are
 used as static and global variables anywhere in the code, the
@@ -1311,10 +1311,10 @@ thread-local data.
 </details>
 
 
-## 4. Classes 
+## 4.  Classes 
 
 
-### 4.1 Doing Work in Constructors [DUNE VERSION]
+### 4.1  Doing Work in Constructors [DUNE VERSION]
 
  - Don't call any of a class's virtual functions in its constructor. This will not result in the correct invocation of subclass implementations of those virtual functions.
 
@@ -1368,7 +1368,7 @@ hard to work with correctly).
 
 <a name="Implicit_Conversions"></a>
 
-### 4.2 Implicit Conversions [DUNE VERSION]
+### 4.2  Implicit Conversions [DUNE VERSION]
 
 In general, use the `explicit` keyword in the declaration of constructors
 to avoid having them used to perform an implicit conversion in user code. Type conversion
@@ -1470,7 +1470,7 @@ copy-initialization (e.g. `MyType m = {1, 2};`).
 
 
 
-### 4.3 Copyable and Movable Types [DUNE VERSION]
+### 4.3  Copyable and Movable Types [DUNE VERSION]
 
 If a class contains member data, each of its copy constructor, copy
  assignment operator, move constructor and move assignment operators
@@ -1633,7 +1633,7 @@ classes can use to implement it.
 
 <a name="Structs_vs._Classes"></a>
 
-### 4.4 Structs vs. Classes [DUNE VERSION]
+### 4.4  Structs vs. Classes [DUNE VERSION]
 
 Always use a `class` rather than `struct` unless you're creating:
 
@@ -1680,7 +1680,7 @@ rules](#Variable_Names).
 
 
 
-### 4.5 Structs vs. Pairs and Tuples [DUNE VERSION]
+### 4.5  Structs vs. Pairs and Tuples [DUNE VERSION]
 
 Prefer to use a `struct` instead of a pair or a tuple whenever the
 elements can have meaningful names.
@@ -1715,7 +1715,7 @@ also be required in order to interoperate with existing code or APIs.
 
 <span id="Multiple_Inheritance"></span>
 
-### 4.6 Inheritance [DUNE VERSION]
+### 4.6  Inheritance [DUNE VERSION]
 
 When class B inherits from class A, it should almost always be public
 inheritance ("inheritance of interface"). Protected and private
@@ -1794,7 +1794,7 @@ inheritance is strongly discouraged.
 
 
 
-### 4.7 Operator Overloading [DUNE VERSION]
+### 4.7  Operator Overloading [DUNE VERSION]
 
 There's a limited set of circumstances in which it's OK to overload operators:
 
@@ -1908,7 +1908,7 @@ apply to operator overloading as well.
 
 <a name="Access_Control"></a>
 
-### 4.8 Access Control [DUNE VERSION]
+### 4.8  Access Control [DUNE VERSION]
 
 In the interests of encapsulation, keep the access level of a class's
 member functions only as generous as necessary. I.e., prefer private
@@ -1939,7 +1939,7 @@ Test](https://github.com/google/googletest)).
 
 
 
-### 4.9 Declaration Order [DUNE VERSION]
+### 4.9  Declaration Order [DUNE VERSION]
 
 A class definition should start with a `public:` section,
 followed by `protected:`, then `private:`. Omit sections that would be
@@ -1984,15 +1984,15 @@ more details.
 </details>
 
 
-## 5. Functions
+## 5.  Functions
 
-### 5.1 General guidelines for writing a function 
+### 5.1  General guidelines for writing a function 
 
  - Have it do one thing, rather than many things (the "Swiss army knife" trap)
  - If it starts getting long (say, beyond 40 lines) think about ways it could be broken up into other functions
  - Prefer names that describe, to an appropriate level of precision, what the function does
 
-### 5.2 Output Parameters [DUNE VERSION]
+### 5.2  Output Parameters [DUNE VERSION]
 
 If your function creates a single value and you don't anticipate it ever
 needing to return more than a single value, have it return
@@ -2030,7 +2030,7 @@ consistency with related functions may require you to bend the rule.
 </details>
 
 
-### 5.3 Write Short Functions [DUNE VERSION]
+### 5.3  Write Short Functions [DUNE VERSION]
 [Section eliminated, material covered in "general guidelines"]
 
 
@@ -2062,7 +2062,7 @@ pieces.
 </details>
 
 
-### 5.4 Reference Arguments [DUNE VERSION]
+### 5.4  Reference Arguments [DUNE VERSION]
 [Section eliminated, unless someone thinks any of the rules Google has should apply to DUNE]
 
 #### Reference Arguments [GOOGLE VERSION]
@@ -2114,7 +2114,7 @@ explanation that doesn't exist.
 
 <a name="Function_Overloading"></a>
 
-### 5.5 Function Overloading [DUNE VERSION]
+### 5.5  Function Overloading [DUNE VERSION]
 
 If a function is overloaded by the argument types alone, make sure its
 behavior is very similar across the types, especially if the types are
@@ -2167,7 +2167,7 @@ a well-designed overload set.
 </details>
 
 
-### 5.6 Default Arguments [DUNE VERSION]
+### 5.6  Default Arguments [DUNE VERSION]
 
 Default arguments are allowed on non-virtual functions when the
 default is guaranteed to always have the same value. Always define the
@@ -2221,7 +2221,7 @@ they are allowed. When in doubt, use overloads.
 </details>
 
 
-### 5.7 Trailing Return Type Syntax [DUNE VERSION]
+### 5.7  Trailing Return Type Syntax [DUNE VERSION]
 
 The only time it's OK to use a trailing return type (when the return type is listed after the function name and the argument list in the declaration; C++11) is when specifying
 the return type of a lambda expression. In some
@@ -2301,7 +2301,7 @@ cases](#Template_metaprogramming).
 
 
 
-### 5.8 Ownership and Smart Pointers [DUNE VERSION]
+### 5.8  Ownership and Smart Pointers [DUNE VERSION]
 
  - You should find yourself using `std::unique_ptr` more often than `std::shared_ptr`
 
@@ -2403,10 +2403,10 @@ Never use `std::auto_ptr`. Instead, use `std::unique_ptr`.
 </details>
 
 
-## 6. Other C++ Features
+## 6.  Other C++ Features
 
 
-### 6.1 Rvalue References [DUNE VERSION]
+### 6.1  Rvalue References [DUNE VERSION]
 
 Use rvalue references to:
 
@@ -2492,7 +2492,7 @@ to support perfect forwarding.
 </details>
 
 
-### 6.2 Friends [DUNE VERSION]
+### 6.2  Friends [DUNE VERSION]
 
 Use friend classes when alternatives result in less
 encapsulation. An example of this would be if there's only one
@@ -2529,7 +2529,7 @@ interact with other classes solely through their public members.
 </details>
 
 
-### 6.3 Exceptions [DUNE VERSION]
+### 6.3  Exceptions [DUNE VERSION]
 
 Throw an exception if your code's encountered a problem it can't
 recover from on its own. Don't throw if you can implement a local
@@ -2645,7 +2645,7 @@ for Windows code.
 
 
 
-### 6.4 `noexcept` [ DUNE VERSION]
+### 6.4  `noexcept` [ DUNE VERSION]
 
 If you've designed a type, strive to make its move and copy functions
 noexcept. This is because compilers can perform optimizations when it
@@ -2719,7 +2719,7 @@ unconditionally `noexcept`.
 
 
 
-### 6.5 Run-Time Type Information (RTTI) [DUNE VERSION]
+### 6.5  Run-Time Type Information (RTTI) [DUNE VERSION]
 
 The only time Run Time Type Information (RTTI) can be used is in code
 meant to test other code.
@@ -2807,7 +2807,7 @@ RTTI apply just as much to workarounds like class hierarchies with type
 tags. Moreover, workarounds disguise your true intent.
 </details>
 
-### 6.6 Casting [DUNE VERSION]
+### 6.6  Casting [DUNE VERSION]
 
 Do not use C-style casts (e.g., "(float)3.5" or "float(3.5)")
 
@@ -2865,7 +2865,7 @@ on the use of `dynamic_cast`.
 </details>
 
 
-### 6.7 alias declarations and `typedef`s [DUNE VERSION, NO GOOGLE EQUIVALENT]
+### 6.7  alias declarations and `typedef`s [DUNE VERSION, NO GOOGLE EQUIVALENT]
 
 Use alias declarations and `typedef`s to clarify the meaning of a type
 in a given context. Prefer use of alias declarations; in particular,
@@ -2879,7 +2879,7 @@ using MyAllocList = std::list<T, MyAlloc<T>>;
 MyAllocList<Foo> foos;
 ```
 
-### 6.8 Streams [DUNE VERSION]
+### 6.8  Streams [DUNE VERSION]
 [Deleted; folded into the new "printing messages" section]
 
 
@@ -2957,7 +2957,7 @@ common convention).
 </details>
 
 
-### 6.9 Printing Messages [DUNE VERSION, NO GOOGLE EQUIVALENT]
+### 6.9  Printing Messages [DUNE VERSION, NO GOOGLE EQUIVALENT]
 
 *JCF, Mar-25-2020: this section can only be completed once DFWG and CCM hash out how to deal with logging. In particular, "Use TRACE for output" should be taken only as a placeholder until this happens*
 
@@ -2978,7 +2978,7 @@ Distinguish between print statements meant for users, and for yourself and other
 
 [Re: TRACE levels. Perhaps we should come up with a formal system for what levels for what time of messages? E.g., benchmark messages in trace levels 10-14, intermediate variable value messages in levels 15-19, etc.]
 
-### 6.10 Increment and Decrement [DUNE VERSION]
+### 6.10  Increment and Decrement [DUNE VERSION]
 
 Unless in a loop construct, an increment (`++`) or decrement (`--`) of a
 variable should exist on its own line. In particular, it should not be
@@ -3017,7 +3017,7 @@ pre-increment.
 
 
 
-### 6.11 Use of const [DUNE VERSION]
+### 6.11  Use of const [DUNE VERSION]
 
 Particularly since DUNE processes will involve many threads, intelligent use of "const" is important. 
 
@@ -3103,7 +3103,7 @@ it. But be consistent with the code around you\!
 
 <a name="Constexpr"></a>
 
-### 6.12 Use of constexpr [DUNE VERSION]
+### 6.12  Use of constexpr [DUNE VERSION]
 
 If a variable or function's return value is fixed at compile time and
 you don't see this ever changing, declare it constexpr.  I say "don't
@@ -3141,7 +3141,7 @@ Do not use `constexpr` to force inlining.
 
 
 
-### 6.13 Integer Types [DUNE VERSION]
+### 6.13  Integer Types [DUNE VERSION]
 
 Unless you have a good reason not to, use "int". An obvious good
 reason would be that you need 64 bits to represent a value, e.g., a timestamp. Another would be that the variable represents a discrete quantity, in which case size_t would clarify its semantics. 
@@ -3284,7 +3284,7 @@ printing, comparisons, and structure alignment.
 </details>
 
 
-### 6.14 Preprocessor Macros [DUNE VERSION]
+### 6.14  Preprocessor Macros [DUNE VERSION]
 
 While not explicitly forbidden, macros come with the very heavy price of the code you see not being the code the compiler sees, a problem compounded by their de-facto global scope. Avoid them if at all possible, using inline functions,
 enums, `const` variables, and putting repeated code inside of functions. 
@@ -3372,11 +3372,11 @@ consisting of your project's namespace name (but upper case).
 
 
 
-### 6.15 0 and nullptr/NULL [DUNE VERSION]
+### 6.15  0 and nullptr/NULL [DUNE VERSION]
 
 Use `nullptr` for pointers, and `'\0'` for the null character. Don't use NULL, and definitely don't use the number "0" in this context. 
 
-#### 0 and nullptr/NULL [GOOGLE VERSION]
+#### 0  and nullptr/NULL [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
 
@@ -3397,7 +3397,7 @@ Use `'\0'` for the null character. Using the correct type makes the code
 more readable.
 </details>
 
-### 6.16 sizeof [DUNE VERSION]
+### 6.16  sizeof [DUNE VERSION]
 
 Prefer `sizeof(varname)` to `sizeof(type)`, unless you really do mean that you want the size of a particular type, and not a variable which happens to have the type in question. 
 
@@ -3435,7 +3435,7 @@ memset(&data, 0, sizeof(Struct));
  
 
 
-### 6.17 Type deduction [DUNE VERSION]
+### 6.17  Type deduction [DUNE VERSION]
 
 The `auto` and `decltype` keywords save a lot of hassle for the
 *writer* of a piece of code, but not necessarily for the
@@ -3586,14 +3586,14 @@ code:
 </details>
 
 
-## 7. Comments
+## 7.  Comments
 
 
 *JCF, Mar-24-2020: this section needs to be made consistent with Doxygen standards on DUNE. Pengfei has agreed to take a look*
 
 
 
-### 7.1 Intro [DUNE VERSION]
+### 7.1  Intro [DUNE VERSION]
 
 Comments are absolutely vital to keeping our code readable. But
 remember: while comments are very important, the best code is
@@ -3627,7 +3627,7 @@ next one may be you\!
 
 
 
-### 7.2 Comment Style [DUNE VERSION]
+### 7.2  Comment Style [DUNE VERSION]
 
 Use the `//` syntax instead of the old C-style `/* */` syntax
 
@@ -3643,7 +3643,7 @@ You can use either the `//` or the `/* */` syntax; however, `//` is
 you use where.
 </details>
 
-### 7.3 File Comments [DUNE VERSION]
+### 7.3  File Comments [DUNE VERSION]
 
 Always include the brief license info described below under [Legal Notice](#Legal_Notice).
 
@@ -3680,7 +3680,7 @@ other files must have file comments.
 
 
 <a name="Legal_Notice"></a>
-#### 7.3.1 Legal Notice and Author Line [DUNE VERSION]
+#### 7.3.1  Legal Notice and Author Line [DUNE VERSION]
 
 The following License stanza should be included in your Doxygen @file section:
 
@@ -3705,7 +3705,7 @@ deleting the author line. New files should usually not contain copyright
 notice or author line.
 </details>
 
-#### 7.3.2 File Contents [DUNE VERSION]
+#### 7.3.2  File Contents [DUNE VERSION]
 
 [The below is untouched from the google version, modulo making the header end in hh instead of h]
 
@@ -3736,7 +3736,7 @@ comments diverge.
 
 
 
-### 7.4 Class Comments [DUNE VERSION]
+### 7.4  Class Comments [DUNE VERSION]
 
 Every non-obvious class declaration should have an accompanying comment
 that describes what it is for and how it should be used.
@@ -3786,7 +3786,7 @@ definition; comments about the class operation and implementation should
 accompany the implementation of the class's methods.
 </details>
 
-### 7.5 Function Comments [DUNE VERSION]
+### 7.5  Function Comments [DUNE VERSION]
 
 
 Declaration comments describe use of the function (when it is
@@ -3805,7 +3805,7 @@ operation.
 </details>
 
 
-#### 7.5.1 Function Declarations [DUNE VERSION]
+#### 7.5.1  Function Declarations [DUNE VERSION]
 
 Function declaration should have comments immediately
 preceding it that describe what the function does and how to use it *unless* the function is simple and obvious. 
@@ -3903,7 +3903,7 @@ destructors not to have a header comment.
 </details>
 
 
-#### 7.5.2 Function Definitions [DUNE VERSION]
+#### 7.5.2  Function Definitions [DUNE VERSION]
 
 If there is anything tricky about how a function does its job, the
 function definition should have an explanatory comment. For example, in
@@ -3941,12 +3941,12 @@ on how it does it.
 </details>
 
 
-### 7.6 Variable Comments [DUNE VERSION]
+### 7.6  Variable Comments [DUNE VERSION]
 
 In general the actual name of the variable should be descriptive enough
 to give a good idea of what the variable is used for. 
 
-#### 7.6.1 Class Data Members
+#### 7.6.1  Class Data Members
 
 If there are any invariants (special values, relationships between
 members, lifetime requirements) not clearly expressed by the type and
@@ -3955,7 +3955,7 @@ name, they must be commented.
 In particular, add comments to describe the existence and meaning of
 sentinel values, such as nullptr or -1, when they are not obvious. 
 
-#### 7.6.2 Global Variables
+#### 7.6.2  Global Variables
 
 Along with the usual rules, a global variable should have a comment as
 to why it needs to be global unless it's completely clear. 
@@ -4006,7 +4006,7 @@ example:
 </details>
 
 
-### 7.7 Implementation Comments [DUNE VERSION]
+### 7.7  Implementation Comments [DUNE VERSION]
 
 In your implementation you should have comments in tricky,
 non-obvious, interesting, or important parts of your code. Of course,
@@ -4132,7 +4132,7 @@ example above would be obvious:
 ```
 </details>
 
-### 7.8 Punctuation, Spelling, and Grammar [DUNE VERSION]
+### 7.8  Punctuation, Spelling, and Grammar [DUNE VERSION]
 
 Pay attention to punctuation, spelling, and grammar; it is easier to
 read well-written comments than badly written ones. In particular, a
@@ -4173,7 +4173,7 @@ readability. Proper punctuation, spelling, and grammar help with that
 goal.
 </details>
 
-### 7.9 TODO Comments [DUNE VERSION]
+### 7.9  TODO Comments [DUNE VERSION]
 
 Use `TODO` comments for code that is temporary, a short-term solution,
 or good-enough but not perfect. If possible provide a time estimate
@@ -4227,7 +4227,7 @@ responses.").
 
 
 
-## 8. Formatting [DUNE VERSION]
+## 8.  Formatting [DUNE VERSION]
 
  - Indentation should involve four spaces. Tabs should NOT be used.
  - Send your code through clang-format before committing
@@ -5172,7 +5172,7 @@ Some rules of thumb to help when blank lines may be useful:
 </details>
 
 
-## 9. Exceptions to the Rules [DUNE VERSION]
+## 9.  Exceptions to the Rules [DUNE VERSION]
 
 For new code, deviations from this guide should be quite rare. However: to the extent
 that we reuse already-existing code in the DUNE DAQ codebase, the
