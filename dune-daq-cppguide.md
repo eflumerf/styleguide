@@ -226,19 +226,31 @@ header files.
 
 Header files should be self-contained (compile on their own) and end in
 `.hh`. Non-header files that are meant for inclusion should end in `.inc`
-and be used very rarely. 
-
+and be used very rarely, with an exception which will be mentioned in a moment. 
 Users and refactoring tools
 should not have to adhere to special conditions to include the header.
 Specifically, a header should have [header guards](#The__define_Guard)
 and include all other headers it needs.
 
-Prefer placing the definitions for template and inline functions in the
-same file as their declarations. The definitions of these constructs
-must be included into every `.cc` file that uses them, or the program
-may fail to link in some build configurations. If declarations and
-definitions are in different files, including the former should
-transitively include the latter. 
+Prefer placing the definitions for inline and template functions in the
+same file as their declarations. If the definitions are lengthy, you can accomplish this de-facto by putting them in a file with an `.icc` extension in a subdirectory of the include directory called "detail" and including it after the declaration. E.g., if in Foo.hh, we could have:
+```
+template <typename T>
+class Foo {
+  public:
+    void PrintValue(const T& val) const;      
+};
+
+// Foo.icc has the definition of PrintValue
+#include "detail/Foo.icc"
+
+```
+
+The definitions of inline and template functions must be included into
+every `.cc` file that uses them, or the program may fail to link in
+some build configurations. If declarations and definitions are in
+different files, including the former should transitively include the
+latter, as in the `.icc` example. 
 
 As an exception, a template that is explicitly instantiated for all
 relevant sets of template arguments, or that is a private implementation
@@ -1370,18 +1382,18 @@ hard to work with correctly).
 
 ### 4.2  Implicit Conversions [DUNE VERSION]
 
-In general, use the `explicit` keyword in the declaration of constructors
-to avoid having them used to perform an implicit conversion in user code. Type conversion
-operators, and constructors that are callable with a single argument,
-should be marked `explicit` in the class definition. As an exception,
-copy and move constructors should not be `explicit`, since they do not
-perform type conversion. Also, implicit conversions can sometimes be
-necessary and appropriate for types that are designed to transparently
-wrap other types; in this case an exception to the rule is allowed.
+Type conversion operators, and constructors that are callable with a
+single argument, should be marked `explicit` in the class definition
+to avoid having them used to perform an implicit conversion in user
+code. As an exception, copy and move constructors should not be
+`explicit`, since they do not perform type conversion. Also, implicit
+conversions can sometimes be necessary and appropriate for types that
+are designed to transparently wrap other types; in this case an
+exception to the rule is allowed.
 
 Constructors that cannot be called with a single argument may omit
-`explicit` since the C++ language does not consider multi-argument
-constructors for implicit conversions. 
+`explicit` since the C++ language does not consider multi-argument or
+argument-free constructors for implicit conversions.
 
 #### Implicit Conversions [GOOGLE VERSION]
 
@@ -3629,7 +3641,13 @@ next one may be you\!
 
 ### 7.2  Comment Style [DUNE VERSION]
 
-Use the `//` syntax instead of the old C-style `/* */` syntax
+Use the `//` syntax instead of the old C-style `/* */` syntax. An exception is if you're developing a function which doesn't (yet) use its arguments but you want to avoid an unused parameter warning, e.g.:
+
+```
+void Foo(int /* Big plans for this integer */) {
+     // I just haven't implemented the plans yet
+}
+```
 
 #### Comment Style [GOOGLE VERSION]
 
