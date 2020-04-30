@@ -3,6 +3,8 @@ BEGIN {
     in_system_header_complaint = 0
     found_system_header_complaint = 0
 
+    in_no_destructor_complaint = 0
+
     possibly_needed_error_complaint=""
     num_errors = 0
 }
@@ -17,6 +19,17 @@ BEGIN {
     if (in_system_header_complaint == 1) {
 	if ($0 ~ /^\s*\^\s*$/) {
 	    in_system_header_complaint = 0
+	}
+	next
+    }
+
+    if ($0 ~ /defines a copy constructor, a copy assignment operator, a move constructor and a move assignment operator but does not define a destructor/) {
+	in_no_destructor_complaint = 1
+    }
+
+    if (in_no_destructor_complaint == 1) {
+	if ($0 ~ /^\s*\^\s*$/) {
+	    in_no_destructor_complaint = 0
 	}
 	next
     }
