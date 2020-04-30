@@ -5800,8 +5800,9 @@ def CheckForCStyleComments(filename, lines, error):
   for i_l in range(len(lines)):
     if Search(r'^/\*[^\*]', lines[i_l]) or Search(r'\s+/\*[^\*]', lines[i_l]) or \
        Search(r'^/\*$', lines[i_l]) or Search(r'\s+/\*$', lines[i_l]):
-      error(filename, i_l, 'readability/comment', 3,
-            'C-style comment syntax detected; please use either C++ style "//" or Doxygen style')
+      if not Search(r'\(.*/\*.*\*/.*\)', lines[i_l]):
+        error(filename, i_l, 'readability/comment', 3,
+              'C-style comment syntax detected; please use either C++ style "//" or Doxygen style')
 
 def ProcessLine(filename, file_extension, clean_lines, line,
                 include_state, function_state, nesting_state, error,
