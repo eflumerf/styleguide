@@ -536,10 +536,9 @@ _ALT_TOKEN_REPLACEMENT_PATTERN = re.compile(
 
 _LIKELY_MY_HEADER = 1
 _OTHER_HEADER = 2
-_CPP_SYS_HEADER = 3
-_C_SYS_HEADER = 4
+_SYS_HEADER = 3
 
-_POSSIBLE_MY_HEADER = 5
+_POSSIBLE_MY_HEADER = 4
 
 # These constants define the current inline assembly state
 _NO_ASM = 0       # Outside of inline assembly block
@@ -729,13 +728,11 @@ class _IncludeState(object):
   _INITIAL_SECTION = 0
   _MY_H_SECTION = 1
   _OTHER_H_SECTION = 2
-  _CPP_SECTION = 3
-  _C_SECTION = 4
+  _SYS_SECTION = 3
 
 
   _TYPE_NAMES = {
-      _C_SYS_HEADER: 'C system header',
-      _CPP_SYS_HEADER: 'C++ system header',
+      _SYS_HEADER: 'system header',
       _LIKELY_MY_HEADER: 'header this file implements',
       _POSSIBLE_MY_HEADER: 'header this file may implement',
       _OTHER_HEADER: 'other header',
@@ -743,8 +740,7 @@ class _IncludeState(object):
   _SECTION_NAMES = {
       _INITIAL_SECTION: "... nothing. (This can't be an error.)",
       _MY_H_SECTION: 'a header this file implements',
-      _C_SECTION: 'C system header',
-      _CPP_SECTION: 'C++ system header',
+      _SYS_SECTION: 'system header',
       _OTHER_H_SECTION: 'other header',
       }
 
@@ -845,15 +841,9 @@ class _IncludeState(object):
 
     last_section = self._section
 
-    if header_type == _C_SYS_HEADER:
-      if self._section <= self._C_SECTION:
-        self._section = self._C_SECTION
-      else:
-        self._last_header = ''
-        return error_message
-    elif header_type == _CPP_SYS_HEADER:
-      if self._section <= self._CPP_SECTION:
-        self._section = self._CPP_SECTION
+    if header_type == _SYS_HEADER:
+      if self._section <= self._SYS_SECTION:
+        self._section = self._SYS_SECTION
       else:
         self._last_header = ''
         return error_message
@@ -4545,9 +4535,9 @@ def _ClassifyInclude(fileinfo, include, is_system):
 
   For example:
     >>> _ClassifyInclude(FileInfo('foo/foo.cc'), 'stdio.h', True)
-    _C_SYS_HEADER
+    _SYS_HEADER
     >>> _ClassifyInclude(FileInfo('foo/foo.cc'), 'string', True)
-    _CPP_SYS_HEADER
+    _SYS_HEADER
     >>> _ClassifyInclude(FileInfo('foo/foo.cc'), 'foo/foo.h', False)
     _LIKELY_MY_HEADER
     >>> _ClassifyInclude(FileInfo('foo/foo_unknown_extension.cc'),
@@ -4561,10 +4551,7 @@ def _ClassifyInclude(fileinfo, include, is_system):
   is_cpp_h = include in _CPP_HEADERS
 
   if is_system:
-    if is_cpp_h:
-      return _CPP_SYS_HEADER
-    else:
-      return _C_SYS_HEADER
+    return _SYS_HEADER
 
   # If the target file and the include we're checking share a
   # basename when we drop common extensions, and the include
@@ -4657,7 +4644,7 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
           _ClassifyInclude(fileinfo, include, is_system))
       if error_message:
         error(filename, linenum, 'build/include_order', 4,
-              '%s. Should be: %s.hh, other non-system headers, C++ system, C system.' %
+              '%s. Should be: %s.hh, other non-system headers, system headers.' %
               (error_message, fileinfo.BaseName()))
       canonical_include = include_state.CanonicalizeAlphabeticalOrder(include)
       if not include_state.IsInAlphabeticalOrder(
