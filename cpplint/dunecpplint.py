@@ -227,6 +227,7 @@ _ERROR_CATEGORIES = [
     'build/include_order',
     'build/include_what_you_use',
     'build/namespaces',
+    'build/null_usage',
     'build/raw_ownership',
     'build/storage_class',
     'build/unsigned',
@@ -2866,6 +2867,10 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
     error(filename, linenum, 'runtime/rtti', 5,
           'Use of Run Time Type Information not allowed unless this code is meant to test other code' )
 
+  if Search(r'[^a-zA-Z]NULL[^a-zA-Z]', line):
+    error(filename, linenum, 'build/null_usage', 5, 
+          'Use of NULL #define found; prefer using the nullptr keyword')
+
   if Search(r'[^\w]delete\s+', line) or Search(r'^delete\s+', line):
     error(filename, linenum, 'build/raw_ownership', 5,
           'The delete operator appears to be used; owning memory should be done with a smart pointer rather than a raw pointer' )
@@ -5238,7 +5243,7 @@ def CheckCasts(filename, clean_lines, linenum, error):
 
   if "reinterpret_cast" in line:
     error(filename, linenum, 'runtime/castint', 4,
-          ('Use of reinterpret_cast is dangerous. If there\'s no way to avoid its use '
+          ('Use of reinterpret_cast can be dangerous. If there\'s no way to avoid its use '
            'add \" // NOLINT\" to the end of this line so this script will ignore it next time'))
 
   # In addition, we look for people taking the address of a cast.  This
