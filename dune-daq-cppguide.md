@@ -1962,10 +1962,13 @@ declarations together, and generally prefer the following order:
 
  - types (including alias declarations/`typedef`s, `using`, and nested structs and classes)
  - constants 
- - constructors
- - assignment operators
+ - basic constructors (non-copy, non-move)
+ - normal functions
+ - copy constructor
+ - copy assignment 
+ - move constructor
+ - move assignment
  - destructor
- - all other methods
  - data members.
 
 Do not put large method definitions inline in the class definition. See [Inline Functions](#Inline_Functions) for
