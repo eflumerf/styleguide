@@ -150,17 +150,18 @@ EOF
 fi
 
 files=$( echo $files | tr " " "\n" | sort | tr "\n" " " )
+DIR="$(dirname "$(readlink -f "$0")")"
 
 for file in $files ; do
 
     echo
     echo "Applying dunecpplint.sh"
     $( dirname $0 )/dunecpplint.sh $file
-
+    $DIR/dunecpplint.sh $file
     if [[ "$file" =~ .*cc$ ]]; then
 	echo
 	echo "Applying duneclang-tidy.sh"
-	$( dirname $0 )/duneclang-tidy.sh $compile_commands_dir $file
+	$DIR/duneclang-tidy.sh $compile_commands_dir $file
     fi
 
 done
