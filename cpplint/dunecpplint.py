@@ -5805,7 +5805,7 @@ def CheckForCStyleComments(filename, lines, error):
   for i_l in range(len(lines)):
     if Search(r'^/\*[^\*]', lines[i_l]) or Search(r'\s+/\*[^\*]', lines[i_l]) or \
        Search(r'^/\*$', lines[i_l]) or Search(r'\s+/\*$', lines[i_l]):
-      if not Search(r'\(.*/\*.*\*/.*\)', lines[i_l]):
+      if not Search(r'.*/\*.*\*/\s*[\),]', lines[i_l]):
         error(filename, i_l, 'readability/comment', 3,
               'C-style comment syntax detected; please use either C++ style "//" or Doxygen style')
 
