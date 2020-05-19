@@ -156,7 +156,6 @@ for file in $files ; do
 
     echo
     echo "Applying dunecpplint.sh"
-    $( dirname $0 )/dunecpplint.sh $file
     $DIR/dunecpplint.sh $file
     if [[ "$file" =~ .*cc$ ]]; then
 	echo
