@@ -4250,7 +4250,7 @@ responses.").
 
 ## 8.  Formatting [DUNE VERSION]
 
- - Indentation should involve four spaces. Tabs should NOT be used.
+ - Indentation should involve two spaces. Tabs should NOT be used.
  - Send your code through clang-format before committing
  - Lines should (almost) always be less than 120 characters
 
