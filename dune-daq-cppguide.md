@@ -191,17 +191,16 @@ C++14 and C++17 in your project.
 
 ## 2.  Header Files [DUNE VERSION OF THE INTRO]
 
-Header files should have an `.hh` extension. They fall into one of two
+Header files should have an `.hpp` extension. They fall into one of two
 categories: public header files (those meant to be included by code
 using a library) and private header files (those only included by
 library implementation files). Public header files shall be placed in
 the `include/package_name` directory (where `package_name` is a
-stand-in for the name of the package). Private headers are kept with
-source files under the `src/` directory.
+stand-in for the name of the package). Private headers typically are kept with
+source files in the same directory.
 
-In general, every `.cc` file should have an associated `.hh` file. There
-are some common exceptions, such as unittests and small `.cc` files
-containing just a `main()` function.
+In general, every `.cpp` file should have an associated `.hpp` file. There
+are some common exceptions, such as unittests. Files which contain a `main()` function don't need a corresponding `.hpp` file, and end in `.cxx` rather than `.cpp`. 
 
 ### Header Files [GOOGLE VERSION OF THE INTRO]
 
@@ -225,7 +224,7 @@ header files.
 ### 2.1  Self-contained Headers [DUNE VERSION]
 
 Header files should be self-contained (compile on their own) and end in
-`.hh`. Non-header files that are meant for inclusion should end in `.inc`
+`.hpp`. Non-header files that are meant for inclusion should end in `.inc`
 and be used very rarely, with an exception which will be mentioned in a moment. 
 Users and refactoring tools
 should not have to adhere to special conditions to include the header.
@@ -233,7 +232,7 @@ Specifically, a header should have [header guards](#The__define_Guard)
 and include all other headers it needs.
 
 Prefer placing the definitions for inline and template functions in the
-same file as their declarations. If the definitions are lengthy, you can accomplish this de-facto by putting them in a file with an `.icc` extension in a subdirectory of the include directory called "detail" and including it after the declaration. E.g., if in Foo.hh, we could have:
+same file as their declarations. If the definitions are lengthy, you can accomplish this de-facto by putting them in a file with an `.hxx` extension in a subdirectory of the include directory called "detail" and including it after the declaration. E.g., if in Foo.hpp, we could have:
 ```
 template <typename T>
 class Foo {
@@ -241,20 +240,20 @@ class Foo {
     void PrintValue(const T& val) const;      
 };
 
-// Foo.icc has the definition of PrintValue
-#include "detail/Foo.icc"
+// Foo.hxx has the definition of PrintValue
+#include "detail/Foo.hxx"
 
 ```
 
 The definitions of inline and template functions must be included into
-every `.cc` file that uses them, or the program may fail to link in
+every `.cpp` file that uses them, or the program may fail to link in
 some build configurations. If declarations and definitions are in
 different files, including the former should transitively include the
-latter, as in the `.icc` example. 
+latter, as in the `.hxx` example. 
 
 As an exception, a template that is explicitly instantiated for all
 relevant sets of template arguments, or that is a private implementation
-detail of a class, is allowed to be defined in the one and only `.cc`
+detail of a class, is allowed to be defined in the one and only `.cpp`
 file that instantiates the template.
 
 #### Self-contained Headers [GOOGLE VERSION]
@@ -274,7 +273,7 @@ and include all other headers it needs.
 
 Prefer placing the definitions for template and inline functions in the
 same file as their declarations. The definitions of these constructs
-must be included into every `.cc` file that uses them, or the program
+must be included into every `.cpp` or `.cxx` file that uses them, or the program
 may fail to link in some build configurations. If declarations and
 definitions are in different files, including the former should
 transitively include the latter. Do not move these definitions to
@@ -283,8 +282,7 @@ the past, but is no longer allowed.
 
 As an exception, a template that is explicitly instantiated for all
 relevant sets of template arguments, or that is a private implementation
-detail of a class, is allowed to be defined in the one and only `.cc`
-file that instantiates the template.
+detail of a class, is allowed to be defined in the one and only `.cpp` or `.cxx` file that instantiates the template.
 
 There are rare cases where a file designed to be included is not
 self-contained. These are typically intended to be included at unusual
@@ -300,12 +298,12 @@ and prefer self-contained headers when possible.
 
 All header files should have `#define` guards to prevent multiple
 inclusion. The format of the symbol name should be
-`<PROJECT>_<PATH>_<FILE>_HH_`. The symbol should appear three times, like so:
+`<PROJECT>_<PATH>_<FILE>_HPP_`. The symbol should appear three times, like so:
 ```
-#ifndef APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
-#define APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
+#ifndef APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HPP_
+#define APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HPP_
 ... 
-#endif // APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HH_
+#endif // APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HPP_
 ```
 
 #### The \#define Guard [GOOGLE VERSION]
@@ -468,8 +466,8 @@ behavior, e.g., for accessors and mutators.
 ### 2.5  Names and Order of Includes [DUNE VERSION]
 
 In *any* file which performs an include, if the included header is the
-"related header" - meaning, you're editing foo.cc and the header is
-foo.hh - put it before all the other headers.
+"related header" - meaning, you're editing foo.cpp and the header is
+foo.hpp - put it before all the other headers.
 
 Then, in order:
 
@@ -482,19 +480,19 @@ Then, in order:
 All of a project's header files should be listed as descendants of the
 project's source directory without use of UNIX directory aliases `.`
 (the current directory) or `..` (the parent directory). For example,
-`DUNE-awesome-DAQ-project/src/base/GetAllSupernovaData.hh` should be included as:
+`DUNE-awesome-DAQ-project/src/base/GetAllSupernovaData.hpp` should be included as:
 
 ```c++
-#include "base/GetAllSupernovaData.hh"
+#include "base/GetAllSupernovaData.hpp"
 ```
 
 You should include all the headers that define the symbols you rely
 upon, except in the case of forward declarations. Note that the order of header
 declarations described above helps enforce this rule. If you rely on
-symbols from `Bar.hh`, don't count on the fact that you included
-`Foo.hh` which (currently) includes `Bar.hh`: include `Bar.hh` yourself,
-unless `Foo.hh` explicitly demonstrates its intent to provide you the
-symbols of `Bar.hh`.
+symbols from `Bar.hpp`, don't count on the fact that you included
+`Foo.hpp` which (currently) includes `Bar.hpp`: include `Bar.hpp` yourself,
+unless `Foo.hpp` explicitly demonstrates its intent to provide you the
+symbols of `Bar.hpp`.
 
 #### Names and Order of Includes [GOOGLE VERSION]
 
@@ -614,7 +612,7 @@ Namespaces should be used as follows:
     and forward declarations of classes from other namespaces.
     
  ```c++
-     // In the .hh file
+     // In the .hpp file
      namespace mynamespace {
      
         // All declarations are within the namespace scope.
@@ -628,7 +626,7 @@ Namespaces should be used as follows:
      
      }  // namespace mynamespace
  
-     // In the .cc file
+     // In the .cpp file
      namespace mynamespace {
      
          // Definition of functions is within scope of the namespace.
@@ -639,10 +637,10 @@ Namespaces should be used as follows:
      }  // namespace mynamespace
 ```
 
-More complex `.cc` files might have additional details, like using-declarations.
+More complex `.cpp` files might have additional details, like using-declarations.
   
 ``` c++
-    #include "AHeader.hh"
+    #include "AHeader.hpp"
     
     namespace mynamespace {
     
@@ -672,7 +670,7 @@ More complex `.cc` files might have additional details, like using-declarations.
         // Shorten access to some commonly used names in .cc files.
         namespace baz = ::foo::bar::baz;
     
-        // Shorten access to some commonly used names (in a .hh file).
+        // Shorten access to some commonly used names (in a .hpp file).
         namespace librarian {
             namespace impl {  // Internal, not part of the API.
             namespace sidetable = ::pipeline_diagnostics::sidetable;
@@ -837,9 +835,9 @@ More complex `.cc` files might have additional details, like flags or using-decl
 
 ### 3.2  Unnamed Namespaces and Static Variables [DUNE VERSION]
 
-When definitions in a `.cc` file do not need to be referenced outside
+When definitions in a `.cpp` file do not need to be referenced outside
 that file, place them in an unnamed namespace or declare them `static`.
-Do not use either of these constructs in `.hh` files.
+Do not use either of these constructs in `.hpp` files.
 
 Format unnamed namespaces like named namespaces. In the terminating
 comment, use a pair of double quotes in place of the (nonexistent) namespace name
@@ -3728,15 +3726,15 @@ notice or author line.
 
 #### 7.3.2  File Contents [DUNE VERSION]
 
-[The below is untouched from the google version, modulo making the header end in hh instead of h]
+[The below is untouched from the google version, modulo making the header end in hpp instead of h]
 
-If a `.hh` declares multiple abstractions, the file-level comment should
+If a `.hpp` declares multiple abstractions, the file-level comment should
 broadly describe the contents of the file, and how the abstractions are
 related. A 1 or 2 sentence file-level comment may be sufficient. The
 detailed documentation about individual abstractions belongs with those
 abstractions, not at the file level.
 
-Do not duplicate comments in both the `.hh` and the `.cc`. Duplicated
+Do not duplicate comments in both the `.hpp` and the `.cpp`. Duplicated
 comments diverge.
 
 
@@ -3936,7 +3934,7 @@ for the first half of the function but why it is not needed for the
 second half.
 
 Note you should *not* just repeat the comments given with the function
-declaration, in the `.hh` file or wherever. It's okay to recapitulate
+declaration, in the `.hpp` file or wherever. It's okay to recapitulate
 briefly what the function does, but the focus of the comments should be
 on how it does it.
 
