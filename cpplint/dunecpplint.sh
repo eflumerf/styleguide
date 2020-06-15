@@ -48,22 +48,27 @@ filename=$1
 
 header_filters="-build/c++11,-build/c++14,-readability/check,-readability/constructors,-runtime/indentation_namespace,-runtime/references,-runtime/string,-runtime/vlog,-whitespace,-build/explicit_make_pair"
 source_filters="-build/c++11,-build/c++14,-build/namespaces,-readability/check,-readability/constructors,-runtime/indentation_namespace,-runtime/references,-runtime/string,-runtime/vlog,-whitespace,-build/explicit_make_pair"
+hxx_filters=${source_filters}",-build/include_what_you_use,-legal/copyright"
 
 dev_filters=""
 #dev_filters=",-build/include_order,-build/include_what_you_use,-legal/copyright,-build/header_guard,-build/define_used,-readability/namespace,-runtime/output_format"
 
 header_files=""
 source_files=""
+hxx_files=""
 
 if [[ -d $filename ]]; then
     header_files=$( find $filename -name "*.hpp" )
     source_files=$( find $filename -name "*.cxx" )" "$( find $filename -name "*.cpp" )
+    hxx_files=$( find $filename -name "*.hxx" )
 elif [[ -f $filename ]]; then
 
     if [[ "$filename" =~ ^.*cxx$ || "$filename" =~ ^.*cpp$ ]]; then
 	source_files=$filename
     elif [[ "$filename" =~ ^.*hpp$ ]]; then
 	header_files=$filename
+    elif [[ "$filename" =~ ^.*hxx$ ]]; then
+	hxx_files=$filename
     else
 	echo "Filename provided has unknown extension; exiting..." >&2
 	exit 1
@@ -79,7 +84,7 @@ for header_file in $header_files; do
     echo
     echo "=========================Checking $header_file========================="
     
-    $( dirname $0 )/dunecpplint.py --extensions=hpp,cxx,cpp --headers=hpp --filter=${header_filters}${dev_filters} $header_file 
+    $( dirname $0 )/dunecpplint.py --extensions=hpp,cxx,cpp,hxx --headers=hpp --filter=${header_filters}${dev_filters} $header_file 
 
 done
 
@@ -88,7 +93,16 @@ for source_file in $source_files; do
     echo
     echo "=========================Checking $source_file========================="
     
-    $( dirname $0 )/dunecpplint.py --extensions=hpp,cxx,cpp --headers=hpp --filter=${source_filters}${dev_filters} $source_file 
+    $( dirname $0 )/dunecpplint.py --extensions=hpp,cxx,cpp,hxx --headers=hpp --filter=${source_filters}${dev_filters} $source_file 
+
+done
+
+for hxx_file in $hxx_files; do
+
+    echo
+    echo "=========================Checking $hxx_file========================="
+    
+    $( dirname $0 )/dunecpplint.py --extensions=hpp,cxx,cpp,hxx --headers=hpp --filter=${hxx_filters}${dev_filters} $hxx_file 
 
 done
 
