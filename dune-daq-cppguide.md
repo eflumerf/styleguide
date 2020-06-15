@@ -3037,8 +3037,8 @@ pre-increment.
 Particularly since DUNE processes will involve many threads, intelligent use of `const` is important. 
 
 Use `const` on variables whose values can't be known at compile time but nonetheless aren't to be changed after they're initialized. The exception is if you need to pass this type of variable to a (poorly-designed) API
-which doesn't change the variable's value but doesn't declare it const
-in its function signatures. While it's more common for developers to underuse rather than overuse `const`, a risk of overusing it is that removing `const` from a variable which had been using it but didn't need can break other people's code. If you make the decision to use `const`, realize it should be a permanent one. 
+which doesn't change the variable's value but doesn't declare it `const`
+in its function signatures. While it's more common for developers to underuse rather than overuse `const`, a risk of overusing it is that it's a decision that's hard to reverse. If it turns out that `const` needs to be removed from a variable, realize that his decision will likely break other people's code which may have relied on its `const`-ness. If you make the decision to use `const`, realize it should be a permanent one. 
 
 If a class method alters the class instance's physical state but not its logical
 state, declare it const and use "mutable" so the compiler allows the physical changes.
