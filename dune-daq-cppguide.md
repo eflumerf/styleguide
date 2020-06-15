@@ -615,24 +615,24 @@ Namespaces should be used as follows:
      // In the .hpp file
      namespace mynamespace {
      
-        // All declarations are within the namespace scope.
-        // Notice the indentation of four spaces
+       // All declarations are within the namespace scope.
+       // Notice the indentation of four spaces
 
-        class MyClass {
-           public:
-               ...
-               void Foo();
-        };
+       class MyClass {
+         public:
+           ...
+           void Foo();
+       };
      
      }  // namespace mynamespace
  
      // In the .cpp file
      namespace mynamespace {
      
-         // Definition of functions is within scope of the namespace.
-         void MyClass::Foo() {
-             ...
-         }
+       // Definition of functions is within scope of the namespace.
+       void MyClass::Foo() {
+         ...
+       }
      
      }  // namespace mynamespace
 ```
@@ -644,7 +644,7 @@ More complex `.cpp` files might have additional details, like using-declarations
     
     namespace mynamespace {
     
-        using ::foo::Bar;
+      using ::foo::Bar;
     
         ...code for mynamespace... 
     
@@ -847,9 +847,9 @@ Use unnamed namespaces/static variables for when it makes sense to maintain file
 ```c++
     namespace {
  
-        void utility_function_only_meaningful_to_this_file() {
-            ...
-        }   
+    void utility_function_only_meaningful_to_this_file() {
+      ...
+    }   
 
     }  // namespace ""
 ```
@@ -936,7 +936,7 @@ to limit its scope.
 ### 3.4  Local Variables [DUNE VERSION]
 
 Declare local variables in as local a scope as possible, and as close to the
-first use as possible. Always initialize variables in the declaration.
+first use as possible. Always initialize variables in their declaration. 
 
 There is one caveat: if the variable is an object, its constructor is
 invoked every time it enters scope and is created, and its destructor is
@@ -945,8 +945,8 @@ invoked every time it goes out of scope.
 ``` c++
 // Inefficient implementation:
 for (int i = 0; i < 1000000; ++i) {
-    Foo f;  // My ctor and dtor get called 1000000 times each.
-    f.DoSomething(i);
+  Foo f;  // My ctor and dtor get called 1000000 times each.
+  f.DoSomething(i);
 }
 ```
 
@@ -957,11 +957,11 @@ For pointer variables, this would translate to initializing the pointer to nullp
 std::unique_ptr<Foo> fptr = nullptr;
 
 if (able_to_read_data) {
-    fptr.reset( new Foo() ); 
-    // fill the Foo instance with the data
+  fptr.reset( new Foo() ); 
+  // fill the Foo instance with the data
 }
 if (fptr != nullptr) {
-    // send data
+  // send data
 }
 ```
 
@@ -2507,7 +2507,7 @@ to support perfect forwarding.
 
 ### 6.2  Friends [DUNE VERSION]
 
-Use friend classes when alternatives result in less
+Use friend classes and functions when alternatives result in less
 encapsulation. An example of this would be if there's only one
 nonmember function which you could imagine would ever need a given
 member of a class - in this case, while you could make that given
@@ -2516,7 +2516,7 @@ friend function.
 
 An appropriate use of a friend function is if you're overloading the streaming operator, `operator<<`, and want to print a type's private data.
 
-Define your friend function in the same file as the class it's a friend of. 
+You should typically define your friend function in the same file as the class it's a friend of, and almost always in the same namespace as the class. 
 
 
 #### Friends [GOOGLE VERSION]
@@ -2547,7 +2547,7 @@ interact with other classes solely through their public members.
 Throw an exception if your code's encountered a problem it can't
 recover from on its own. Don't throw if you can implement a local
 recovery, and definitely don't throw exceptions as form of flow
-control when there's not an unexpected problem. 
+control in the absence of any problems. 
  
 Before you throw an exception, try to clean up as much as possible -
 release resources, etc. RAII is your friend here. 
@@ -2561,7 +2561,7 @@ release resources correctly?
 
 Never throw exceptions out of a destructor
 
-Only use catch(...) directly inside of main(), and then only to clean up
+Only use `catch(...)` directly inside of `main()`, and then only to clean up
 resources before terminating the program
 
 Catch by const reference, unless you plan to add info to the exception
@@ -2824,9 +2824,11 @@ tags. Moreover, workarounds disguise your true intent.
 
 Do not use C-style casts (e.g., "(float)3.5" or "float(3.5)")
 
-Use reinterpret_cast only for low level code, and only if you're sure
+Use `reinterpret_cast` only for low level code, and only if you're sure
 there's no safer approach
 
+`const_cast` should almost never be used. Its use is often indicative
+of a deeper problem in the design of the code.
 
 #### Casting [GOOGLE VERSION]
 
@@ -3032,12 +3034,11 @@ pre-increment.
 
 ### 6.11  Use of const [DUNE VERSION]
 
-Particularly since DUNE processes will involve many threads, intelligent use of "const" is important. 
+Particularly since DUNE processes will involve many threads, intelligent use of `const` is important. 
 
-Use "const" on variables whose values won't change now or in future
-code revisions UNLESS you need to pass it to a (poorly-designed) API
+Use `const` on variables whose values can't be known at compile time but nonetheless aren't to be changed after they're initialized. The exception is if you need to pass this type of variable to a (poorly-designed) API
 which doesn't change the variable's value but doesn't declare it const
-in its function signatures
+in its function signatures. While it's more common for developers to underuse rather than overuse `const`, a risk of overusing it is that removing `const` from a variable which had been using it but didn't need can break other people's code. If you make the decision to use `const`, realize it should be a permanent one. 
 
 If a class method alters the class instance's physical state but not its logical
 state, declare it const and use "mutable" so the compiler allows the physical changes.
@@ -3645,8 +3646,8 @@ next one may be you\!
 Use the `//` syntax instead of the old C-style `/* */` syntax. An exception is if you're developing a function which doesn't (yet) use its arguments but you want to avoid an unused parameter warning, e.g.:
 
 ```
-void Foo(int /* Big plans for this integer */) {
-     // I just haven't implemented the plans yet
+void Foo(int /* appropriate name for the integer */) {
+  // Code under development which doesn't (yet) use the integer
 }
 ```
 
@@ -4249,8 +4250,9 @@ responses.").
 ## 8.  Formatting [DUNE VERSION]
 
  - Indentation should involve two spaces. Tabs should NOT be used.
- - Send your code through clang-format before committing
  - Lines should (almost) always be less than 120 characters
+ - Send your code through clang-format before committing, using the clang format file found in the configs/ subdirectory of daq-buildtools. Among other things, this file will enforce the indentation and line-length rules just described. 
+
 
 
 ### Formatting [GOOGLE VERSION]
