@@ -11,7 +11,7 @@ https://github.com/DUNE-DAQ/styleguide/blob/dune-daq-cppguide/dune-daq-cppguide.
 Given a file, it will apply a linter (dunecpplint.py) to that file
 
 Given a directory, it will apply dunecpplint.py to all the source
-(*.cc) and header (*.hh) files in that directory as well as all of its
+(*.cxx, *.cpp) and header (*.hpp) files in that directory as well as all of its
 subdirectories.
 
 EOF
@@ -56,13 +56,13 @@ header_files=""
 source_files=""
 
 if [[ -d $filename ]]; then
-    header_files=$( find $filename -name "*.hh" )
-    source_files=$( find $filename -name "*.cc" ) 
+    header_files=$( find $filename -name "*.hpp" )
+    source_files=$( find $filename -name "*.cxx" )" "$( find $filename -name "*.cpp" )
 elif [[ -f $filename ]]; then
 
-    if [[ "$filename" =~ ^.*cc$ ]]; then
+    if [[ "$filename" =~ ^.*cxx$ || "$filename" =~ ^.*cpp$ ]]; then
 	source_files=$filename
-    elif [[ "$filename" =~ ^.*hh$ ]]; then
+    elif [[ "$filename" =~ ^.*hpp$ ]]; then
 	header_files=$filename
     else
 	echo "Filename provided has unknown extension; exiting..." >&2
@@ -79,7 +79,7 @@ for header_file in $header_files; do
     echo
     echo "=========================Checking $header_file========================="
     
-    $( dirname $0 )/dunecpplint.py --extensions=hh,cc --headers=hh --filter=${header_filters}${dev_filters} $header_file 
+    $( dirname $0 )/dunecpplint.py --extensions=hpp,cxx,cpp --headers=hpp --filter=${header_filters}${dev_filters} $header_file 
 
 done
 
@@ -88,7 +88,7 @@ for source_file in $source_files; do
     echo
     echo "=========================Checking $source_file========================="
     
-    $( dirname $0 )/dunecpplint.py --extensions=hh,cc --headers=hh --filter=${source_filters}${dev_filters} $source_file 
+    $( dirname $0 )/dunecpplint.py --extensions=hpp,cxx,cpp --headers=hpp --filter=${source_filters}${dev_filters} $source_file 
 
 done
 

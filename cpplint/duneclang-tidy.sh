@@ -10,7 +10,7 @@ cat<<EOF >&2
 Given a file, it will apply a linter (clang-tidy) to that file
 
 Given a directory, it will apply clang-tidy to all the
-source (*.cc) and header (*.hh) files in that directory as well as all
+source (*.cxx, *.cpp) and header (*.hpp) files in that directory as well as all
 of its subdirectories.
 
 
@@ -69,12 +69,12 @@ filename=$2
 source_files=""
 
 if [[ -d $filename ]]; then
-    source_files=$( find $filename -name "*.cc" ) 
+    source_files=$( find $filename -name "*.cxx" )" "$( find $filename -name "*.cpp" )
 elif [[ -f $filename ]]; then
 
-    if [[ "$filename" =~ ^.*cc$ ]]; then
+    if [[ "$filename" =~ ^.*cxx$ || "$filename" =~ ^.*cpp$ ]]; then
 	source_files=$filename
-    elif [[ "$filename" =~ ^.*hh$ ]]; then
+    elif [[ "$filename" =~ ^.*hpp$ ]]; then
 	echo $(basename $0)" can only accept source files, not header files; exiting..." >&2
 	exit 1
     else

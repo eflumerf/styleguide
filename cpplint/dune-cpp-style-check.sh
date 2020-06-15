@@ -13,7 +13,7 @@ Given a file, it will apply two linters to that file:
 -duneclang-tidy.sh, which wraps clang-tidy (if the file is a sourcefile and not a header)
 
 Given a directory, it will apply these linters to all the source
-(*.cc) and header (*.hh) (if applicable) files in that directory as
+(*.cpp, *.cxx) and header (*.hpp) (if applicable) files in that directory as
 well as all of its subdirectories.
 
 
@@ -72,10 +72,10 @@ filename=$2
 files=""
 
 if [[ -d $filename ]]; then
-    files=$( find $filename -name "*.cc" )" "$( find $filename -name "*.hh" ) 
+    files=$( find $filename -name "*.cxx" )" "$( find $filename -name "*.cpp" )" "$( find $filename -name "*.hpp" ) 
 elif [[ -f $filename ]]; then
 
-    if [[ "$filename" =~ ^.*cc$ || "$filename" =~ ^.*hh$ ]]; then
+    if [[ "$filename" =~ ^.*cxx$ || "$filename" =~ ^.*cpp$ || "$filename" =~ ^.*hpp$ ]]; then
 	files=$filename
     else
 	echo "Filename provided has unknown extension; exiting..." >&2
@@ -157,7 +157,7 @@ for file in $files ; do
     echo
     echo "Applying dunecpplint.sh"
     $DIR/dunecpplint.sh $file
-    if [[ "$file" =~ .*cc$ ]]; then
+    if [[ "$file" =~ .*cxx$ || "$file" =~ .*cpp$ ]]; then
 	echo
 	echo "Applying duneclang-tidy.sh"
 	$DIR/duneclang-tidy.sh $compile_commands_dir $file
