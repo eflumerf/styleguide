@@ -2570,9 +2570,11 @@ before rethrowing it, in which case you should a non-const reference.
 When you catch, print as much info about the exception as would be
 useful to users of the program
 
-[Rules about which types of exception to use? Are there DUNE-specific
-exceptions we should define since Boost/STL doesn't cover our needs,
-or would that be an unnecessary vanity project?]
+Thrown exceptions should be declared ERS Issues. Prefer using already-defined
+Issues over creating new ones. If creating a new ERS Issue, try to make it
+as general as possible while still covering the specific issue encountered.
+For example, prefer `CommandNotRegistered` over `StopCommandNotFound` as the
+former can be used for any non-registered command.
 
 #### Exceptions [GOOGLE VERSION]
 
@@ -2976,20 +2978,23 @@ common convention).
 
 *JCF, Mar-25-2020: this section can only be completed once DFWG and CCM hash out how to deal with logging. In particular, "Use TRACE for output" should be taken only as a placeholder until this happens*
 
-Use TRACE for output. Never use alternatives (this includes printf, cout, etc.)
+Use ERS for output. Never use alternatives (this includes printf, cout, etc.)
+
+See the guidelines in the Exceptions section for declaring new ERS Issues.
 
 Include as much information useful for debugging in warning/error
 messages. E.g., rather than "Data found corrupt", go with "Data found
 corrupt in data packet ID #8294 with timestamp 0x3527378 (55735160
 decimal) in run 34872"
 
+TRACE may be used for internal code tracing. Only levels 4 (TLVL_TRACE) and higher
+should be used for this purpose.
+
 Overload `<<` for streaming only for types representing values, and write only
 the user-visible value, not any implementation details.
 
 Take care that a given print statement not swamp other the output of
 other equally-or-even-more-important messages
-
-Distinguish between print statements meant for users, and for yourself and other developers. Use TRACE levels above 0-4 for the former, and 5+ for the latter. 
 
 [Re: TRACE levels. Perhaps we should come up with a formal system for what levels for what time of messages? E.g., benchmark messages in trace levels 10-14, intermediate variable value messages in levels 15-19, etc.]
 
