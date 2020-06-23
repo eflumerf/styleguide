@@ -3648,13 +3648,18 @@ next one may be you\!
 
 ### 7.2  Comment Style [DUNE VERSION]
 
-Use the `//` syntax instead of the old C-style `/* */` syntax. An exception is if you're developing a function which doesn't (yet) use its arguments but you want to avoid an unused parameter warning, e.g.:
+Use the `//` syntax instead of the old C-style `/* */` syntax. An exception is if you're developing a function which doesn't (yet?) use its arguments but you want to avoid an unused parameter warning, e.g.:
 
 ```
 void Foo(int /* appropriate name for the integer */) {
   // Code under development which doesn't (yet) use the integer
 }
 ```
+
+While the new C++17 attribute `[[maybe_unused]]` could also prevent
+unused parameter warnings, save this for situations where you've
+declared a variable and it really depends on the control flow of the
+code whether or not it ends up being used. 
 
 #### Comment Style [GOOGLE VERSION]
 
