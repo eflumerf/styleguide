@@ -1,5 +1,9 @@
-Google Style Guides
+DUNE DAQ Style Guides
 ===================
+
+Online at https://daq.dunescience.org/
+
+Original README from google below
 
 Every major open-source project has its own style guide: a set of conventions
 (sometimes arbitrary) about how to write code for that project. It is much
