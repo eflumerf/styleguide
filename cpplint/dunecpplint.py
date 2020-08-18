@@ -2390,7 +2390,7 @@ class _NamespaceInfo(_BlockInfo):
               self.name)
     else:
       # Anonymous namespace
-      if not Match(r'^\s*};*\s*(//|/\*).*\bnamespace[\*/\.\\\s]*$', line):
+      if not Match(r'^\s*};*\s*(//|/\*).*\bnamespace\s+' + "\"\"" + r'[\*/\.\\\s]*$', line):
         error(filename, linenum, 'readability/namespace', 5,
               'Anonymous namespace should be terminated with \'// namespace \"\" \'')
 
@@ -2824,7 +2824,7 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
 
   if Search(r'^\s*#define\s+\S+\s+\S+', line):
     error(filename, linenum, 'build/define_used', 3,
-          '#define appears to be used outside of a conditional compilation context. Macros should be avoided.')
+          '#define appears to be used. Macros should generally be avoided if there\'s an alternative to them.')
 
   # For the rest, work with both comments and strings removed.
   line = clean_lines.elided[linenum]
