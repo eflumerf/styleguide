@@ -1,9 +1,11 @@
 DUNE DAQ Style Guides
 ===================
 
-Online at https://daq.dunescience.org/
+To go directly to the official DUNE C++ Style Guide, go here: https://github.com/DUNE-DAQ/styleguide/blob/develop/dune-daq-cppguide.md
 
-Original README from google below
+<br/><br/>
+
+Original README from google, the originator of the repo from which our DUNE repo is forked, is below
 
 Every major open-source project has its own style guide: a set of conventions
 (sometimes arbitrary) about how to write code for that project. It is much
