@@ -65,6 +65,9 @@ try:
 except NameError:
   xrange = range  # Python 3
 
+if not re.search(r"^2.7", sys.version):
+  sys.stderr.write("You're using Python %s.x, but need Python 2.7.x for this script to work. Exiting..." % (sys.version[:3]))
+  sys.exit(1)
 
 _USAGE = """
 Usage: dunecpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
