@@ -92,7 +92,7 @@ retval=$?
 
 if [[ "$retval" != "0" ]]; then
 
-    clang_products_dir=/cvmfs/fermilab.opensciencegrid.org/products/larsoft
+    clang_products_dir=/cvmfs/dune.opensciencegrid.org/dunedaq/DUNE/products
 
     if [[ -d $clang_products_dir ]]; then
 	. $clang_products_dir/setup
