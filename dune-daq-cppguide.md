@@ -2318,13 +2318,15 @@ cases](#Template_metaprogramming).
 
  - You should find yourself using `std::unique_ptr` more often than `std::shared_ptr`
 
- - Use of raw pointers should be very rare. One of the few times it's OK is when you want to point to an object where you don't want to change anything about its ownership. Even there, a std::weak_ptr is preferable. 
+ - Use of raw pointers should be very rare. One of the few times it's OK is when you want to point to an object where you don't want to change anything about its ownership.  
 
  - A corollary is that you should (almost) never use delete on a raw
 pointer because we expect that the use of raw pointers in DUNE DAQ
 will be limited to low-overhead access to pre-existing memory
 buffers, in which the user does not have ownership of the memory
 that is pointed to.
+
+ - When using raw pointers, prefer `void*` to point to generic memory over a pointer to a specific type (such as char); this is because you can use a `static_cast` instead of a `reinterpret_cast` on `void*` to cast it to a pointer to the desired type. 
 
 #### Ownership and Smart Pointers [GOOGLE VERSION]
 
