@@ -2326,7 +2326,7 @@ will be limited to low-overhead access to pre-existing memory
 buffers, in which the user does not have ownership of the memory
 that is pointed to.
 
- - When using raw pointers, prefer `void*` to point to generic memory over a pointer to a specific type (such as char); this is because you can use a `static_cast` instead of a `reinterpret_cast` on `void*` to cast it to a pointer to the desired type. 
+ - When using raw pointers, prefer `void*` to point to generic memory over a pointer to a specific type (such as char); this is because you can use a `static_cast` instead of a `reinterpret_cast` on `void*` to cast it to a pointer to the desired type. Of course, use of generic memory should be rare and only in low-level code where knowledge of the type really is absent. 
 
 #### Ownership and Smart Pointers [GOOGLE VERSION]
 
