@@ -26,18 +26,16 @@ filename=$1
 # at Google developed cpplint.py under Python 2.7, hence
 # dunecpplint.py needs Python 2.7 as well.
 
-pyver=$( python --version |& sed -r 's/.*\s([0-9]+\.[0-9]+)\.[0-9]+/\1/' )
-
-if [[ "$pyver" != "2.7" && -n $PYTHON_DIR ]]; then
-      . /cvmfs/dune.opensciencegrid.org/dunedaq/DUNE/products/setup
-      unsetup python
+if [[ ! -e /usr/bin/python ]]; then
+    echo "Error: system python (/usr/bin/python) is needed for this linter to run" >&2
+    exit 2
 fi
 
-pyver=$( python --version |& sed -r 's/.*\s([0-9]+\.[0-9]+)\.[0-9]+/\1/' )
+pyver=$( /usr/bin/python --version |& sed -r 's/.*\s([0-9]+\.[0-9]+)\.[0-9]+/\1/' )
 if [[ "$pyver" != "2.7" ]]; then
     cat <<EOF >&2
 
-ERROR: you're not using Python 2.7. Google's cpplint.py, and by
+ERROR: system python is not Python 2.7. Google's cpplint.py, and by
 extension DUNE's dunecpplint.py, needs Python 2.7 to work. Exiting...
 
 EOF

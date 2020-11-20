@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 # JCF, Mar-31-2020
 # dunecpplint.py is a modified copy of cpplint.py, designed for the
