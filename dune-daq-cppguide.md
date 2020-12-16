@@ -3313,6 +3313,7 @@ enums, `const` variables, and putting repeated code inside of functions.
 If you *must* write a macro, this will avoid many of their problems:
 
   - Don't define macros in a header file.
+  - USE_ALL_CAPS_IN_YOUR_MACRO_NAME
   - `#define` macros right before you use them, and `#undef` them right
     after.
   - Do not just `#undef` an existing macro before replacing it with your
