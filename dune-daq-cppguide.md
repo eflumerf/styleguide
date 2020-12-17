@@ -1,4 +1,4 @@
-*JCF, Mar-24-2020: for the time being, the original sections of the Google style guide can be expanded for purposes of comparison with their DUNE counterparts. IF YOU MAKE EDITS MAKE SURE IT IS TO A DUNE SECTION AND NOT A GOOGLE SECTION.*
+*JCF, Dec-17-2020: the original sections of the Google style guide can be expanded for purposes of comparison with their DUNE counterparts. IF YOU MAKE EDITS MAKE SURE IT IS TO A DUNE SECTION AND NOT A GOOGLE SECTION.*
 
 # C++ Style Guide (based on Google's C++ Style Guide)
 
@@ -187,7 +187,25 @@ Consider portability to other environments before using features from
 C++14 and C++17 in your project.
 </details>
 
-## 1.5. Naming Conventions [GOOGLE VERSION]
+
+## 1.5. Naming Conventions [DUNE VERSION OF THE INTRO]
+
+The most important consistency rules are those that govern
+naming. The style of a name immediately informs us what sort of
+thing the named entity is: a type, a variable, a function, a
+constant, etc., without requiring us to search for the
+declaration of that entity. The pattern-matching engine in our
+brains relies a great deal on these naming rules.
+
+Naming rules are pretty arbitrary, but
+ we feel that
+consistency is more important than individual preferences in this
+area, so regardless of whether you find them sensible or not,
+the rules are the rules.
+
+### 1.5. Naming Conventions [GOOGLE VERSION OF THE INTRO]
+
+<details><summary>Expand here</summary>
 
 The most important consistency rules are those that govern
 naming. The style of a name immediately informs us what sort of
@@ -202,7 +220,84 @@ consistency is more important than individual preferences in this
 area, so regardless of whether you find them sensible or not,
 the rules are the rules.
 
-### General Naming Rules
+</details>
+
+### General Naming Rules [DUNE VERSION]
+
+Optimize for readability using names that would be clear
+even to people on a different team.
+
+Use names that describe the purpose or intent of the object.
+Do not worry about saving horizontal space as it is far
+more important to make your code immediately
+understandable by a new reader. Minimize the use of
+abbreviations that would likely be unknown to someone outside
+your project (especially acronyms and initialisms). Do not
+abbreviate by deleting letters within a word unless it's obvious what's meant (e.g. "msg") or you define the full meaning of the abbreviation in a comment. Generally speaking, descriptiveness should be
+proportional to the name's scope of visibility. For example,
+`n` may be a fine name within a 5-line function,
+but within the scope of a class, it's likely too vague.
+
+```
+class MyClass {
+ public:
+  int CountFooErrors(const std::vector<Foo>& foos) {
+    int n = 0;  // Clear meaning given limited scope and context
+    for (const auto& foo : foos) {
+      ...
+      ++n;
+    }
+    return n;
+  }
+  void DoSomethingImportant() {
+    std::string daq_meltdown = ...;  // Pretty clear what "daq" means!
+  }
+ private:
+  const int max_allowed_connections_ = ...;  // Clear meaning within context
+};
+```
+
+```
+class MyClass {
+ public:
+  int CountFooErrors(const std::vector<Foo>& foos) {
+    int total_number_of_foo_errors = 0;  // Overly verbose; "n" or even "num_errors" would be simpler
+    for (int foo_index = 0; foo_index < foos.size(); ++foo_index) {  // "i" or even "i_f" would be simpler
+      ...
+      ++total_number_of_foo_errors;
+    }
+    return total_number_of_foo_errors;
+  }
+  void DoSomethingImportant() {
+    int cstmr_id = ...;  // What on earth is a cstmr?? Abbreviation hurts here.
+  }
+ private:
+  const int num_ = ...;  // Unclear meaning within broad scope. Few names for an int could be worse than "num"
+};
+```
+
+Note that certain universally-known abbreviations are OK, such as
+`i` for an iteration variable and `T` for a
+template parameter.
+
+For the purposes of the naming rules below, a "word" is anything that you
+would write in English without internal spaces. This includes abbreviations,
+such as acronyms (e.g. "DAQ", "CERN"). Two naming conventions you need to be aware of for the discussion below are:
+
+* *Pascal case*: Capitals used to distinguish words, with first letter capitalized: ThisIsInCamelCase
+* *Snake case*: Underscores used to distinguish words, with all letters lowercase except optionally for acronyms
+
+In Pascale case, it's preferred that you treat acronyms like other words, e.g., `StartRpc()` rather than
+`StartRPC()`.
+
+Template parameters should follow the naming style for their
+category: type template parameters should follow the rules for
+type names, and non-type template
+parameters should follow the rules for variable names.
+
+#### General Naming Rules [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
 
 Optimize for readability using names that would be clear
 even to people on a different team.
@@ -275,7 +370,15 @@ category: type template parameters should follow the rules for
 type names, and non-type template
 parameters should follow the rules for variable names.
 
-### File Names
+</details>
+
+### File Names [DUNE VERSION]
+
+Files ending in `*.hpp`, `*.cpp` and `*.hxx` should use Pascal case. Files ending in `*.cxx` should use Snake case. The meaning of these extensions is described later in this document. 
+
+#### File Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
 
 Filenames should be all lowercase and can include
 underscores (`_`) or dashes (`-`).
@@ -298,7 +401,16 @@ of files called, e.g., `foo_bar.h` and
 `foo_bar.cc`, defining a class called
 `FooBar`.
 
-### Type Names
+</details>
+
+### Type Names [DUNE VERSION]
+
+The names of all types — classes, structs, type aliases,
+enums, and type template parameters — use Pascal case. 
+
+#### Type Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
 
 Type names start with a capital letter and have a capital
 letter for each new word, with no underscores:
@@ -324,6 +436,8 @@ using PropertiesMap = hash_map<UrlTableProperties *, std::string>;
 // enums
 enum class UrlTableError { ...
 ```
+
+</details>
 
 ### Variable Names
 
@@ -501,6 +615,7 @@ sparse_hash_map // STL-like entity; follows STL naming conventions
 LONGLONG_MAX    // a constant, as in INT_MAX
 
 ```
+
 
 ## 2.  Header Files [DUNE VERSION OF THE INTRO]
 
