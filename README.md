@@ -5,7 +5,7 @@ To go directly to the official DUNE C++ Style Guide, go here: https://github.com
 
 <br/><br/>
 
-Original README from google, the originator of the repo from which our DUNE repo is forked, is below
+_Original README from google, the originator of the repo from which our DUNE repo is forked, is below_
 
 Every major open-source project has its own style guide: a set of conventions
 (sometimes arbitrary) about how to write code for that project. It is much
