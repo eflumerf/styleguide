@@ -513,7 +513,7 @@ see [Storage Duration](http://en.cppreference.com/w/cpp/language/storage_duratio
 convention is optional for variables of other storage classes, e.g., automatic
 variables, otherwise the usual variable naming rules apply.
 
-</detail>
+</details>
 
 ### Function Names [DUNE VERSION]
 
