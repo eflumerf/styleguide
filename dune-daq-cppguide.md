@@ -439,13 +439,24 @@ enum class UrlTableError { ...
 
 </details>
 
-### Variable Names
+### Variable Names [DUNE VERSION]
+
+The names of variables (including function parameters) and data members should use snake case. Data members of classes (but not
+structs) additionally have trailing underscores. For instance: `a_local_variable`, `a_struct_data_member`, `a_class_data_member_`.
+
+If a variable is a static data member in a class, it should be preceded with an `s_`. E.g., `s_total_instance_count`
+
+If a variable is (unfortunately) a global, it should be preceded with a `g_`. E.g., `g_total_warning_messages`
+
+#### Variable Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
 
 The names of variables (including function parameters) and data members are
 all lowercase, with underscores between words. Data members of classes (but not
 structs) additionally have trailing underscores. For instance: `a_local_variable`, `a_struct_data_member`, `a_class_data_member_`.
 
-#### Common Variable names
+##### Common Variable names
 
 For example:
 ```
@@ -456,7 +467,7 @@ std::string table_name;  // OK - lowercase with underscore.
 std::string tableName;   // Bad - mixed case.
 ```
 
-#### Class Data Members
+##### Class Data Members
 
 Data members of classes, both static and non-static, are
 named like ordinary nonmember variables, but with a
@@ -470,7 +481,7 @@ class TableInfo {
 };
 ```
 
-### Struct Data Members
+#### Struct Data Members
 
 Data members of structs, both static and non-static,
 are named like ordinary nonmember variables. They do not have
@@ -485,7 +496,7 @@ struct UrlTableProperties {
 See Structs vs. Classes for a discussion of when to use a struct
 versus a class.
 
-### Constant Names
+#### Constant Names
 
 Variables declared constexpr or const, and whose value is fixed for
 the duration of the program, are named with a leading "k" followed
@@ -502,7 +513,17 @@ see [Storage Duration](http://en.cppreference.com/w/cpp/language/storage_duratio
 convention is optional for variables of other storage classes, e.g., automatic
 variables, otherwise the usual variable naming rules apply.
 
-### Function Names
+</detail>
+
+### Function Names [DUNE VERSION]
+
+Both standalone functions and class member functions should use snake case (as is the situation with, e.g., the STL `<algorithm>` library).
+
+Getters and setters should begin with `get_` or `set_`. E.g., `MessageSender::get_num_messages_sent()`. 
+
+#### Function Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
 
 Regular functions have mixed case; accessors and mutators may be named
 like variables.
@@ -525,7 +546,22 @@ Accessors and mutators (get and set functions) may be named like
 variables. These often correspond to actual member variables, but this is
 not required. For example, `int count()` and `void set_count(int count)`.
 
-### Namespace Names
+</details>
+
+### Namespace Names [DUNE VERSION]
+
+Namespace names are all lower-case, with words separated by underscores.
+Top-level namespace names should have the same name as the DUNE DAQ package (e.g., `appfwk::`)
+. 
+
+Avoid nested namespaces that match well-known top-level
+namespaces. Collisions between namespace names can lead to surprising
+build breaks because of name lookup rules. In particular, do not
+create any nested `std` namespaces. 
+
+#### Namespace Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
 
 Namespace names are all lower-case, with words separated by underscores.
 Top-level namespace names are based on the project name
@@ -559,7 +595,23 @@ internal name is helpful
 (`websearch::index::frobber_internal` for use
 in `frobber.h`)
 
-### Enumerator Names
+</details>
+
+### Enumerator Names [DUNE VERSION]
+
+Enumerators should be in Pascal case, prefaced with a `k`. E.g., 
+
+```
+enum class UrlTableError {
+  kOk = 0,
+  kOutOfMemory,
+  kMalformedInput,
+};
+```
+
+#### Enumerator Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
 
 Enumerators (for both scoped and unscoped enums) should be named like constants, not like
 macros. That is, use `kEnumName` not `ENUM_NAME`.
@@ -586,7 +638,9 @@ macros. Hence, the change to prefer constant-style naming
 was put in place. New code should use constant-style
 naming.
 
-### Macro Names
+</details>
+
+### Macro Names [DUNE VERSION]
 
 You're not really going to
 define a macro, are you? If you do, they're like this:
@@ -602,7 +656,28 @@ named with all capitals and underscores.
 #define PI_ROUNDED 3.0
 ```
 
-### Exceptions to Naming Rules
+#### Macro Names [GOOGLE VERSION]
+
+You're not really going to
+define a macro, are you? If you do, they're like this:
+`MY_MACRO_THAT_SCARES_SMALL_CHILDREN_AND_ADULTS_ALIKE`.
+
+Please see the description
+of macros; in general macros should _not_ be used.
+However, if they are absolutely needed, then they should be
+named with all capitals and underscores.
+
+```
+#define ROUND(x) ...
+#define PI_ROUNDED 3.0
+```
+
+### Exceptions to Naming Rules [DUNE VERSION]
+
+Partially as a consequence of differences between the naming rules of the DUNE DAQ C++ Style Guide and the Google C++ Style Guide, 
+this section is empty. 
+
+#### Exceptions to Naming Rules [GOOGLE VERSION]
 
 If you are naming something that is analogous to an
 existing C or C++ entity then you can follow the existing
@@ -615,7 +690,6 @@ sparse_hash_map // STL-like entity; follows STL naming conventions
 LONGLONG_MAX    // a constant, as in INT_MAX
 
 ```
-
 
 ## 2.  Header Files [DUNE VERSION OF THE INTRO]
 
