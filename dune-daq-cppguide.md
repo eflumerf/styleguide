@@ -408,6 +408,12 @@ of files called, e.g., `foo_bar.h` and
 The names of all types — classes, structs, type aliases,
 enums, and type template parameters — use Pascal case. 
 
+When making a type alias, however, additionally add a `_t` to the end. So, e.g.,
+```
+template<typename T>
+using MyAllocList_t = std::list<T, MyAlloc<T>>;
+```
+
 #### Type Names [GOOGLE VERSION]
 
 <details><summary>Expand here</summary>
@@ -599,7 +605,7 @@ in `frobber.h`)
 
 ### Enumerator Names [DUNE VERSION]
 
-Enumerators should be in Pascal case, prefaced with a `k`. E.g., 
+Enumerators should be in Pascal case, except prefaced with a `k`. E.g., 
 
 ```
 enum class UrlTableError {
@@ -658,6 +664,8 @@ named with all capitals and underscores.
 
 #### Macro Names [GOOGLE VERSION]
 
+<details><summary>Expand here</summary>
+
 You're not really going to
 define a macro, are you? If you do, they're like this:
 `MY_MACRO_THAT_SCARES_SMALL_CHILDREN_AND_ADULTS_ALIKE`.
@@ -671,6 +679,7 @@ named with all capitals and underscores.
 #define ROUND(x) ...
 #define PI_ROUNDED 3.0
 ```
+</details>
 
 ### Exceptions to Naming Rules [DUNE VERSION]
 
@@ -678,6 +687,8 @@ Partially as a consequence of differences between the naming rules of the DUNE D
 this section is empty. 
 
 #### Exceptions to Naming Rules [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
 
 If you are naming something that is analogous to an
 existing C or C++ entity then you can follow the existing
@@ -690,6 +701,8 @@ sparse_hash_map // STL-like entity; follows STL naming conventions
 LONGLONG_MAX    // a constant, as in INT_MAX
 
 ```
+
+</details>
 
 ## 2.  Header Files [DUNE VERSION OF THE INTRO]
 
