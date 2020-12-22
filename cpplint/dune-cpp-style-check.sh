@@ -154,6 +154,10 @@ DIR="$(dirname "$(readlink -f "$0")")"
 
 for file in $files ; do
 
+    if [[ $file =~ .*/Structs.hpp || $file =~ .*/Nljs.hpp ]]; then
+	continue
+    fi
+
     echo
     echo "Applying dunecpplint.sh"
     $DIR/dunecpplint.sh $file
