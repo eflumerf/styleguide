@@ -3221,12 +3221,14 @@ def CheckComment(line, filename, linenum, next_line_start, error):
                 'Too many spaces before TODO')
 
         if not Search(r"[A-Za-z]+\-[0-9]+\-20[0-9][0-9]", line[commentpos:]) and \
-           not Search(r"[0-9]+/[0-9]+/20[0-9][0-9]", line[commentpos:]):
+           not Search(r"[0-9]+[/-][0-9]+[/-]20[0-9][0-9]", line[commentpos:]) and \
+           not Search(r"20[0-9][0-9][/-][0-9]+[/-][0-9]+", line[commentpos:]):
           error(filename, linenum, 'readability/todo', 2,
                 'Missing date in TODO comment; it should appear on same line as the TODO, preferably in a form like "Apr-14-2020"')
 
         
-        if not Search(r"[A-Z]\w+ [A-Z]\w+", line[commentpos:]):
+        if not Search(r"TODO.*[A-Z]\w+ [A-Z]\w+", line[commentpos:]) and \
+           not Search(r"TODO.*\s[A-Z][A-Z][A-Z]\s", line[commentpos:]):
           error(filename, linenum, 'readability/todo', 2,
                 'Missing author name in TODO comment; it should appear on the same line as the TODO, as Firstname Lastname')
 
