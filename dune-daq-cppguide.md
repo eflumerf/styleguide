@@ -284,10 +284,10 @@ For the purposes of the naming rules below, a "word" is anything that you
 would write in English without internal spaces. This includes abbreviations,
 such as acronyms (e.g. "DAQ", "CERN"). Two naming conventions you need to be aware of for the discussion below are:
 
-* *Pascal case*: Capitals used to distinguish words, with first letter capitalized: ThisIsInCamelCase
+* *Pascal case*: Capitals used to distinguish words, with first letter capitalized: ThisIsInPascalCase
 * *Snake case*: Underscores used to distinguish words, with all letters lowercase except optionally for acronyms
 
-In Pascale case, it's preferred that you treat acronyms like other words, e.g., `StartRpc()` rather than
+In Pascal case, it's preferred that you treat acronyms like other words, e.g., `StartRpc()` rather than
 `StartRPC()`.
 
 Template parameters should follow the naming style for their
