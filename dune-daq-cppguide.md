@@ -244,19 +244,23 @@ but within the scope of a class, it's likely too vague. Here's an example of wel
 
 ```
 class MyClass {
- public:
-  int CountFooErrors(const std::vector<Foo>& foos) {
-    int n = 0;  // Clear meaning given limited scope and context
-    for (const auto& foo : foos) {
-      ...
-      ++n;
-    }
+ 
+public:
+  
+  int count_foo_errors(const std::vector<Foo>& foos) {
+      int n = 0;  // Clear meaning given limited scope and context
+      for (const auto& foo : foos) {
+        ...
+        ++n;
+      }
     return n;
   }
-  void DoSomethingImportant() {
+  
+  void do_something_important() {
     std::string daq_meltdown = ...;  // Pretty clear what "daq" abbreviation is!
   }
- private:
+ 
+private:
   const int m_max_allowed_connections = ...;  // Clear meaning within context
 };
 ```
@@ -264,19 +268,25 @@ class MyClass {
 And here's an example of poorly-chosen names:
 ```
 class MyClass {
- public:
-  int CountFooErrors(const std::vector<Foo>& foos) {
+
+public:
+
+  int count_foo_errors(const std::vector<Foo>& foos) {
+    
     int total_number_of_foo_errors = 0;  // Overly verbose; "n" or even "num_errors" would be simpler
+    
     for (int foo_index = 0; foo_index < foos.size(); ++foo_index) {  // "i" or even "i_f" would be simpler
       ...
       ++total_number_of_foo_errors;
     }
     return total_number_of_foo_errors;
   }
-  void DoSomethingImportant() {
+
+  void do_something_important() {
     int cstmr_id = ...;  // What on earth is a cstmr?? Abbreviation hurts here.
   }
- private:
+
+private:
   const int m_num = ...;  // Unclear meaning within broad scope. Few names for an int could be worse than "num"
 };
 ```
@@ -456,9 +466,9 @@ enum class UrlTableError { ...
 
 The names of local variables and function parameters should use snake case. Non-static data members of classes and structs should be prefixed with `m_`. For instance: `cool_local_variable`, `m_struct_data_member`, `m_class_data_member`.
 
-If a variable is a static data member in a class or struct, it should be preceded with an `s_`. E.g., `s_total_instances_of_this_class`
+If a variable is a static data member in a class or struct, it should be preceded with an `s_`. E.g., `s_total_instances_of_this_class`.
 
-If a variable is (unfortunately) a global, it should be preceded with a `g_`. E.g., `g_total_warning_messages`
+If a variable is (unfortunately) a global, it should be preceded with a `g_`. E.g., `g_total_warning_messages`.
 
 #### Variable Names [GOOGLE VERSION]
 
@@ -756,8 +766,8 @@ same file as their declarations. If the definitions are lengthy, you can accompl
 ```
 template <typename T>
 class Foo {
-  public:
-    void PrintValue(const T& val) const;      
+public:
+  void print_value(const T& val) const;      
 };
 
 // Foo.hxx has the definition of PrintValue
@@ -1000,7 +1010,7 @@ Then, in order:
 All of a project's header files should be listed as descendants of the
 project's source directory without use of UNIX directory aliases `.`
 (the current directory) or `..` (the parent directory). For example,
-`DUNE-awesome-DAQ-project/src/base/GetAllSupernovaData.hpp` should be included as:
+`awesomedaqproject/src/base/GetAllSupernovaData.hpp` should be included as:
 
 ```c++
 #include "base/GetAllSupernovaData.hpp"
@@ -1116,7 +1126,7 @@ system-specific code small and localized. Example:
 
 ### 4.1  Namespaces [DUNE VERSION]
 
-With few exceptions, place code in a namespace. As of this writing, Mar-17-2020, there aren't yet a standard set of namespaces for DUNE DAQ software, but this may well change. Avoid putting *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
+With few exceptions, place code in a namespace. Avoid putting *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
 
 Also in the vein of reducing code clutter, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass`) can be useful for improving readability. For unnamed namespaces, see [Unnamed Namespaces and Static
 Variables](#Unnamed_Namespaces_and_Static_Variables).
@@ -1135,24 +1145,24 @@ Namespaces should be used as follows:
      // In the .hpp file
      namespace mynamespace {
      
-       // All declarations are within the namespace scope.
-       // Notice the indentation of four spaces
+     // All declarations are within the namespace scope.
+     // Notice the indentation of four spaces
 
-       class MyClass {
-         public:
-           ...
-           void Foo();
-       };
+     class MyClass {
+     public:
+       ...
+       void foo();
+     };
      
      }  // namespace mynamespace
  
      // In the .cpp file
      namespace mynamespace {
      
-       // Definition of functions is within scope of the namespace.
-       void MyClass::Foo() {
-         ...
-       }
+     // Definition of functions is within scope of the namespace.
+     void MyClass::foo() {
+       ...
+     }
      
      }  // namespace mynamespace
 ```
@@ -1164,9 +1174,9 @@ More complex `.cpp` files might have additional details, like using-declarations
     
     namespace mynamespace {
     
-      using ::foo::Bar;
+    using ::foo::Bar;
     
-        ...code for mynamespace... 
+    ...code for mynamespace... 
     
     }  // namespace mynamespace
 ```
@@ -1192,14 +1202,14 @@ More complex `.cpp` files might have additional details, like using-declarations
     
         // Shorten access to some commonly used names (in a .hpp file).
         namespace librarian {
-            namespace impl {  // Internal, not part of the API.
-            namespace sidetable = ::pipeline_diagnostics::sidetable;
+        namespace impl {  // Internal, not part of the API.
+        namespace sidetable = ::pipeline_diagnostics::sidetable;
         }  // namespace impl
         
         inline void my_inline_function() {
-            // namespace alias local to a function (or method).
-            namespace baz = ::foo::bar::baz;
-            ...
+          // namespace alias local to a function (or method).
+          namespace baz = ::foo::bar::baz;
+          ...
         }
         }  // namespace librarian
  ```
@@ -1465,8 +1475,8 @@ invoked every time it goes out of scope.
 ``` c++
 // Inefficient implementation:
 for (int i = 0; i < 1000000; ++i) {
-  Foo f;  // My ctor and dtor get called 1000000 times each.
-  f.DoSomething(i);
+  Foo f;  // My constructor and destructor get called 1000000 times each!
+  f.do_something(i);
 }
 ```
 
@@ -2173,7 +2183,7 @@ Always use a `class` rather than `struct` unless you're creating:
 If using a struct to carry data, all fields must be public, and accessed directly rather than
 through getter/setter methods. Any functions must not provide behavior
 but should only be used to set up the data members, e.g., constructor,
-destructor, `Initialize()`, `Reset()`.
+destructor, `initialize()`, `reset()`.
 
 #### Structs vs. Classes [GOOGLE VERSION]
 
@@ -3413,7 +3423,7 @@ there's not a simple way to do this with `typedef`s. E.g.
 
 ```
 template<typename T>
-using MyAllocList = std::list<T, MyAlloc<T>>;
+using MyAllocList_t = std::list<T, MyAlloc<T>>;
 
 MyAllocList<Foo> foos;
 ```
@@ -3570,7 +3580,7 @@ in its function signatures. While it's more common for developers to underuse ra
 If a class method alters the class instance's physical state but not its logical
 state, declare it const and use "mutable" so the compiler allows the physical changes.
 
-constexpr is even better than const; use it when you can. constexpr is described [below](#Constexpr) .
+`constexpr` is even better than `const`; use it when you can. constexpr is described [below](#Constexpr) .
 
 
 #### Use of const [GOOGLE VERSION]
@@ -3684,11 +3694,11 @@ Do not use `constexpr` to force inlining.
 
 ### 7.13  Integer Types [DUNE VERSION]
 
-Unless you have a good reason not to, use "int". An obvious good
-reason would be that you need 64 bits to represent a value, e.g., a timestamp. Another would be that the variable represents a discrete quantity, in which case size_t would clarify its semantics. 
+Unless you have a good reason not to, use `int`. An obvious good
+reason would be that you need 64 bits to represent a value, e.g., a timestamp. Another would be that the variable represents a discrete quantity, in which case `size_t` would clarify its semantics. 
 
 When you want a specific size in bytes, don't use C integer types
-besides "int": no "short", "long", etc. Use "intN_t", N being the
+besides `int`: no `short`, `long`, etc. Use `intN_t`, N being the
 number of bits.
 
 You should not use the unsigned integer types such as `uint32_t`, unless
@@ -4169,7 +4179,7 @@ next one may be you\!
 Use the `//` syntax instead of the old C-style `/* */` syntax. An exception is if you're developing a function which doesn't (yet?) use its arguments but you want to avoid an unused parameter warning, e.g.:
 
 ```
-void Foo(int /* appropriate name for the integer */) {
+void foo(int /* appropriate name for the integer */) {
   // Code under development which doesn't (yet) use the integer
 }
 ```
@@ -4254,8 +4264,6 @@ notice or author line.
 </details>
 
 #### 8.3.2  File Contents [DUNE VERSION]
-
-[The below is untouched from the google version, modulo making the header end in hpp instead of h]
 
 If a `.hpp` declares multiple abstractions, the file-level comment should
 broadly describe the contents of the file, and how the abstractions are
@@ -4536,9 +4544,9 @@ example:
 
 ``` c++
     private:
-     // Used to bounds-check table accesses. -1 means
-     // that we don't yet know how many entries the table has.
-     int num_total_entries_;
+      // Used to bounds-check table accesses. -1 means
+      // that we don't yet know how many entries the table has.
+      int m_num_total_entries;
 ```
 
 ##### Global Variables
@@ -4549,7 +4557,7 @@ example:
 
 ``` c++
     // The total number of tests cases that we run through in this regression test.
-    const int kNumTestCases = 6;
+    const int g_num_test_cases = 6;
 ```
 </details>
 
@@ -4933,7 +4941,7 @@ Unused parameters that are obvious from context may be omitted:
 
 ``` c++
     class Foo {
-     public:
+    public:
       Foo(const Foo&) = delete;
       Foo& operator=(const Foo&) = delete;
     };
