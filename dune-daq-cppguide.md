@@ -454,9 +454,9 @@ enum class UrlTableError { ...
 
 ### Variable Names [DUNE VERSION]
 
-The names of variables (including function parameters) and data members should use snake case. Non-static data members of classes and structs should be prefixed with `m_`. For instance: `cool_local_variable`, `m_struct_data_member`, `m_class_data_member`.
+The names of local variables and function parameters should use snake case. Non-static data members of classes and structs should be prefixed with `m_`. For instance: `cool_local_variable`, `m_struct_data_member`, `m_class_data_member`.
 
-If a variable is a static data member in a class, it should be preceded with an `s_`. E.g., `s_total_instances_of_this_class`
+If a variable is a static data member in a class or struct, it should be preceded with an `s_`. E.g., `s_total_instances_of_this_class`
 
 If a variable is (unfortunately) a global, it should be preceded with a `g_`. E.g., `g_total_warning_messages`
 
