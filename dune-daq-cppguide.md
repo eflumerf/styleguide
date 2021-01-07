@@ -1,4 +1,4 @@
-*JCF, Mar-24-2020: for the time being, the original sections of the Google style guide can be expanded for purposes of comparison with their DUNE counterparts. IF YOU MAKE EDITS MAKE SURE IT IS TO A DUNE SECTION AND NOT A GOOGLE SECTION.*
+*JCF, Jan-07-2021: A note to future editors: the original sections of the Google C++ Style Guide can be expanded for purposes of comparison with their DUNE counterparts. IF YOU MAKE CHANGES MAKE SURE IT IS TO A DUNE SECTION AND NOT A GOOGLE SECTION.*
 
 # C++ Style Guide (based on Google's C++ Style Guide)
 
@@ -20,8 +20,12 @@ a piece of code that "just works" might take a little longer than it
 otherwise would, the payoff in terms of reduced debugging time and
 increased readability will be well worth it.
 
-Note that this guide is not a C++ tutorial: we assume that the reader is
+Two further points to close out this intro:
+
+* This guide is not a C++ tutorial: we assume that the reader is
 familiar with the language.
+
+* This Style Guide is a modified fork of the Google Style Guide. Most of the modification involves loosening/simplifying Google's coding rules, as well as removing a lot of the justification for the rules in the interests of keeping this document (relatively) brief. For the curious, in each section the original Google Style Guide rules are available in collapsible form; one reason to click on this is if it's unclear why a given DAQ C++ guideline is in place. 
 
 ### Background [GOOGLE VERSION]
 
@@ -188,8 +192,534 @@ C++14 and C++17 in your project.
 </details>
 
 
+## 2. Naming Conventions [DUNE VERSION OF THE INTRO]
 
-## 2.  Header Files [DUNE VERSION OF THE INTRO]
+The most important consistency rules are those that govern
+naming. The style of a name immediately informs us what sort of
+thing the named entity is: a type, a variable, a function, a
+constant, etc., without requiring us to search for the
+declaration of that entity. The pattern-matching engine in our
+brains relies a great deal on these naming rules.
+
+Naming rules are pretty arbitrary, but
+ we feel that
+consistency is more important than individual preferences in this
+area, so regardless of whether you find them sensible or not,
+the rules are the rules.
+
+### Naming Conventions [GOOGLE VERSION OF THE INTRO]
+
+<details><summary>Expand here</summary>
+
+The most important consistency rules are those that govern
+naming. The style of a name immediately informs us what sort of
+thing the named entity is: a type, a variable, a function, a
+constant, a macro, etc., without requiring us to search for the
+declaration of that entity. The pattern-matching engine in our
+brains relies a great deal on these naming rules.
+
+Naming rules are pretty arbitrary, but
+ we feel that
+consistency is more important than individual preferences in this
+area, so regardless of whether you find them sensible or not,
+the rules are the rules.
+
+</details>
+
+### 2.1 General Naming Rules [DUNE VERSION]
+
+Optimize for readability using names that would be clear
+even to people on a different team.
+
+Use names that describe the purpose or intent of the object.
+Do not worry about saving horizontal space as it is far
+more important to make your code immediately
+understandable by a new reader. Minimize the use of
+abbreviations that would likely be unknown to someone outside
+your project (especially acronyms and initialisms). Do not
+abbreviate by deleting letters within a word unless it's obvious what's meant (e.g. "msg", "num", "max") or you define the full meaning of the abbreviation in a comment. Generally speaking, descriptiveness should be
+proportional to the name's scope of visibility. For example,
+`n` may be a fine name within a 5-line function,
+but within the scope of a class, it's likely too vague. Here's an example of well-chosen names:
+
+```
+class MyClass {
+ 
+public:
+  
+  int count_foo_errors(const std::vector<Foo>& foos) {
+      int n = 0;  // Clear meaning given limited scope and context
+      for (const auto& foo : foos) {
+        ...
+        ++n;
+      }
+    return n;
+  }
+  
+  void do_something_important() {
+    std::string daq_meltdown = ...;  // Pretty clear what "daq" abbreviation is!
+  }
+ 
+private:
+  const int m_max_allowed_connections = ...;  // Clear meaning within context
+};
+```
+
+And here's an example of poorly-chosen names:
+```
+class MyClass {
+
+public:
+
+  int count_foo_errors(const std::vector<Foo>& foos) {
+    
+    int total_number_of_foo_errors = 0;  // Overly verbose; "n" or even "num_errors" would be simpler
+    
+    for (int foo_index = 0; foo_index < foos.size(); ++foo_index) {  // "i" or even "i_f" would be simpler
+      ...
+      ++total_number_of_foo_errors;
+    }
+    return total_number_of_foo_errors;
+  }
+
+  void do_something_important() {
+    int cstmr_id = ...;  // What on earth is a cstmr?? Abbreviation hurts here.
+  }
+
+private:
+  const int m_num = ...;  // Unclear meaning within broad scope. Few names for an int could be worse than "num"
+};
+```
+
+Note that certain universally-known abbreviations are OK, such as
+`i` for an iteration variable and `T` for a
+template parameter.
+
+For the purposes of the naming rules below, a "word" is anything that you
+would write in English without internal spaces. This includes abbreviations,
+such as acronyms (e.g. "DAQ", "CERN"). Two naming conventions you need to be aware of for the discussion below are:
+
+* *Pascal case*: Capitals used to distinguish words, with first letter capitalized: ThisIsInPascalCase
+* *Snake case*: Underscores used to distinguish words, with all letters lowercase except optionally for acronyms
+
+In Pascal case, it's preferred that you treat acronyms like other words, e.g., `StartRpc()` rather than
+`StartRPC()`.
+
+Template parameters should follow the naming style for their
+category: type template parameters should follow the rules for
+type names, and non-type template
+parameters should follow the rules for variable names.
+
+For DUNE DAQ software, if a variable name begins with a single letter followed by an underscore, that's meant to convey something about the variable's type (details below). For that reason, don't use this convention for any other purpose (e.g., use `num_widgets` instead of `n_widgets`).
+
+#### General Naming Rules [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+Optimize for readability using names that would be clear
+even to people on a different team.
+
+Use names that describe the purpose or intent of the object.
+Do not worry about saving horizontal space as it is far
+more important to make your code immediately
+understandable by a new reader. Minimize the use of
+abbreviations that would likely be unknown to someone outside
+your project (especially acronyms and initialisms). Do not
+abbreviate by deleting letters within a word. As a rule of thumb,
+an abbreviation is probably OK if it's listed in
+ Wikipedia. Generally speaking, descriptiveness should be
+proportional to the name's scope of visibility. For example,
+`n` may be a fine name within a 5-line function,
+but within the scope of a class, it's likely too vague.
+
+```
+class MyClass {
+ public:
+  int CountFooErrors(const std::vector<Foo>& foos) {
+    int n = 0;  // Clear meaning given limited scope and context
+    for (const auto& foo : foos) {
+      ...
+      ++n;
+    }
+    return n;
+  }
+  void DoSomethingImportant() {
+    std::string fqdn = ...;  // Well-known abbreviation for Fully Qualified Domain Name
+  }
+ private:
+  const int kMaxAllowedConnections = ...;  // Clear meaning within context
+};
+```
+
+```
+class MyClass {
+ public:
+  int CountFooErrors(const std::vector<Foo>& foos) {
+    int total_number_of_foo_errors = 0;  // Overly verbose given limited scope and context
+    for (int foo_index = 0; foo_index < foos.size(); ++foo_index) {  // Use idiomatic `i`
+      ...
+      ++total_number_of_foo_errors;
+    }
+    return total_number_of_foo_errors;
+  }
+  void DoSomethingImportant() {
+    int cstmr_id = ...;  // Deletes internal letters
+  }
+ private:
+  const int kNum = ...;  // Unclear meaning within broad scope
+};
+```
+
+Note that certain universally-known abbreviations are OK, such as
+`i` for an iteration variable and `T` for a
+template parameter.
+
+For the purposes of the naming rules below, a "word" is anything that you
+would write in English without internal spaces. This includes abbreviations,
+such as acronyms and initialisms. For names written in mixed case (also
+sometimes referred to as [camel case](https://en.wikipedia.org/wiki/Camel_case) or [Pascal case](https://en.wiktionary.org/wiki/Pascal_case), in
+which the first letter of each word is capitalized, prefer to capitalize
+abbreviations as single words, e.g., `StartRpc()` rather than
+`StartRPC()`.
+
+Template parameters should follow the naming style for their
+category: type template parameters should follow the rules for
+type names, and non-type template
+parameters should follow the rules for variable names.
+
+</details>
+
+### 2.2 File Names [DUNE VERSION]
+
+Files ending in `*.hpp`, `*.cpp` and `*.hxx` should use Pascal case (`MyClass.hpp`). Files ending in `*.cxx` should use snake case (`my_application.cxx`). The meaning of these extensions is described later in this document. 
+
+#### File Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+Filenames should be all lowercase and can include
+underscores (`_`) or dashes (`-`).
+Follow the convention that your project uses. If there is no consistent
+local pattern to follow, prefer "_".
+
+Examples of acceptable file names:
+`my_useful_class.cc`, `my-useful-class.cc`, `myusefulclass.cc`, `myusefulclass_test.cc // _unittest and _regtest are deprecated.`
+
+C++ files should end in `.cc` and header files should end in
+`.h`. Files that rely on being textually included at specific points
+should end in `.inc` (see also the section on self-contained headers).
+
+Do not use filenames that already exist in `/usr/include`, such as `db.h`.
+
+In general, make your filenames very specific. For
+example, use `http_server_logs.h` rather than
+`logs.h`. A very common case is to have a pair
+of files called, e.g., `foo_bar.h` and
+`foo_bar.cc`, defining a class called
+`FooBar`.
+
+</details>
+
+### 2.3 Type Names [DUNE VERSION]
+
+The names of all types — classes, structs, type aliases,
+enums, and type template parameters — use Pascal case. 
+
+When making a type alias, however, additionally add a `_t` to the end. So, e.g.,
+```
+template<typename T>
+using MyAllocList_t = std::list<T, MyAlloc<T>>;
+```
+
+#### Type Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+Type names start with a capital letter and have a capital
+letter for each new word, with no underscores:
+`MyExcitingClass`, `MyExcitingEnum`.
+
+The names of all types — classes, structs, type aliases,
+enums, and type template parameters — have the same naming convention.
+Type names should start with a capital letter and have a capital letter
+for each new word. No underscores. For example:
+
+```
+// classes and structs
+class UrlTable { ...
+class UrlTableTester { ...
+struct UrlTableProperties { ...
+
+// typedefs
+typedef hash_map<UrlTableProperties *, std::string>; PropertiesMap;
+
+// using aliases
+using PropertiesMap = hash_map<UrlTableProperties *, std::string>;
+
+// enums
+enum class UrlTableError { ...
+```
+
+</details>
+
+### 2.4 Variable Names [DUNE VERSION]
+
+The names of local variables and function parameters should use snake case. Non-static data members of classes and structs should be prefixed with `m_`. For instance: `cool_local_variable`, `m_struct_data_member`, `m_class_data_member`.
+
+If a variable is a static data member in a class or struct, it should be preceded with an `s_`. E.g., `s_total_instances_of_this_class`.
+
+If a variable is (unfortunately) a global, it should be preceded with a `g_`. E.g., `g_total_warning_messages`.
+
+#### Variable Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+The names of variables (including function parameters) and data members are
+all lowercase, with underscores between words. Data members of classes (but not
+structs) additionally have trailing underscores. For instance: `a_local_variable`, `a_struct_data_member`, `a_class_data_member_`.
+
+##### Common Variable names
+
+For example:
+```
+std::string table_name;  // OK - lowercase with underscore.
+```
+
+```
+std::string tableName;   // Bad - mixed case.
+```
+
+##### Class Data Members
+
+Data members of classes, both static and non-static, are
+named like ordinary nonmember variables, but with a
+trailing underscore.
+```
+class TableInfo {
+  ...
+ private:
+  std::string table_name_;  // OK - underscore at end.
+  static Pool<TableInfo>* pool_;  // OK.
+};
+```
+
+#### Struct Data Members
+
+Data members of structs, both static and non-static,
+are named like ordinary nonmember variables. They do not have
+the trailing underscores that data members in classes have.
+```
+struct UrlTableProperties {
+  std::string name;
+  int num_entries;
+  static Pool<UrlTableProperties>* pool;
+};
+```
+See Structs vs. Classes for a discussion of when to use a struct
+versus a class.
+
+#### Constant Names
+
+Variables declared constexpr or const, and whose value is fixed for
+the duration of the program, are named with a leading "k" followed
+by mixed case. Underscores can be used as separators in the rare cases
+where capitalization cannot be used for separation. For example:
+
+```
+const int kDaysInAWeek = 7;
+const int kAndroid8_0_0 = 24;  // Android 8.0.0
+```
+
+All such variables with static storage duration (i.e., statics and globals,
+see [Storage Duration](http://en.cppreference.com/w/cpp/language/storage_duration#Storage_duration) for details) should be named this way.  This
+convention is optional for variables of other storage classes, e.g., automatic
+variables, otherwise the usual variable naming rules apply.
+
+</details>
+
+### 2.5 Function Names [DUNE VERSION]
+
+Both standalone functions and class member functions should use snake case (as is the situation with, e.g., the STL `<algorithm>` library).
+
+Getters and setters should begin with `get_` or `set_`. E.g., `MessageSender::get_num_messages_sent()`. 
+
+#### Function Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+Regular functions have mixed case; accessors and mutators may be named
+like variables.
+
+Ordinarily, functions should start with a capital letter and have a
+capital letter for each new word.
+
+```
+AddTableEntry()
+DeleteUrl()
+OpenFileOrDie()
+```
+
+(The same naming rule applies to class- and namespace-scope
+constants that are exposed as part of an API and that are intended to look
+like functions, because the fact that they're objects rather than functions
+is an unimportant implementation detail.)
+
+Accessors and mutators (get and set functions) may be named like
+variables. These often correspond to actual member variables, but this is
+not required. For example, `int count()` and `void set_count(int count)`.
+
+</details>
+
+### 2.6 Namespace Names [DUNE VERSION]
+
+Namespace names are all lower-case, with words separated by underscores.
+Top-level namespace names should have the same name as the DUNE DAQ package (e.g., `appfwk::`)
+. 
+
+Avoid nested namespaces that match well-known top-level
+namespaces. Collisions between namespace names can lead to surprising
+build breaks because of name lookup rules. In particular, do not
+create any nested `std` namespaces. 
+
+#### Namespace Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+Namespace names are all lower-case, with words separated by underscores.
+Top-level namespace names are based on the project name
+. Avoid collisions
+between nested namespaces and well-known top-level namespaces.
+
+The name of a top-level namespace should usually be the
+name of the project or team whose code is contained in that
+namespace. The code in that namespace should usually be in
+a directory whose basename matches the namespace name (or in
+subdirectories thereof).
+
+Keep in mind that the rule against abbreviated names applies to namespaces just as much
+as variable names. Code inside the namespace seldom needs to
+mention the namespace name, so there's usually no particular need
+for abbreviation anyway.
+
+Avoid nested namespaces that match well-known top-level
+namespaces. Collisions between namespace names can lead to surprising
+build breaks because of name lookup rules. In particular, do not
+create any nested `std` namespaces. Prefer unique project
+identifiers
+(`websearch::index`, `websearch::index_util`)
+over collision-prone names like `websearch::util`.
+
+For internal namespaces, be wary of other code being
+added to the same internal namespace causing a collision
+(internal helpers within a team tend to be related and may lead to
+collisions). In such a situation, using the filename to make a unique
+internal name is helpful
+(`websearch::index::frobber_internal` for use
+in `frobber.h`)
+
+</details>
+
+### 2.7 Enumerator Names [DUNE VERSION]
+
+Enumerators should be in Pascal case, except prefaced with a `k`. E.g., 
+
+```
+enum class UrlTableError {
+  kOk = 0,
+  kOutOfMemory,
+  kMalformedInput,
+};
+```
+
+#### Enumerator Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+Enumerators (for both scoped and unscoped enums) should be named like constants, not like
+macros. That is, use `kEnumName` not `ENUM_NAME`.
+
+```
+enum class UrlTableError {
+  kOk = 0,
+  kOutOfMemory,
+  kMalformedInput,
+};
+```
+```
+enum class AlternateUrlTableError {
+  OK = 0,
+  OUT_OF_MEMORY = 1,
+  MALFORMED_INPUT = 2,
+};
+```
+
+Until January 2009, the style was to name enum values
+like macros. This caused
+problems with name collisions between enum values and
+macros. Hence, the change to prefer constant-style naming
+was put in place. New code should use constant-style
+naming.
+
+</details>
+
+### 2.8 Macro Names [DUNE VERSION]
+
+You're not really going to
+define a macro, are you? If you do, they're like this:
+`MY_MACRO_THAT_SCARES_SMALL_CHILDREN_AND_ADULTS_ALIKE`.
+
+Please see the description
+of macros; in general macros should _not_ be used.
+However, if they are absolutely needed, then they should be
+named with all capitals and underscores.
+
+```
+#define UNAVOIDABLY_USEFUL_PLUGIN_LOADER(x) ...
+```
+
+#### Macro Names [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+You're not really going to
+define a macro, are you? If you do, they're like this:
+`MY_MACRO_THAT_SCARES_SMALL_CHILDREN_AND_ADULTS_ALIKE`.
+
+Please see the description
+of macros; in general macros should _not_ be used.
+However, if they are absolutely needed, then they should be
+named with all capitals and underscores.
+
+```
+#define ROUND(x) ...
+#define PI_ROUNDED 3.0
+```
+</details>
+
+### 2.9 Exceptions to Naming Rules [DUNE VERSION]
+
+Partially as a consequence of differences between the naming rules of the DUNE DAQ C++ Style Guide and the Google C++ Style Guide, 
+this section is empty. 
+
+#### Exceptions to Naming Rules [GOOGLE VERSION]
+
+<details><summary>Expand here</summary>
+
+If you are naming something that is analogous to an
+existing C or C++ entity then you can follow the existing
+naming convention scheme.
+```
+bigopen() // function name, follows form of open()
+uint      // typedef
+bigpos    // struct or class, follows form of pos
+sparse_hash_map // STL-like entity; follows STL naming conventions
+LONGLONG_MAX    // a constant, as in INT_MAX
+
+```
+
+</details>
+
+## 3.  Header Files [DUNE VERSION OF THE INTRO]
 
 Header files should have an `.hpp` extension. They fall into one of two
 categories: public header files (those meant to be included by code
@@ -221,7 +751,7 @@ header files.
 
 
 
-### 2.1  Self-contained Headers [DUNE VERSION]
+### 3.1  Self-contained Headers [DUNE VERSION]
 
 Header files should be self-contained (compile on their own) and end in
 `.hpp`. Non-header files that are meant for inclusion should end in `.inc`
@@ -236,8 +766,8 @@ same file as their declarations. If the definitions are lengthy, you can accompl
 ```
 template <typename T>
 class Foo {
-  public:
-    void PrintValue(const T& val) const;      
+public:
+  void print_value(const T& val) const;      
 };
 
 // Foo.hxx has the definition of PrintValue
@@ -294,7 +824,7 @@ and prefer self-contained headers when possible.
 
 
 <a name="The__define_Guard"></a>
-### 2.2  The \#define Guard [DUNE VERSION]
+### 3.2  The \#define Guard [DUNE VERSION]
 
 All header files should have `#define` guards to prevent multiple
 inclusion. The format of the symbol name should be
@@ -334,7 +864,7 @@ project `foo` should have the following guard:
 
 <a name="Forward_Declarations"></a>
 
-### 2.3  Forward Declarations [DUNE VERSION]
+### 3.3  Forward Declarations [DUNE VERSION]
 [We're not going to forbid forward declarations, since while there are costs as described in the google style manual, the benefits of faster compilation outweigh these costs]
 
 #### Forward Declarations  [GOOGLE VERSION]
@@ -411,7 +941,7 @@ for rules about when to \#include a header.
 
 <a name="Inline_Functions"></a>
 
-### 2.4  Inline Functions [DUNE VERSION]
+### 3.4  Inline Functions [DUNE VERSION]
 
 Define functions inline only when they are small, say, 10 lines or
 fewer. Feel free to inline getters and setters, and other short,
@@ -463,7 +993,7 @@ behavior, e.g., for accessors and mutators.
 
 <a name="Names_and_Order_of_Includes"></a>
 
-### 2.5  Names and Order of Includes [DUNE VERSION]
+### 3.5  Names and Order of Includes [DUNE VERSION]
 
 In *any* file which performs an include, if the included header is the
 "related header" - meaning, you're editing foo.cpp and the header is
@@ -480,7 +1010,7 @@ Then, in order:
 All of a project's header files should be listed as descendants of the
 project's source directory without use of UNIX directory aliases `.`
 (the current directory) or `..` (the parent directory). For example,
-`DUNE-awesome-DAQ-project/src/base/GetAllSupernovaData.hpp` should be included as:
+`awesomedaqproject/src/base/GetAllSupernovaData.hpp` should be included as:
 
 ```c++
 #include "base/GetAllSupernovaData.hpp"
@@ -591,12 +1121,12 @@ system-specific code small and localized. Example:
 </details>
 
 
-## 3.  Scoping
+## 4.  Scoping
 
 
-### 3.1  Namespaces [DUNE VERSION]
+### 4.1  Namespaces [DUNE VERSION]
 
-With few exceptions, place code in a namespace. As of this writing, Mar-17-2020, there aren't yet a standard set of namespaces for DUNE DAQ software, but this may well change. Avoid putting *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
+With few exceptions, place code in a namespace. Avoid putting *using-directives* (e.g. `using namespace foo`) in header files, as any files which include them may risk name collisions and, worse, unexpected behavior when the "wrong" function/class is picked up by the compiler. They're less damaging when employed in source files and can reduce code clutter, but make sure to only use them *after* including all your headers, and be aware of their risks. 
 
 Also in the vein of reducing code clutter, using-declarations (e.g., `using heavily::nested:namespace::foo::FooClass`) can be useful for improving readability. For unnamed namespaces, see [Unnamed Namespaces and Static
 Variables](#Unnamed_Namespaces_and_Static_Variables).
@@ -615,24 +1145,24 @@ Namespaces should be used as follows:
      // In the .hpp file
      namespace mynamespace {
      
-       // All declarations are within the namespace scope.
-       // Notice the indentation of four spaces
+     // All declarations are within the namespace scope.
+     // Notice the indentation of four spaces
 
-       class MyClass {
-         public:
-           ...
-           void Foo();
-       };
+     class MyClass {
+     public:
+       ...
+       void foo();
+     };
      
      }  // namespace mynamespace
  
      // In the .cpp file
      namespace mynamespace {
      
-       // Definition of functions is within scope of the namespace.
-       void MyClass::Foo() {
-         ...
-       }
+     // Definition of functions is within scope of the namespace.
+     void MyClass::foo() {
+       ...
+     }
      
      }  // namespace mynamespace
 ```
@@ -644,9 +1174,9 @@ More complex `.cpp` files might have additional details, like using-declarations
     
     namespace mynamespace {
     
-      using ::foo::Bar;
+    using ::foo::Bar;
     
-        ...code for mynamespace... 
+    ...code for mynamespace... 
     
     }  // namespace mynamespace
 ```
@@ -672,14 +1202,14 @@ More complex `.cpp` files might have additional details, like using-declarations
     
         // Shorten access to some commonly used names (in a .hpp file).
         namespace librarian {
-            namespace impl {  // Internal, not part of the API.
-            namespace sidetable = ::pipeline_diagnostics::sidetable;
+        namespace impl {  // Internal, not part of the API.
+        namespace sidetable = ::pipeline_diagnostics::sidetable;
         }  // namespace impl
         
         inline void my_inline_function() {
-            // namespace alias local to a function (or method).
-            namespace baz = ::foo::bar::baz;
-            ...
+          // namespace alias local to a function (or method).
+          namespace baz = ::foo::bar::baz;
+          ...
         }
         }  // namespace librarian
  ```
@@ -833,7 +1363,7 @@ More complex `.cc` files might have additional details, like flags or using-decl
 
 <a name="Unnamed_Namespaces_and_Static_Variables"></a>
 
-### 3.2  Unnamed Namespaces and Static Variables [DUNE VERSION]
+### 4.2  Unnamed Namespaces and Static Variables [DUNE VERSION]
 
 When definitions in a `.cpp` file do not need to be referenced outside
 that file, place them in an unnamed namespace or declare them `static`.
@@ -888,7 +1418,7 @@ comment, leave the namespace name empty:
 
 
 
-### 3.3  Nonmember, Static Member, and Global Functions [DUNE VERSION]
+### 4.3  Nonmember, Static Member, and Global Functions [DUNE VERSION]
 
  - Use completely global functions rarely, and only if there's a compelling reason
 
@@ -933,7 +1463,7 @@ to limit its scope.
 
 
 
-### 3.4  Local Variables [DUNE VERSION]
+### 4.4  Local Variables [DUNE VERSION]
 
 Declare local variables in as local a scope as possible, and as close to the
 first use as possible. Always initialize variables in their declaration. 
@@ -945,8 +1475,8 @@ invoked every time it goes out of scope.
 ``` c++
 // Inefficient implementation:
 for (int i = 0; i < 1000000; ++i) {
-  Foo f;  // My ctor and dtor get called 1000000 times each.
-  f.DoSomething(i);
+  Foo f;  // My constructor and destructor get called 1000000 times each!
+  f.do_something(i);
 }
 ```
 
@@ -1032,7 +1562,7 @@ outside that loop:
 
 
 
-### 3.5  Static and Global Variables [DUNE VERSION]
+### 4.5  Static and Global Variables [DUNE VERSION]
 
 The less complex the constructors and destructors of classes that are
 used as static and global variables anywhere in the code, the
@@ -1321,10 +1851,10 @@ thread-local data.
 </details>
 
 
-## 4.  Classes 
+## 5.  Classes 
 
 
-### 4.1  Doing Work in Constructors [DUNE VERSION]
+### 5.1  Doing Work in Constructors [DUNE VERSION]
 
  - Don't call any of a class's virtual functions in its constructor. This will not result in the correct invocation of subclass implementations of those virtual functions.
 
@@ -1378,7 +1908,7 @@ hard to work with correctly).
 
 <a name="Implicit_Conversions"></a>
 
-### 4.2  Implicit Conversions [DUNE VERSION]
+### 5.2  Implicit Conversions [DUNE VERSION]
 
 Type conversion operators, and constructors that are callable with a
 single argument, should be marked `explicit` in the class definition
@@ -1480,7 +2010,7 @@ copy-initialization (e.g. `MyType m = {1, 2};`).
 
 
 
-### 4.3  Copyable and Movable Types [DUNE VERSION]
+### 5.3  Copyable and Movable Types [DUNE VERSION]
 
 If a class contains member data, each of its copy constructor, copy
  assignment operator, move constructor and move assignment operators
@@ -1643,7 +2173,7 @@ classes can use to implement it.
 
 <a name="Structs_vs._Classes"></a>
 
-### 4.4  Structs vs. Classes [DUNE VERSION]
+### 5.4  Structs vs. Classes [DUNE VERSION]
 
 Always use a `class` rather than `struct` unless you're creating:
 
@@ -1653,7 +2183,7 @@ Always use a `class` rather than `struct` unless you're creating:
 If using a struct to carry data, all fields must be public, and accessed directly rather than
 through getter/setter methods. Any functions must not provide behavior
 but should only be used to set up the data members, e.g., constructor,
-destructor, `Initialize()`, `Reset()`.
+destructor, `initialize()`, `reset()`.
 
 #### Structs vs. Classes [GOOGLE VERSION]
 
@@ -1690,7 +2220,7 @@ rules](#Variable_Names).
 
 
 
-### 4.5  Structs vs. Pairs and Tuples [DUNE VERSION]
+### 5.5  Structs vs. Pairs and Tuples [DUNE VERSION]
 
 Prefer to use a `struct` instead of a pair or a tuple whenever the
 elements can have meaningful names.
@@ -1725,7 +2255,7 @@ also be required in order to interoperate with existing code or APIs.
 
 <span id="Multiple_Inheritance"></span>
 
-### 4.6  Inheritance [DUNE VERSION]
+### 5.6  Inheritance [DUNE VERSION]
 
 When class B inherits from class A, it should almost always be public
 inheritance ("inheritance of interface"). Protected and private
@@ -1804,7 +2334,7 @@ inheritance is strongly discouraged.
 
 
 
-### 4.7  Operator Overloading [DUNE VERSION]
+### 5.7  Operator Overloading [DUNE VERSION]
 
 There's a limited set of circumstances in which it's OK to overload operators:
 
@@ -1918,7 +2448,7 @@ apply to operator overloading as well.
 
 <a name="Access_Control"></a>
 
-### 4.8  Access Control [DUNE VERSION]
+### 5.8  Access Control [DUNE VERSION]
 
 In the interests of encapsulation, keep the access level of a class's
 member functions only as generous as necessary. I.e., prefer private
@@ -1949,7 +2479,7 @@ Test](https://github.com/google/googletest)).
 
 
 
-### 4.9  Declaration Order [DUNE VERSION]
+### 5.9  Declaration Order [DUNE VERSION]
 
 A class definition should start with a `public:` section,
 followed by `protected:`, then `private:`. Omit sections that would be
@@ -1997,15 +2527,15 @@ more details.
 </details>
 
 
-## 5.  Functions
+## 6.  Functions
 
-### 5.1  General guidelines for writing a function 
+### 6.1  General guidelines for writing a function 
 
  - Have it do one thing, rather than many things (the "Swiss army knife" trap)
  - If it starts getting long (say, beyond 40 lines) think about ways it could be broken up into other functions
  - Prefer names that describe, to an appropriate level of precision, what the function does
 
-### 5.2  Output Parameters [DUNE VERSION]
+### 6.2  Output Parameters [DUNE VERSION]
 
 If your function creates a single value and you don't anticipate it ever
 needing to return more than a single value, have it return
@@ -2043,7 +2573,7 @@ consistency with related functions may require you to bend the rule.
 </details>
 
 
-### 5.3  Write Short Functions [DUNE VERSION]
+### 6.3  Write Short Functions [DUNE VERSION]
 [Section eliminated, material covered in "general guidelines"]
 
 
@@ -2075,8 +2605,8 @@ pieces.
 </details>
 
 
-### 5.4  Reference Arguments [DUNE VERSION]
-[Section eliminated, unless someone thinks any of the rules Google has should apply to DUNE]
+### 6.4  Reference Arguments [DUNE VERSION]
+[Section eliminated for DUNE]
 
 #### Reference Arguments [GOOGLE VERSION]
 
@@ -2127,7 +2657,7 @@ explanation that doesn't exist.
 
 <a name="Function_Overloading"></a>
 
-### 5.5  Function Overloading [DUNE VERSION]
+### 6.5  Function Overloading [DUNE VERSION]
 
 If a function is overloaded by the argument types alone, make sure its
 behavior is very similar across the types, especially if the types are
@@ -2180,7 +2710,7 @@ a well-designed overload set.
 </details>
 
 
-### 5.6  Default Arguments [DUNE VERSION]
+### 6.6  Default Arguments [DUNE VERSION]
 
 Default arguments are allowed on non-virtual functions when the
 default is guaranteed to always have the same value. Always define the
@@ -2234,7 +2764,7 @@ they are allowed. When in doubt, use overloads.
 </details>
 
 
-### 5.7  Trailing Return Type Syntax [DUNE VERSION]
+### 6.7  Trailing Return Type Syntax [DUNE VERSION]
 
 The only time it's OK to use a trailing return type (when the return type is listed after the function name and the argument list in the declaration; C++11) is when specifying
 the return type of a lambda expression. In some
@@ -2314,7 +2844,7 @@ cases](#Template_metaprogramming).
 
 
 
-### 5.8  Ownership and Smart Pointers [DUNE VERSION]
+### 6.8  Ownership and Smart Pointers [DUNE VERSION]
 
  - You should find yourself using `std::unique_ptr` more often than `std::shared_ptr`
 
@@ -2418,10 +2948,10 @@ Never use `std::auto_ptr`. Instead, use `std::unique_ptr`.
 </details>
 
 
-## 6.  Other C++ Features
+## 7.  Other C++ Features
 
 
-### 6.1  Rvalue References [DUNE VERSION]
+### 7.1  Rvalue References [DUNE VERSION]
 
 Use rvalue references to:
 
@@ -2507,7 +3037,7 @@ to support perfect forwarding.
 </details>
 
 
-### 6.2  Friends [DUNE VERSION]
+### 7.2  Friends [DUNE VERSION]
 
 Use friend classes and functions when alternatives result in less
 encapsulation. An example of this would be if there's only one
@@ -2544,7 +3074,7 @@ interact with other classes solely through their public members.
 </details>
 
 
-### 6.3  Exceptions [DUNE VERSION]
+### 7.3  Exceptions [DUNE VERSION]
 
 Throw an exception if your code's encountered a problem it can't
 recover from on its own. Don't throw if you can implement a local
@@ -2662,7 +3192,7 @@ for Windows code.
 
 
 
-### 6.4  `noexcept` [ DUNE VERSION]
+### 7.4  `noexcept` [ DUNE VERSION]
 
 If you've designed a type, strive to make its move and copy functions
 noexcept. This is because compilers can perform optimizations when it
@@ -2736,7 +3266,7 @@ unconditionally `noexcept`.
 
 
 
-### 6.5  Run-Time Type Information (RTTI) [DUNE VERSION]
+### 7.5  Run-Time Type Information (RTTI) [DUNE VERSION]
 
 The only time Run Time Type Information (RTTI) can be used is in code
 meant to test other code.
@@ -2824,7 +3354,7 @@ RTTI apply just as much to workarounds like class hierarchies with type
 tags. Moreover, workarounds disguise your true intent.
 </details>
 
-### 6.6  Casting [DUNE VERSION]
+### 7.6  Casting [DUNE VERSION]
 
 Do not use C-style casts (e.g., "(float)3.5" or "float(3.5)")
 
@@ -2884,7 +3414,7 @@ on the use of `dynamic_cast`.
 </details>
 
 
-### 6.7  alias declarations and `typedef`s [DUNE VERSION, NO GOOGLE EQUIVALENT]
+### 7.7  alias declarations and `typedef`s [DUNE VERSION, NO GOOGLE EQUIVALENT]
 
 Use alias declarations and `typedef`s to clarify the meaning of a type
 in a given context. Prefer use of alias declarations; in particular,
@@ -2893,12 +3423,12 @@ there's not a simple way to do this with `typedef`s. E.g.
 
 ```
 template<typename T>
-using MyAllocList = std::list<T, MyAlloc<T>>;
+using MyAllocList_t = std::list<T, MyAlloc<T>>;
 
 MyAllocList<Foo> foos;
 ```
 
-### 6.8  Streams [DUNE VERSION]
+### 7.8  Streams [DUNE VERSION]
 [Deleted; folded into the new "printing messages" section]
 
 
@@ -2976,7 +3506,7 @@ common convention).
 </details>
 
 
-### 6.9  Printing Messages [DUNE VERSION, NO GOOGLE EQUIVALENT]
+### 7.9  Printing Messages [DUNE VERSION, NO GOOGLE EQUIVALENT]
 
 *JCF, Mar-25-2020: this section can only be completed once DFWG and CCM hash out how to deal with logging. In particular, "Use TRACE for output" should be taken only as a placeholder until this happens*
 
@@ -3000,7 +3530,7 @@ other equally-or-even-more-important messages
 
 [Re: TRACE levels. Perhaps we should come up with a formal system for what levels for what time of messages? E.g., benchmark messages in trace levels 10-14, intermediate variable value messages in levels 15-19, etc.]
 
-### 6.10  Increment and Decrement [DUNE VERSION]
+### 7.10  Increment and Decrement [DUNE VERSION]
 
 Unless in a loop construct, an increment (`++`) or decrement (`--`) of a
 variable should exist on its own line. In particular, it should not be
@@ -3039,7 +3569,7 @@ pre-increment.
 
 
 
-### 6.11  Use of const [DUNE VERSION]
+### 7.11  Use of const [DUNE VERSION]
 
 Particularly since DUNE processes will involve many threads, intelligent use of `const` is important. 
 
@@ -3050,7 +3580,7 @@ in its function signatures. While it's more common for developers to underuse ra
 If a class method alters the class instance's physical state but not its logical
 state, declare it const and use "mutable" so the compiler allows the physical changes.
 
-constexpr is even better than const; use it when you can. constexpr is described [below](#Constexpr) .
+`constexpr` is even better than `const`; use it when you can. constexpr is described [below](#Constexpr) .
 
 
 #### Use of const [GOOGLE VERSION]
@@ -3124,7 +3654,7 @@ it. But be consistent with the code around you\!
 
 <a name="Constexpr"></a>
 
-### 6.12  Use of constexpr [DUNE VERSION]
+### 7.12  Use of constexpr [DUNE VERSION]
 
 If a variable or function's return value is fixed at compile time and
 you don't see this ever changing, declare it constexpr.  I say "don't
@@ -3162,13 +3692,13 @@ Do not use `constexpr` to force inlining.
 
 
 
-### 6.13  Integer Types [DUNE VERSION]
+### 7.13  Integer Types [DUNE VERSION]
 
-Unless you have a good reason not to, use "int". An obvious good
-reason would be that you need 64 bits to represent a value, e.g., a timestamp. Another would be that the variable represents a discrete quantity, in which case size_t would clarify its semantics. 
+Unless you have a good reason not to, use `int`. An obvious good
+reason would be that you need 64 bits to represent a value, e.g., a timestamp. Another would be that the variable represents a discrete quantity, in which case `size_t` would clarify its semantics. 
 
 When you want a specific size in bytes, don't use C integer types
-besides "int": no "short", "long", etc. Use "intN_t", N being the
+besides `int`: no `short`, `long`, etc. Use `intN_t`, N being the
 number of bits.
 
 You should not use the unsigned integer types such as `uint32_t`, unless
@@ -3305,7 +3835,7 @@ printing, comparisons, and structure alignment.
 </details>
 
 
-### 6.14  Preprocessor Macros [DUNE VERSION]
+### 7.14  Preprocessor Macros [DUNE VERSION]
 
 While not explicitly forbidden, macros come with the very heavy price of the code you see not being the code the compiler sees, a problem compounded by their de-facto global scope. Avoid them if at all possible, using inline functions,
 enums, `const` variables, and putting repeated code inside of functions. 
@@ -3394,7 +3924,7 @@ consisting of your project's namespace name (but upper case).
 
 
 
-### 6.15  0 and nullptr/NULL [DUNE VERSION]
+### 7.15  0 and nullptr/NULL [DUNE VERSION]
 
 Use `nullptr` for pointers, and `'\0'` for the null character. Don't use NULL, and definitely don't use the number "0" in this context. 
 
@@ -3419,7 +3949,7 @@ Use `'\0'` for the null character. Using the correct type makes the code
 more readable.
 </details>
 
-### 6.16  sizeof [DUNE VERSION]
+### 7.16  sizeof [DUNE VERSION]
 
 Prefer `sizeof(varname)` to `sizeof(type)`, unless you really do mean that you want the size of a particular type, and not a variable which happens to have the type in question. 
 
@@ -3457,7 +3987,7 @@ memset(&data, 0, sizeof(Struct));
  
 
 
-### 6.17  Type deduction [DUNE VERSION]
+### 7.17  Type deduction [DUNE VERSION]
 
 The `auto` and `decltype` keywords save a lot of hassle for the
 *writer* of a piece of code, but not necessarily for the
@@ -3608,14 +4138,9 @@ code:
 </details>
 
 
-## 7.  Comments
+## 8.  Comments
 
-
-*JCF, Mar-24-2020: this section needs to be made consistent with Doxygen standards on DUNE. Pengfei has agreed to take a look*
-
-
-
-### 7.1  Intro [DUNE VERSION]
+### 8.1  Intro [DUNE VERSION]
 
 Comments are absolutely vital to keeping our code readable. But
 remember: while comments are very important, the best code is
@@ -3649,12 +4174,12 @@ next one may be you\!
 
 
 
-### 7.2  Comment Style [DUNE VERSION]
+### 8.2  Comment Style [DUNE VERSION]
 
 Use the `//` syntax instead of the old C-style `/* */` syntax. An exception is if you're developing a function which doesn't (yet?) use its arguments but you want to avoid an unused parameter warning, e.g.:
 
 ```
-void Foo(int /* appropriate name for the integer */) {
+void foo(int /* appropriate name for the integer */) {
   // Code under development which doesn't (yet) use the integer
 }
 ```
@@ -3676,7 +4201,7 @@ You can use either the `//` or the `/* */` syntax; however, `//` is
 you use where.
 </details>
 
-### 7.3  File Comments [DUNE VERSION]
+### 8.3  File Comments [DUNE VERSION]
 
 Always include the brief license info described below under [Legal Notice](#Legal_Notice).
 
@@ -3713,7 +4238,7 @@ other files must have file comments.
 
 
 <a name="Legal_Notice"></a>
-#### 7.3.1  Legal Notice and Author Line [DUNE VERSION]
+#### 8.3.1  Legal Notice and Author Line [DUNE VERSION]
 
 The following License stanza should be included in your Doxygen @file section:
 
@@ -3738,9 +4263,7 @@ deleting the author line. New files should usually not contain copyright
 notice or author line.
 </details>
 
-#### 7.3.2  File Contents [DUNE VERSION]
-
-[The below is untouched from the google version, modulo making the header end in hpp instead of h]
+#### 8.3.2  File Contents [DUNE VERSION]
 
 If a `.hpp` declares multiple abstractions, the file-level comment should
 broadly describe the contents of the file, and how the abstractions are
@@ -3769,7 +4292,7 @@ comments diverge.
 
 
 
-### 7.4  Class Comments [DUNE VERSION]
+### 8.4  Class Comments [DUNE VERSION]
 
 Every non-obvious class declaration should have an accompanying comment
 that describes what it is for and how it should be used.
@@ -3819,7 +4342,7 @@ definition; comments about the class operation and implementation should
 accompany the implementation of the class's methods.
 </details>
 
-### 7.5  Function Comments [DUNE VERSION]
+### 8.5  Function Comments [DUNE VERSION]
 
 
 Declaration comments describe use of the function (when it is
@@ -3838,7 +4361,7 @@ operation.
 </details>
 
 
-#### 7.5.1  Function Declarations [DUNE VERSION]
+#### 8.5.1  Function Declarations [DUNE VERSION]
 
 Function declaration should have comments immediately
 preceding it that describe what the function does and how to use it *unless* the function is simple and obvious. 
@@ -3936,7 +4459,7 @@ destructors not to have a header comment.
 </details>
 
 
-#### 7.5.2  Function Definitions [DUNE VERSION]
+#### 8.5.2  Function Definitions [DUNE VERSION]
 
 If there is anything tricky about how a function does its job, the
 function definition should have an explanatory comment. For example, in
@@ -3974,12 +4497,12 @@ on how it does it.
 </details>
 
 
-### 7.6  Variable Comments [DUNE VERSION]
+### 8.6  Variable Comments [DUNE VERSION]
 
 In general the actual name of the variable should be descriptive enough
 to give a good idea of what the variable is used for. 
 
-#### 7.6.1  Class Data Members
+#### 8.6.1  Class Data Members
 
 If there are any invariants (special values, relationships between
 members, lifetime requirements) not clearly expressed by the type and
@@ -3988,7 +4511,7 @@ name, they must be commented.
 In particular, add comments to describe the existence and meaning of
 sentinel values, such as nullptr or -1, when they are not obvious. 
 
-#### 7.6.2  Global Variables
+#### 8.6.2  Global Variables
 
 Along with the usual rules, a global variable should have a comment as
 to why it needs to be global unless it's completely clear. 
@@ -4021,9 +4544,9 @@ example:
 
 ``` c++
     private:
-     // Used to bounds-check table accesses. -1 means
-     // that we don't yet know how many entries the table has.
-     int num_total_entries_;
+      // Used to bounds-check table accesses. -1 means
+      // that we don't yet know how many entries the table has.
+      int m_num_total_entries;
 ```
 
 ##### Global Variables
@@ -4034,12 +4557,12 @@ example:
 
 ``` c++
     // The total number of tests cases that we run through in this regression test.
-    const int kNumTestCases = 6;
+    const int g_num_test_cases = 6;
 ```
 </details>
 
 
-### 7.7  Implementation Comments [DUNE VERSION]
+### 8.7  Implementation Comments [DUNE VERSION]
 
 In your implementation you should have comments in tricky,
 non-obvious, interesting, or important parts of your code. Of course,
@@ -4165,7 +4688,7 @@ example above would be obvious:
 ```
 </details>
 
-### 7.8  Punctuation, Spelling, and Grammar [DUNE VERSION]
+### 8.8  Punctuation, Spelling, and Grammar [DUNE VERSION]
 
 Pay attention to punctuation, spelling, and grammar; it is easier to
 read well-written comments than badly written ones. In particular, a
@@ -4206,7 +4729,7 @@ readability. Proper punctuation, spelling, and grammar help with that
 goal.
 </details>
 
-### 7.9  TODO Comments [DUNE VERSION]
+### 8.9  TODO Comments [DUNE VERSION]
 
 Use `TODO` comments for code that is temporary, a short-term solution,
 or good-enough but not perfect. If possible provide a time estimate
@@ -4260,7 +4783,7 @@ responses.").
 
 
 
-## 8.  Formatting [DUNE VERSION]
+## 9.  Formatting [DUNE VERSION]
 
  - Indentation should involve two spaces. Tabs should NOT be used.
  - Lines should (almost) always be less than 120 characters
@@ -4418,7 +4941,7 @@ Unused parameters that are obvious from context may be omitted:
 
 ``` c++
     class Foo {
-     public:
+    public:
       Foo(const Foo&) = delete;
       Foo& operator=(const Foo&) = delete;
     };
@@ -5206,7 +5729,7 @@ Some rules of thumb to help when blank lines may be useful:
 </details>
 
 
-## 9.  Exceptions to the Rules [DUNE VERSION]
+## 10.  Exceptions to the Rules [DUNE VERSION]
 
 For new code, deviations from this guide should be quite rare. However: to the extent
 that we reuse already-existing code in the DUNE DAQ codebase, the
