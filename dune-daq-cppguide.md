@@ -20,8 +20,12 @@ a piece of code that "just works" might take a little longer than it
 otherwise would, the payoff in terms of reduced debugging time and
 increased readability will be well worth it.
 
-Note that this guide is not a C++ tutorial: we assume that the reader is
+Two further points to close out this intro:
+
+* This guide is not a C++ tutorial: we assume that the reader is
 familiar with the language.
+
+* This Style Guide is a modified fork of the Google Style Guide. Most of the modification involves loosening/simplifying Google's coding rules, as well as removing a lot of the justification for the rules in the interests of keeping this document (relatively) brief. For the curious, in each section the original Google Style Guide rules are available in collapsible form; one reason to click on this is if it's unclear why a given DAQ C++ guideline is in place. 
 
 ### Background [GOOGLE VERSION]
 
