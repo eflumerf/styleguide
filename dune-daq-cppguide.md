@@ -1,4 +1,4 @@
-*JCF, Dec-17-2020: the original sections of the Google style guide can be expanded for purposes of comparison with their DUNE counterparts. IF YOU MAKE EDITS MAKE SURE IT IS TO A DUNE SECTION AND NOT A GOOGLE SECTION.*
+*JCF, Jan-07-2021: A note to future editors: the original sections of the Google C++ Style Guide can be expanded for purposes of comparison with their DUNE counterparts. IF YOU MAKE CHANGES MAKE SURE IT IS TO A DUNE SECTION AND NOT A GOOGLE SECTION.*
 
 # C++ Style Guide (based on Google's C++ Style Guide)
 
@@ -237,10 +237,10 @@ more important to make your code immediately
 understandable by a new reader. Minimize the use of
 abbreviations that would likely be unknown to someone outside
 your project (especially acronyms and initialisms). Do not
-abbreviate by deleting letters within a word unless it's obvious what's meant (e.g. "msg") or you define the full meaning of the abbreviation in a comment. Generally speaking, descriptiveness should be
+abbreviate by deleting letters within a word unless it's obvious what's meant (e.g. "msg", "num", "max") or you define the full meaning of the abbreviation in a comment. Generally speaking, descriptiveness should be
 proportional to the name's scope of visibility. For example,
 `n` may be a fine name within a 5-line function,
-but within the scope of a class, it's likely too vague.
+but within the scope of a class, it's likely too vague. Here's an example of well-chosen names:
 
 ```
 class MyClass {
@@ -254,13 +254,14 @@ class MyClass {
     return n;
   }
   void DoSomethingImportant() {
-    std::string daq_meltdown = ...;  // Pretty clear what "daq" means!
+    std::string daq_meltdown = ...;  // Pretty clear what "daq" abbreviation is!
   }
  private:
-  const int max_allowed_connections_ = ...;  // Clear meaning within context
+  const int m_max_allowed_connections = ...;  // Clear meaning within context
 };
 ```
 
+And here's an example of poorly-chosen names:
 ```
 class MyClass {
  public:
@@ -276,7 +277,7 @@ class MyClass {
     int cstmr_id = ...;  // What on earth is a cstmr?? Abbreviation hurts here.
   }
  private:
-  const int num_ = ...;  // Unclear meaning within broad scope. Few names for an int could be worse than "num"
+  const int m_num = ...;  // Unclear meaning within broad scope. Few names for an int could be worse than "num"
 };
 ```
 
@@ -298,6 +299,8 @@ Template parameters should follow the naming style for their
 category: type template parameters should follow the rules for
 type names, and non-type template
 parameters should follow the rules for variable names.
+
+For DUNE DAQ software, if a variable name begins with a single letter followed by an underscore, that's meant to convey something about the variable's type (details below). For that reason, don't use this convention for any other purpose (e.g., use `num_widgets` instead of `n_widgets`).
 
 #### General Naming Rules [GOOGLE VERSION]
 
@@ -378,7 +381,7 @@ parameters should follow the rules for variable names.
 
 ### File Names [DUNE VERSION]
 
-Files ending in `*.hpp`, `*.cpp` and `*.hxx` should use Pascal case. Files ending in `*.cxx` should use Snake case. The meaning of these extensions is described later in this document. 
+Files ending in `*.hpp`, `*.cpp` and `*.hxx` should use Pascal case (`MyClass.hpp`). Files ending in `*.cxx` should use snake case (`my_application.cxx`). The meaning of these extensions is described later in this document. 
 
 #### File Names [GOOGLE VERSION]
 
@@ -451,10 +454,9 @@ enum class UrlTableError { ...
 
 ### Variable Names [DUNE VERSION]
 
-The names of variables (including function parameters) and data members should use snake case. Data members of classes (but not
-structs) additionally have trailing underscores. For instance: `a_local_variable`, `a_struct_data_member`, `a_class_data_member_`.
+The names of variables (including function parameters) and data members should use snake case. Non-static data members of classes and structs should be prefixed with `m_`. For instance: `cool_local_variable`, `m_struct_data_member`, `m_class_data_member`.
 
-If a variable is a static data member in a class, it should be preceded with an `s_`. E.g., `s_total_instance_count`
+If a variable is a static data member in a class, it should be preceded with an `s_`. E.g., `s_total_instances_of_this_class`
 
 If a variable is (unfortunately) a global, it should be preceded with a `g_`. E.g., `g_total_warning_messages`
 
@@ -662,8 +664,7 @@ However, if they are absolutely needed, then they should be
 named with all capitals and underscores.
 
 ```
-#define ROUND(x) ...
-#define PI_ROUNDED 3.0
+#define UNAVOIDABLY_USEFUL_PLUGIN_LOADER(x) ...
 ```
 
 #### Macro Names [GOOGLE VERSION]
