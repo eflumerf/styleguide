@@ -229,6 +229,7 @@ _ERROR_CATEGORIES = [
     'build/include_alpha',
     'build/include_order',
     'build/include_what_you_use',
+    'build/include_path',
     'build/namespaces',
     'build/null_usage',
     'build/raw_ownership',
@@ -2909,6 +2910,10 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
   if Search(r'\s+unsigned\+', line) or Search(r'^unsigned\+', line) or Search(r'uint[0-9]+', line):
     error(filename, linenum, 'build/unsigned', 3,
           'An unsigned integer appears to be used here.')
+
+  if Search(r'^\s*#include\s+.*\.\.?/.*', line):
+    error(filename, linenum, 'build/include_path', 3,
+          'An "." or ".." was used in an #include; relative paths are disallowed.')
 
   classinfo = nesting_state.InnermostClass()
   
