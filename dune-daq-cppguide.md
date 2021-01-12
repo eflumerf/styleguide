@@ -480,6 +480,7 @@ better. In particular, keep in mind there's no guarantee on the order
 of construction of these variables, and hence code should never rely
 on an assumed order.
 
+Global variables are discouraged. When used, they should be `const` or, if possible, `constexpr`. 
 
 ## 5.  Classes 
 
