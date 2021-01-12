@@ -294,14 +294,19 @@ Then, in order:
  - public headers from external dependencies
  - standard library headers
 
-All of a project's header files should be listed as descendants of the
-project's source directory without use of UNIX directory aliases `.`
-(the current directory) or `..` (the parent directory). For example,
+All of a project's header files should be listed without use of UNIX directory aliases `.`
+(the current directory) or `..` (the parent directory). For example, a private header
 `awesomedaqproject/src/base/GetAllSupernovaData.hpp` should be included as:
 
 ```c++
 #include "base/GetAllSupernovaData.hpp"
 ```
+
+As of dunedaq-v2.0.0, include directories which are automatically picked up by your package are:
+
+- `include/<package>` (for public headers)
+- `src/` (private headers for files used in the package's main library and plugins)
+- `test/src/` (private headers for files used in test applications/plugins)
 
 You should include all the headers that define the symbols you rely
 upon, except in the case of forward declarations. Note that the order of header
