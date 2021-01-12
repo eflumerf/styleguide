@@ -164,7 +164,8 @@ Getters and setters should begin with `get_` or `set_`. E.g., `MessageSender::ge
 ### 2.6 Namespace Names 
 
 Namespace names are all lower-case, with words separated by underscores.
-Top-level namespace names should have the same name as the DUNE DAQ package (e.g., `appfwk::`)
+
+The top-level namespace of the DUNE DAQ codebase is `dunedaq`. For a given package, the next level namespace should have the same name as the DUNE DAQ package. So, e.g., the code for the appfwk package should be placed in the `dunedaq::appfwk` namespace.
 . 
 
 Avoid nested namespaces that match well-known top-level
