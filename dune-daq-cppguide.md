@@ -316,6 +316,9 @@ symbols from `Bar.hpp`, don't count on the fact that you included
 unless `Foo.hpp` explicitly demonstrates its intent to provide you the
 symbols of `Bar.hpp`.
 
+### 3.6 Quotes vs. Angle Brackets for includes
+
+If a header comes from the C++ Standard Library (e.g., `<vector>`, `<cstdlib>`) it should be enclosed in angle brackets. All other headers should be enclosed in quotes. 
 
 ## 4.  Scoping
 
