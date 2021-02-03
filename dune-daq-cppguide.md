@@ -62,7 +62,7 @@ proportional to the name's scope of visibility. For example,
 `n` may be a fine name within a 5-line function,
 but within the scope of a class, it's likely too vague. Here's an example of well-chosen names:
 
-```
+```c++
 class MyClass {
  
 public:
@@ -86,7 +86,7 @@ private:
 ```
 
 And here's an example of poorly-chosen names:
-```
+```c++
 class MyClass {
 
 public:
@@ -149,9 +149,10 @@ using MyAllocList_t = std::list<T, MyAlloc<T>>;
 
 ### 2.4 Variable Names
 
-The names of local variables and function parameters should use snake case. Non-static data members of classes and structs should be prefixed with `m_`. For instance: `cool_local_variable`, `m_struct_data_member`, `m_class_data_member`.
+The names of local variables, function parameters and struct data members should use snake case, e.g. `cool_local_variable`, `MyStruct.data_member`.
+Non-static data members of classes should be prefixed with `m_`. For instance: `MyClass.m_data_member`.
 
-If a variable is a static data member in a class or struct, it should be preceded with an `s_`. E.g., `s_total_instances_of_this_class`.
+If a variable is a static data member in a class it should be preceded with an `s_`. E.g., `MyClass.s_total_instances_of_this_class`. Static struct data members are discouraged.
 
 If a variable is (unfortunately) a global, it should be preceded with a `g_`. E.g., `g_total_warning_messages`.
 
@@ -177,7 +178,7 @@ create any nested `std` namespaces.
 
 Enumerators should be in Pascal case, except prefaced with a `k`. E.g., 
 
-```
+```c++
 enum class UrlTableError {
   kOk = 0,
   kOutOfMemory,
@@ -196,7 +197,7 @@ of macros; in general macros should _not_ be used.
 However, if they are absolutely needed, then they should be
 named with all capitals and underscores.
 
-```
+```c++
 #define UNAVOIDABLY_USEFUL_PLUGIN_LOADER(x) ...
 ```
 
@@ -226,7 +227,7 @@ and include all other headers it needs.
 
 Prefer placing the definitions for inline and template functions in the
 same file as their declarations. If the definitions are lengthy, you can accomplish this de-facto by putting them in a file with an `.hxx` extension in a subdirectory of the include directory called "detail" and including it after the declaration. E.g., if in Foo.hpp, we could have:
-```
+```c++
 template <typename T>
 class Foo {
 public:
@@ -256,7 +257,7 @@ file that instantiates the template.
 All header files should have `#define` guards to prevent multiple
 inclusion. The format of the symbol name should be
 `<PROJECT>_<PATH>_<FILE>_HPP_`. The symbol should appear three times, like so:
-```
+```c++
 #ifndef APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HPP_
 #define APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HPP_
 ... 
