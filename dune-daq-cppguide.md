@@ -149,12 +149,17 @@ using MyAllocList_t = std::list<T, MyAlloc<T>>;
 
 ### 2.4 Variable Names
 
-The names of local variables, function parameters and struct data members should use snake case, e.g. `cool_local_variable`, `MyStruct.data_member`.
-Non-static data members of classes should be prefixed with `m_`. For instance: `MyClass.m_data_member`.
+The names of local variables, function parameters and struct data members should use snake case.  
+E.g. `cool_local_variable`, `MyStruct.data_member`.
 
-If a variable is a static data member in a class it should be preceded with an `s_`. E.g., `MyClass.s_total_instances_of_this_class`. Static struct data members are discouraged.
+Non-static data members of classes should be prefixed with `m_`.  
+For instance: `MyClass.m_data_member`.
 
-If a variable is (unfortunately) a global, it should be preceded with a `g_`. E.g., `g_total_warning_messages`.
+If a variable is a static data member in a class it should be preceded with an `s_`.  
+E.g., `MyClass.s_total_instances_of_this_class`. Static struct data members are discouraged.
+
+If a variable is (unfortunately) a global, it should be preceded with a `g_`.  
+E.g., `g_total_warning_messages`.
 
 ### 2.5 Function Names 
 
