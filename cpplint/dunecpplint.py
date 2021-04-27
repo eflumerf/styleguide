@@ -1,9 +1,9 @@
-#!/usr/bin/python
+#!/bin/env python
 
-# JCF, Mar-31-2020
+# JCF, Apr-26-2021
 # dunecpplint.py is a modified copy of cpplint.py, designed for the
 # DUNE C++ style guide
-# (https://github.com/DUNE-DAQ/styleguide/blob/dune-daq-cppguide/dune-daq-cppguide.md). Read
+# (https://dune-daq-sw.readthedocs.io/en/latest/packages/styleguide/). Read
 # below for Google's original copyright notice.
 
 #
@@ -59,15 +59,12 @@ import string
 import sys
 import unicodedata
 import sysconfig
+import six
 
 try:
   xrange          # Python 2
 except NameError:
   xrange = range  # Python 3
-
-if not re.search(r"^2.7", sys.version):
-  sys.stderr.write("You're using Python %s.x, but need Python 2.7.x for this script to work. Exiting..." % (sys.version[:3]))
-  sys.exit(1)
 
 _USAGE = """
 Usage: dunecpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
@@ -79,7 +76,7 @@ Usage: dunecpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
   You probably don't want to call this script directly but rather dunecpplint.sh
 
   The style guidelines this tries to follow are those in
-    https://github.com/DUNE-DAQ/styleguide/blob/dune-daq-cppguide/dune-daq-cppguide.md
+    https://dune-daq-sw.readthedocs.io/en/latest/packages/styleguide/
 
 JCF, Apr-3-2020: I can't vouch (yet) for anything below this line:
 ======================================================================
@@ -972,7 +969,7 @@ class _CppLintState(object):
 
   def PrintErrorCounts(self):
     """Print a summary of errors by category, and the total."""
-    for category, count in self.errors_by_category.iteritems():
+    for category, count in six.iteritems(self.errors_by_category):
       sys.stderr.write('Category \'%s\' errors found: %d\n' %
                        (category, count))
     sys.stdout.write('Total errors found: %d\n' % self.error_count)
@@ -4368,7 +4365,7 @@ def GetLineWidth(line):
     The width of the line in column positions, accounting for Unicode
     combining characters and wide characters.
   """
-  if isinstance(line, unicode):
+  if isinstance(line, six.text_type):
     width = 0
     for uc in unicodedata.normalize('NFC', line):
       if unicodedata.east_asian_width(uc) in ('W', 'F'):
@@ -4703,7 +4700,7 @@ def _GetTextInside(text, start_pattern):
 
   # Give opening punctuations to get the matching close-punctuations.
   matching_punctuation = {'(': ')', '{': '}', '[': ']'}
-  closing_punctuation = set(matching_punctuation.itervalues())
+  closing_punctuation = set(six.itervalues(matching_punctuation))
 
   # Find the position to start extracting text.
   match = re.search(start_pattern, text, re.M)
@@ -4899,7 +4896,7 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension,
       and line[-1] != '\\'):
     error(filename, linenum, 'build/namespaces', 4,
           'Do not use unnamed namespaces in header files.  See '
-          'https://github.com/DUNE-DAQ/styleguide/blob/dune-daq-cppguide/dune-daq-cppguide.md#Unnamed_Namespaces_and_Static_Variables'
+          'the Unnamed Namespaces and Static Variables section of https://dune-daq-sw.readthedocs.io/en/latest/packages/styleguide/'
           ' for more information.')
 
 
@@ -5613,7 +5610,7 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
 
   # include_dict is modified during iteration, so we iterate over a copy of
   # the keys.
-  header_keys = include_dict.keys()
+  header_keys = list(six.iterkeys(include_dict))
   for header in header_keys:
     (same_module, common_path) = FilesBelongToSameModule(abs_filename, header)
     fullpath = common_path + header
@@ -6276,10 +6273,15 @@ def main():
 
   # Change stderr to write with replacement characters so we don't die
   # if we try to print something containing non-ASCII characters.
-  sys.stderr = codecs.StreamReaderWriter(sys.stderr,
-                                         codecs.getreader('utf8'),
-                                         codecs.getwriter('utf8'),
-                                         'replace')
+
+  # https://docs.python.org/3/library/sys.html#sys.stderr
+  sys.stderr = codecs.StreamReaderWriter(
+    sys.stderr if sys.version_info.major < 3 else sys.stderr.buffer,
+    codecs.getreader('utf8'),
+    codecs.getwriter('utf8'),
+    'replace'
+  )
+
 
   _dunecpplint_state.ResetErrorCounts()
   for filename in filenames:
