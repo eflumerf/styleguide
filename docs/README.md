@@ -1204,7 +1204,7 @@ doubt, send an e-mail.
 
 ## 9.  Formatting 
 
-For proper formatting, process your code using the `dbt-clang-format.sh` script from the daq-buildtools package; see more on this in https://dune-daq-sw.readthedocs.io/en/latest/packages/daq-buildtools/ . Among other things, running the script will satisfy the following two rules:
+For proper formatting, process your code using the `dbt-clang-format.sh` script from the daq-buildtools package; see more on this in [the daq-buildtools documentation](https://dune-daq-sw.readthedocs.io/en/latest/packages/daq-buildtools/) . Among other things, running the script will satisfy the following two rules:
 
  - Indentation should involve two spaces. Tabs should NOT be used.
  - Lines should (almost) always be less than 120 characters
