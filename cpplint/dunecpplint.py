@@ -2835,8 +2835,9 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
   line = line.replace('\\\\', '')
 
   if Search(r'^\s*#define\s+\S+\s+\S+', line):
-    error(filename, linenum, 'build/define_used', 3,
-          '#define appears to be used. Macros should generally be avoided if there\'s an alternative to them.')
+    if not "TRACE_" in line:
+      error(filename, linenum, 'build/define_used', 3,
+            '#define appears to be used. Macros should generally be avoided if there\'s an alternative to them.')
 
   # For the rest, work with both comments and strings removed.
   line = clean_lines.elided[linenum]
