@@ -341,12 +341,12 @@ file that instantiates the template.
 
 All header files should have `#define` guards to prevent multiple
 inclusion. The format of the symbol name should be
-`<PROJECT>_<PATH>_<FILE>_HPP_`. The symbol should appear three times, like so:
+`<PACKAGE>_<PATH>_<FILE>_HPP_`. The symbol should appear three times, like so:
 ```c++
-#ifndef APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HPP_
-#define APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HPP_
+#ifndef FOOPACKAGE_INCLUDE_FOOPACKAGE_DAQ_PROCESS_HPP_
+#define FOOPACKAGE_INCLUDE_FOOPACKAGE_DAQ_PROCESS_HPP_
 ... 
-#endif // APP_FRAMEWORK_INCLUDE_APP_FRAMEWORK_DAQ_PROCESS_HPP_
+#endif // FOOPACKAGE_INCLUDE_FOOPACKAGE_DAQ_PROCESS_HPP_
 ```
 
 <a name="Forward_Declarations"></a>
