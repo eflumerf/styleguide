@@ -88,7 +88,7 @@ else
 fi
 
 
-clang_products_dir=/cvmfs/dune.opensciencegrid.org/dunedaq/DUNE/products
+clang_products_dir=/cvmfs/dunedaq.opensciencegrid.org/products
 
 if [[ -d $clang_products_dir ]]; then
     . $clang_products_dir/setup
