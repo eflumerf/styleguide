@@ -21,30 +21,6 @@ fi
 
 filename=$1
 
-# As of Aug-20-2020, most systems have Python 2.7 default installed,
-# but Python 3 ups products are often used. It appears that the coders
-# at Google developed cpplint.py under Python 2.7, hence
-# dunecpplint.py needs Python 2.7 as well.
-
-if [[ ! -e /usr/bin/python ]]; then
-    echo "Error: system python (/usr/bin/python) is needed for this linter to run" >&2
-    exit 2
-fi
-
-pyver=$( /usr/bin/python --version |& sed -r 's/.*\s([0-9]+\.[0-9]+)\.[0-9]+/\1/' )
-if [[ "$pyver" != "2.7" ]]; then
-    cat <<EOF >&2
-
-ERROR: system python is not Python 2.7. Google's cpplint.py, and by
-extension DUNE's dunecpplint.py, needs Python 2.7 to work. Exiting...
-
-EOF
-
-   exit 1
-
-fi
-
-
 # -build/c++11/14 : No headers are explicitly disallowed
 
 # -build/explicit_make_pair : related to a bug in g++ 4.6 where it couldn't handle explicit template arguments in make pair; no longer relevant
