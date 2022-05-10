@@ -5,12 +5,26 @@ BEGIN {
 
     in_no_destructor_complaint = 0
 
+    in_external_code_complaint = 0
+
     possibly_needed_error_complaint=""
     num_errors = 0
 }
 
 
 {
+    if ($0 ~ /^\s*\/cvmfs\/dunedaq.*opensciencegrid.org.*/) {
+	in_external_code_complaint = 1
+	next
+    }
+
+    if (in_external_code_complaint == 1) {
+	if ($0 ~ /^[^#]*\^/) {   # Risk of picking up bitwise XOR?
+	    in_external_code_complaint = 0
+	}
+	next
+    }
+
     if ($0 ~ /error:.*file not found \[clang-diagnostic-error\]/) {
 	in_system_header_complaint = 1
 	found_system_header_complaint = 1
