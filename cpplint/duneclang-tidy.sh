@@ -258,7 +258,7 @@ for source_file in $source_files; do
     echo
     echo "=========================Checking $source_file========================="
 
-    clang-tidy -p=$tmpdir -checks=${musts},${maybes} -header-filter=.* $source_file |& awk -f $(dirname $0)/duneclang-tidy_scrub_output.awk
+    clang-tidy -extra-arg=-ferror-limit=0 -p=$tmpdir -checks=${musts},${maybes} -header-filter=.* $source_file |& awk -f $(dirname $0)/duneclang-tidy_scrub_output.awk
 
 done
 
