@@ -12,6 +12,11 @@ BEGIN {
        next
     }
 
+    # Get rid of complaints about moo-generated code
+    if ($0 ~/\/codegen\//) {
+       next	
+    }
+
     # Get rid of complaints about TLOG expansions
     if ($0 ~ /TLOG/) {
        next
