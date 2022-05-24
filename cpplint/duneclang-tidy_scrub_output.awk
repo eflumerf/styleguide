@@ -3,6 +3,7 @@ BEGIN {
     RS="^"
 
     in_ers_lint=0
+
 }
 
 
@@ -10,6 +11,12 @@ BEGIN {
     # Get rid of complaints about external headers
     if ($0 ~ /^[[:space:]~]*\/cvmfs\/dunedaq.*opensciencegrid.org.*/) {
        next
+    }
+
+    # ...and catch instances of external header errors where the awk record includes the opening blurb
+
+    if (NR == 1 && $0 ~ /Error while processing/ && $0 ~ /\/cvmfs/) {
+	next
     }
 
     # Get rid of complaints about moo-generated code
@@ -22,8 +29,14 @@ BEGIN {
        next
     }
 
+    # Get rid of complainst about BOOST expansions
+    if ($0 ~ /BOOST_/) {
+	next
+    }
+
     # Get rid of complaints about ERS expansions
-    if ($0 ~ /ERS/) {
+    if ($0 ~ /ERS_/) {
+	#printf("\nMatched ERS_, setting in_ers_lint to 1")
 	in_ers_lint = 1
         next
     }
@@ -34,16 +47,30 @@ BEGIN {
     # "((std::string)connection_name)((std::string)message))". We
     # don't need or want them cluttering up the linting output
 
-    if (in_ers_lint == 1 && \
-	($0 ~ /xpanded from here/ || $0 ~ /\(\(.*\).*\)/)) {
-	next
+    if (in_ers_lint == 1) {
+	if ($0 ~ /xpanded from here/ || $0 ~ /\(\(.*\).*\)/) {
+	    next
+	}
     }
+
     in_ers_lint = 0
 
-    if ($0 ~ /defines a copy constructor, a copy assignment operator, a move constructor and a move assignment operator but does not define a destructor/) {
-       next
+    # Users don't need to know about low-level clang-tidy details
+    if ($0 ~ /Use -system-headers to display errors from system headers as well/) {
+	next
     }
 
-    printf("\nRECORD TO CHECK:\n")
+    if ($0 ~ /DEFINE_DUNE_DAQ_MODULE/) {
+	next
+    }
+
+    if ($0 ~ /xpanded from here[[:space:]~:]*\/cvmfs/) {
+	next
+    }
+
+    if ($0 ~ /note:.*requested here/) {  # Possibly too draconian
+	next
+    }
+
     print
 }

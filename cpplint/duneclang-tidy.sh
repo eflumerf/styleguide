@@ -103,6 +103,9 @@ if [[ "$retval" != "0" ]]; then
     fi
 fi
 
+# Left out:
+# misc-non-private-member-variables-in-classes, since clang-tidy bizarrely includes this complaint for structs
+
 musts="bugprone-assert-side-effect,\
 bugprone-copy-constructor-init,\
 bugprone-infinite-loop,\
@@ -144,7 +147,6 @@ google-default-arguments,\
 google-global-names-in-headers,\
 misc-definitions-in-headers,\
 misc-misplaced-const,\
-misc-non-private-member-variables-in-classes,\
 misc-throw-by-value-catch-by-reference,\
 misc-uniqueptr-reset-release,\
 misc-unused-alias-decls,\
@@ -168,7 +170,7 @@ performance-move-constructor-init,\
 performance-unnecessary-copy-initialization,\
 performance-unnecessary-value-param,\
 readability-const-return-type,\
-readability-container-size-empty,\
+#readability-container-size-empty,\
 readability-deleted-default,\
 readability-redundant-access-specifiers,\
 readability-redundant-control-flow,\
@@ -179,7 +181,7 @@ readability-uniqueptr-delete-release"
 
 
 maybes="bugprone-dynamic-static-initializers,\
-bugprone-exception-escape,\
+#bugprone-exception-escape,\
 bugprone-fold-init-type,\
 bugprone-forward-declaration-namespace,\
 bugprone-forwarding-reference-overload,\
@@ -206,14 +208,15 @@ modernize-make-shared,\
 modernize-make-unique,\
 modernize-use-default-member-init,\
 modernize-use-emplace,\
-modernize-use-nodiscard,\
+#modernize-use-nodiscard,\
 modernize-use-uncaught-exceptions,\
 performance-type-promotion-in-math-fn,\
 readability-delete-null-pointer,\
 readability-function-size,\
 readability-identifier-naming,\
-readability-inconsistent-declaration-parameter-name,\
+#readability-inconsistent-declaration-parameter-name,\
 readability-isolate-declaration"
+
 
 tmpdir=$( mktemp -d )
 
@@ -251,6 +254,7 @@ EOF
 
     exit 1
 fi
+
 
 
 for source_file in $source_files; do
