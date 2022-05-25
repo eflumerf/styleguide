@@ -104,7 +104,12 @@ if [[ "$retval" != "0" ]]; then
 fi
 
 # Left out:
-# misc-non-private-member-variables-in-classes, since clang-tidy bizarrely includes this complaint for structs
+
+# misc-non-private-member-variables-in-classes: since clang-tidy bizarrely includes this complaint for structs
+
+# cppcoreguidelines-special-member-functions: as this is overly picky
+# ("if you explicitly define one of the five special member functions,
+# you must define them all")
 
 musts="bugprone-assert-side-effect,\
 bugprone-copy-constructor-init,\
@@ -140,7 +145,7 @@ cppcoreguidelines-pro-type-cstyle-cast,\
 cppcoreguidelines-pro-type-reinterpret-cast,\
 cppcoreguidelines-pro-type-static-cast-downcast,\
 cppcoreguidelines-slicing,\
-cppcoreguidelines-special-member-functions,\
+#cppcoreguidelines-special-member-functions,\
 fuchsia-trailing-return,\
 fuchsia-virtual-inheritance,\
 google-default-arguments,\
