@@ -13,11 +13,6 @@ BEGIN {
        next
     }
 
-    # ...and catch instances of external header errors where the awk record includes the opening blurb
-
-    if (NR == 1 && $0 ~ /Error while processing/ && $0 ~ /\/cvmfs/) {
-	next
-    }
 
     # Get rid of complaints about moo-generated code
     if ($0 ~/\/codegen\//) {
@@ -70,6 +65,23 @@ BEGIN {
 
     if ($0 ~ /note:.*requested here/) {  # Possibly too draconian
 	next
+    }
+
+    # Catch instances of external header errors where the awk record includes the opening blurb
+
+    if ($0 ~ /Error while processing/ && $0 ~ /\/cvmfs/) {
+	next
+    }
+
+    match($0, /[[:alnum:]]+.h[px][px]:[0-9]+:[0-9]+/) 
+
+    repeat = 0
+    if (RLENGTH != -1) {
+      header_line_and_loc = substr($0, RSTART, RLENGTH)
+      if (header_line_and_loc in header_complaints) {
+	  next
+      }
+      header_complaints[header_line_and_loc] = 1
     }
 
     print
