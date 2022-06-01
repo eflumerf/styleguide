@@ -111,6 +111,9 @@ fi
 # ("if you explicitly define one of the five special member functions,
 # you must define them all")
 
+# cppcoreguidelines-pro-bounds-pointer-arithmetic: since we use C++17 and not C++20 (Jun-1-2022) we don't have access
+# to std::span making it very difficult to live without subscripting arrays
+
 musts="bugprone-assert-side-effect,\
 bugprone-copy-constructor-init,\
 bugprone-infinite-loop,\
@@ -139,7 +142,7 @@ cppcoreguidelines-macro-usage,\
 cppcoreguidelines-narrowing-conversions,\
 cppcoreguidelines-no-malloc,\
 cppcoreguidelines-pro-bounds-constant-array-index,\
-cppcoreguidelines-pro-bounds-pointer-arithmetic,\
+#cppcoreguidelines-pro-bounds-pointer-arithmetic,\
 cppcoreguidelines-pro-type-const-cast,\
 cppcoreguidelines-pro-type-cstyle-cast,\
 cppcoreguidelines-pro-type-reinterpret-cast,\
