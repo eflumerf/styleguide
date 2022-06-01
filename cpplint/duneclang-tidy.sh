@@ -103,7 +103,7 @@ if [[ "$retval" != "0" ]]; then
     fi
 fi
 
-# Left out:
+# Some of the warnings/errors left out:
 
 # misc-non-private-member-variables-in-classes: since clang-tidy bizarrely includes this complaint for structs
 
@@ -210,7 +210,7 @@ google-runtime-int,\
 google-runtime-operator,\
 hicpp-exception-baseclass,\
 hicpp-multiway-paths-covered,\
-misc-no-recursion,\
+#misc-no-recursion,\
 misc-unconventional-assign-operator,\
 modernize-make-shared,\
 modernize-make-unique,\
@@ -270,7 +270,7 @@ for source_file in $source_files; do
     echo
     echo "=========================Checking $source_file========================="
 
-    clang-tidy -extra-arg=-ferror-limit=0 -p=$tmpdir -checks=${musts},${maybes} -config="{CheckOptions: [{key: cppcoreguidelines-narrowing-conversions.IgnoreConversionFromTypes, value: size_t;ptrdiff_t;size_type;difference_type}]}" -header-filter=.* $source_file
+    clang-tidy -extra-arg=-ferror-limit=0 -p=$tmpdir -checks=${musts},${maybes} -config="{CheckOptions: [{key: cppcoreguidelines-narrowing-conversions.IgnoreConversionFromTypes, value: size_t;ptrdiff_t;size_type;difference_type}, {key: performance-move-const-arg.CheckTriviallyCopyableMove, value: false}]}" -header-filter=.* $source_file
 
 done 
 
