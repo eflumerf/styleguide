@@ -96,11 +96,12 @@ retval=$?
 
 if [[ "$retval" != "0" ]]; then
     
-    if [[ -n $SPACK_ROOT ]]; then
-	spack_get_clang
-    else
+#    if [[ -n $SPACK_ROOT ]]; then
+#	spack_get_clang
+#    else
+#	ups_get_clang
+#    fi
 	ups_get_clang
-    fi
 fi
 
 # Some of the warnings/errors left out:
@@ -263,14 +264,17 @@ EOF
     exit 1
 fi
 
-
+extra_args=""
+for dir in `g++ -x c++ -Wp,-v /dev/nul 2>&1 > /dev/null | grep '^ /' | grep -w 'c++'`;do
+	extra_args="$extra_args -extra-arg=-isystem$dir"
+done
 
 for source_file in $source_files; do
 
     echo
     echo "=========================Checking $source_file========================="
 
-    clang-tidy -extra-arg=-ferror-limit=0 -p=$tmpdir -checks=${musts},${maybes} -config="{CheckOptions: [{key: cppcoreguidelines-narrowing-conversions.IgnoreConversionFromTypes, value: unsigned;size_t;ptrdiff_t;size_type;difference_type}, {key: performance-move-const-arg.CheckTriviallyCopyableMove, value: false}]}" -header-filter=.* $source_file
+    clang-tidy -extra-arg=-ferror-limit=0 -p=$tmpdir -checks=${musts},${maybes} -config="{CheckOptions: [{key: cppcoreguidelines-narrowing-conversions.IgnoreConversionFromTypes, value: unsigned;size_t;ptrdiff_t;size_type;difference_type}, {key: performance-move-const-arg.CheckTriviallyCopyableMove, value: false}]}" $extra_args -header-filter=.* $source_file
 
 done 
 

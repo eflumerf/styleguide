@@ -30,7 +30,7 @@ function spack_get_clang() {
 }
 
 function ups_get_clang() {
-    clang_products_dir=/cvmfs/dunedaq.opensciencegrid.org/products
+    clang_products_dir=/cvmfs/mu2e.opensciencegrid.org/artexternals
 
     if [[ -d $clang_products_dir ]]; then
 	. $clang_products_dir/setup
@@ -59,7 +59,7 @@ EOF
 	exit 1
     fi
 
-    clang_version=$( ups list -aK+ clang | sort -n | tail -1 | sed -r 's/^\s*\S+\s+"([^"]+)".*/\1/' )
+    clang_version=$( ups list -aK+ clang | sort -V | tail -1 | sed -r 's/^\s*\S+\s+"([^"]+)".*/\1/' )
 
     if [[ -n $clang_version ]]; then
 	

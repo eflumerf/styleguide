@@ -92,11 +92,11 @@ else
 fi
 
 
-if [[ -n $SPACK_ROOT ]]; then
-    spack_get_clang
-else
+#if [[ -n $SPACK_ROOT ]]; then
+#    spack_get_clang
+#else
     ups_get_clang
-fi
+#fi
 
 files=$( echo $files | tr " " "\n" | sort | tr "\n" " " )
 DIR="$(dirname "$(readlink -f "$0")")"
